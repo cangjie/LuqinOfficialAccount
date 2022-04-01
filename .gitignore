@@ -406,3 +406,4 @@ ASALocalRun/
 
 config.sqlServer
 appsettings.*
+/QRCode
