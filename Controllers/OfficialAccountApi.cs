@@ -208,7 +208,7 @@ namespace LuqinOfficialAccount.Controllers
             string redirectUrl = Request.Scheme.Trim() + "://" + Request.Host.ToString()
                 + "/OfficialAccountApi/PageAuthCallBack";
             string url = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=" + _settings.appId.Trim()
-                + "redirect_uri=" + Util.UrlEncode(redirectUrl)
+                + "&redirect_uri=" + Util.UrlEncode(redirectUrl)
                 + "&response_type=code&scope=snsapi_base&state=" + state.id.ToString() + "#wechat_redirect";
             Response.Redirect(url);
             return url;
