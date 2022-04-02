@@ -7,7 +7,8 @@ using System.Xml;
 using Microsoft.Extensions.Configuration;
 using LuqinOfficialAccount.Models;
 using System.Security.Cryptography;
-
+using Newtonsoft.Json;
+using System.Web;
 namespace LuqinOfficialAccount.Controllers
 {
     [Route("api/[controller]/[Action]")]
@@ -129,5 +130,126 @@ namespace LuqinOfficialAccount.Controllers
             }
             return "success";
         }
+
+        [HttpGet]
+        public ActionResult<string> GetAccessToken()
+        {
+            string tokenFilePath = $"{Environment.CurrentDirectory}";
+            tokenFilePath = tokenFilePath + "/access_token.official_account";
+            string token = "";
+            string tokenTime = Util.GetLongTimeStamp(DateTime.Parse("1970-1-1"));
+            string nowTime = Util.GetLongTimeStamp(DateTime.Now);
+            bool fileExists = false;
+            if (System.IO.File.Exists(tokenFilePath))
+            {
+                fileExists = true;
+                using (StreamReader sr = new StreamReader(tokenFilePath))
+                {
+                    try
+                    {
+                        token = sr.ReadLine();
+                    }
+                    catch
+                    {
+
+                    }
+                    try
+                    {
+                        tokenTime = sr.ReadLine();
+                    }
+                    catch
+                    {
+
+                    }
+                    sr.Close();
+                }
+                TimeSpan ts = new TimeSpan(long.Parse(nowTime) - long.Parse(tokenTime));
+                if (ts.Seconds > 3600)
+                {
+                    token = "";
+                    if (fileExists)
+                    {
+                        System.IO.File.Delete(tokenFilePath);
+                    }
+                }
+                else
+                {
+                    return token.Trim();
+                }
+            }
+            string getTokenUrl = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid="
+                + _settings.appId.Trim() + "&secret=" + _settings.appSecret.Trim();
+            try
+            {
+                string ret = Util.GetWebContent(getTokenUrl);
+                AccessToken at = JsonConvert.DeserializeObject<AccessToken>(ret);
+                System.IO.File.AppendAllText(tokenFilePath, at.access_token + "\r\n" + nowTime);
+                return at.access_token.Trim();
+            }
+            catch
+            {
+                return "";
+            }
+            
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<string>> PageAuth(string callBackUrl)
+        {
+            //var t = _context.oaPageAuthState.Find(1);
+            OAPageAuthState state = new OAPageAuthState()
+            {
+                id = 0,
+                redirect_url = callBackUrl,
+                callbacked = 0
+            };
+            _context.oaPageAuthState.Add(state);
+            await _context.SaveChangesAsync();
+            string redirectUrl = Request.Scheme.Trim() + "://" + Request.Host.ToString()
+                + "/OfficialAccountApi/PageAuthCallBack";
+            string url = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=" + _settings.appId.Trim()
+                + "redirect_uri=" + Util.UrlEncode(redirectUrl)
+                + "&response_type=code&scope=snsapi_base&state=" + state.id.ToString() + "#wechat_redirect";
+            Response.Redirect(url);
+            return url;
+
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<string>> PageAuthCallBack(string code, string state)
+        {
+            int stateId = 0;
+            try
+            {
+                stateId = int.Parse(state);
+            }
+            catch
+            {
+
+            }
+            string jsonStr = Util.GetWebContent("https://api.weixin.qq.com/sns/oauth2/access_token?appid="
+                + _settings.appId.Trim() + "&secret=" + _settings.appSecret.Trim() + "&code="
+                + code.Trim() + "&grant_type=authorization_code");
+            UserToken token = JsonConvert.DeserializeObject<UserToken>(jsonStr);
+
+            return token.openid.Trim();
+        }
+
+        protected class UserToken
+        {
+            public string access_token = "";
+            public int expires_in = 0;
+            public string refresh_token = "";
+            public string openid = "";
+            public string scope = "";
+        }
+
+        protected class AccessToken
+        {
+            public string access_token = "";
+            public int expires_in = 0;
+
+        }
     }
+    
 }
