@@ -206,12 +206,12 @@ namespace LuqinOfficialAccount.Controllers
             _context.oaPageAuthState.Add(state);
             await _context.SaveChangesAsync();
             string redirectUrl = Request.Scheme.Trim() + "://" + Request.Host.ToString()
-                + "/OfficialAccountApi/PageAuthCallBack";
+                + Request.Path.ToString() + "Callback";
             string url = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=" + _settings.appId.Trim()
                 + "&redirect_uri=" + Util.UrlEncode(redirectUrl)
                 + "&response_type=code&scope=snsapi_base&state=" + state.id.ToString() + "#wechat_redirect";
             //Response.Redirect(url);
-            return redirectUrl;
+            return url;
 
         }
 
