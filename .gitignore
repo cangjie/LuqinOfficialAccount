@@ -407,3 +407,4 @@ ASALocalRun/
 config.sqlServer
 appsettings.*
 /QRCode
+access_token.official_account
