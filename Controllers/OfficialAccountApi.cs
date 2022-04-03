@@ -192,7 +192,7 @@ namespace LuqinOfficialAccount.Controllers
                 }
                 else
                 {
-                    return getTokenUrl;
+                    return "";
                 }
             }
             catch
@@ -245,10 +245,10 @@ namespace LuqinOfficialAccount.Controllers
         }
 
         [HttpGet]
-        public ActionResult<string> TestUnionId(string openId= "oetMj6AWvtCqvq7p0YXRQBcguCek")
+        public ActionResult<string> TestUnionId(string openId)
         {
             string token = GetAccessToken().Value.Trim();
-            token = "55_F7LX5DglNN1jPuuiSHHvsKf3oiXNRsgChaJQXRV992QyCk_H1tVo9ygOZn_aTSK02Kg37kAThhgJ9zrAHS51v_4YAhVVfIAFcqex_MvLSzd36TfxTN21Qz5eE9G91Gt36EuBKwD6vQKqPj5BPGUjAEAULZ";
+            //token = "55_F7LX5DglNN1jPuuiSHHvsKf3oiXNRsgChaJQXRV992QyCk_H1tVo9ygOZn_aTSK02Kg37kAThhgJ9zrAHS51v_4YAhVVfIAFcqex_MvLSzd36TfxTN21Qz5eE9G91Gt36EuBKwD6vQKqPj5BPGUjAEAULZ";
 
             string getInfoUrl = "https://api.weixin.qq.com/cgi-bin/user/info?access_token="
                 + token + "&openid=" + openId.Trim() + "&lang=zh_CN";
