@@ -192,7 +192,7 @@ namespace LuqinOfficialAccount.Controllers
                 }
                 else
                 {
-                    return "";
+                    return getTokenUrl;
                 }
             }
             catch
