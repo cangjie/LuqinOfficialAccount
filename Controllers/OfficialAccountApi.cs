@@ -7,6 +7,7 @@ using System.Xml;
 using Microsoft.Extensions.Configuration;
 using LuqinOfficialAccount.Models;
 using System.Security.Cryptography;
+using Newtonsoft.Json;
 
 namespace LuqinOfficialAccount.Controllers
 {
@@ -128,6 +129,94 @@ namespace LuqinOfficialAccount.Controllers
 
             }
             return "success";
+        }
+
+        [HttpGet]
+        public ActionResult<string> GetAccessToken()
+        {
+            string tokenFilePath = $"{Environment.CurrentDirectory}";
+            tokenFilePath = tokenFilePath + "/access_token.official_account";
+            string token = "";
+            string tokenTime = Util.GetLongTimeStamp(DateTime.Parse("1970-1-1"));
+            string nowTime = Util.GetLongTimeStamp(DateTime.Now);
+            bool fileExists = false;
+            if (System.IO.File.Exists(tokenFilePath))
+            {
+                fileExists = true;
+                using (StreamReader sr = new StreamReader(tokenFilePath))
+                {
+                    try
+                    {
+                        token = sr.ReadLine();
+                    }
+                    catch
+                    {
+
+                    }
+                    try
+                    {
+                        tokenTime = sr.ReadLine();
+                    }
+                    catch
+                    {
+
+                    }
+                    sr.Close();
+                }
+                long timeDiff = long.Parse(nowTime) - long.Parse(tokenTime);
+                TimeSpan ts = new TimeSpan(0, 0, 0, 0, (int)timeDiff);
+                //TimeSpan ts = new TimeSpan()
+                if (ts.TotalSeconds > 3600)
+                {
+                    token = "";
+                    if (fileExists)
+                    {
+                        System.IO.File.Delete(tokenFilePath);
+                    }
+                }
+                else
+                {
+                    return token.Trim();
+                }
+            }
+            string getTokenUrl = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid="
+                + _settings.appId.Trim() + "&secret=" + _settings.appSecret.Trim();
+            try
+            {
+                string ret = Util.GetWebContent(getTokenUrl);
+                AccessToken at = JsonConvert.DeserializeObject<AccessToken>(ret);
+                if (!at.access_token.Trim().Equals(""))
+                {
+                    System.IO.File.AppendAllText(tokenFilePath, at.access_token + "\r\n" + nowTime);
+                    return at.access_token.Trim();
+                }
+                else
+                {
+                    return "";
+                }
+            }
+            catch
+            {
+                return "";
+            }
+
+        }
+
+
+        protected class UserToken
+        {
+            public string access_token = "";
+            public int expires_in = 0;
+            public string refresh_token = "";
+            public string openid = "";
+            public string scope = "";
+        }
+
+        protected class AccessToken
+        {
+            public string access_token = "";
+            public int expires_in = 0;
+
         }
     }
 }
