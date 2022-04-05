@@ -245,7 +245,7 @@ namespace LuqinOfficialAccount.Controllers
         }
 
         [HttpGet]
-        public ActionResult<string> TestUnionId(string openId)
+        public ActionResult<string> GetUnionId(string openId)
         {
             string token = GetAccessToken().Value.Trim();
             //token = "55_F7LX5DglNN1jPuuiSHHvsKf3oiXNRsgChaJQXRV992QyCk_H1tVo9ygOZn_aTSK02Kg37kAThhgJ9zrAHS51v_4YAhVVfIAFcqex_MvLSzd36TfxTN21Qz5eE9G91Gt36EuBKwD6vQKqPj5BPGUjAEAULZ";
