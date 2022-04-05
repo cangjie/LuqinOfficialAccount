@@ -202,6 +202,35 @@ namespace LuqinOfficialAccount.Controllers
 
         }
 
+        [HttpGet]
+        public ActionResult<string> TestUnionId(string openId)
+        {
+            string token = GetAccessToken().Value.Trim();
+            //token = "55_F7LX5DglNN1jPuuiSHHvsKf3oiXNRsgChaJQXRV992QyCk_H1tVo9ygOZn_aTSK02Kg37kAThhgJ9zrAHS51v_4YAhVVfIAFcqex_MvLSzd36TfxTN21Qz5eE9G91Gt36EuBKwD6vQKqPj5BPGUjAEAULZ";
+
+            string getInfoUrl = "https://api.weixin.qq.com/cgi-bin/user/info?access_token="
+                + token + "&openid=" + openId.Trim() + "&lang=zh_CN";
+            string jsonStr = Util.GetWebContent(getInfoUrl);
+
+            UserInfo info = JsonConvert.DeserializeObject<UserInfo>(jsonStr);
+
+            return info.unionid;
+        }
+
+        protected class UserInfo
+        {
+            public int subscribe = 0;
+            public string openid = "";
+            public string language = "";
+            public long subscribe_time = 0;
+            public string unionid = "";
+            public string remark = "";
+            public int groupid = 0;
+            public int[] tagid_list = new int[] { 0, 0 };
+            public string subscribe_scene = "";
+            public string qr_scene = "";
+            public string qr_scene_str = "";
+        }
 
         protected class UserToken
         {
