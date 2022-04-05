@@ -203,7 +203,7 @@ namespace LuqinOfficialAccount.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<string>> PageAuth(string callBackUrl)
+        public void PageAuth(string callBackUrl)
         {
             //var t = _context.oaPageAuthState.Find(1);
             OAPageAuthState state = new OAPageAuthState()
@@ -213,15 +213,13 @@ namespace LuqinOfficialAccount.Controllers
                 callbacked = 0
             };
             _context.oaPageAuthState.Add(state);
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
             string redirectUrl = Request.Scheme.Trim() + "://" + Request.Host.ToString()
                 + "/service" + Request.Path.ToString() + "Callback";
             string url = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=" + _settings.appId.Trim()
                 + "&redirect_uri=" + Util.UrlEncode(redirectUrl)
                 + "&response_type=code&scope=snsapi_base&state=" + state.id.ToString() + "#wechat_redirect";
             Response.Redirect(url);
-            return "";
-
         }
 
         [HttpGet]
@@ -240,8 +238,27 @@ namespace LuqinOfficialAccount.Controllers
                 + _settings.appId.Trim() + "&secret=" + _settings.appSecret.Trim() + "&code="
                 + code.Trim() + "&grant_type=authorization_code");
             UserToken token = JsonConvert.DeserializeObject<UserToken>(jsonStr);
-
-            return token.openid.Trim();
+            UserController userController = new UserController(_context, _config);
+            userController.SetToken(token.access_token.Trim(), token.openid.Trim(), token.expires_in);
+            OAPageAuthState pState = await _context.oaPageAuthState.FindAsync(stateId);
+            if (pState != null && pState.callbacked == 0)
+            {
+                pState.callbacked = 1;
+                _context.Entry(pState).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+                _context.SaveChanges();
+                string redirctUrl = pState.redirect_url.Trim();
+                if (redirctUrl.IndexOf('?') > 0)
+                {
+                    redirctUrl = redirctUrl + "&";
+                }
+                else
+                {
+                    redirctUrl = redirctUrl + "?";
+                }
+                redirctUrl = redirctUrl + "token=" + Util.UrlEncode(token.access_token.Trim());
+                Response.Redirect(redirctUrl);
+            }
+            return token.access_token.Trim();
         }
 
         [HttpGet]

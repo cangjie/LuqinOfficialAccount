@@ -14,10 +14,16 @@ namespace LuqinOfficialAccount
 
         }
 
-        public DbSet<LuqinOfficialAccount.Models.EfTest> EfTest { get; set; }
+        public DbSet<EfTest> EfTest { get; set; }
 
         public DbSet<OARecevie> oARecevie { get; set; }
 
         public DbSet<OAPageAuthState> oaPageAuthState { get; set; }
+
+        public DbSet<User> user { get; set; }
+
+        public DbSet<OAUser> oAUser { get; set; }
+
+        public DbSet<Token> token { get; set; }
     }
 }
