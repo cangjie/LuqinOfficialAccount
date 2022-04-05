@@ -216,7 +216,19 @@ namespace LuqinOfficialAccount.Controllers
 
             return info.unionid;
         }
+        [HttpGet]
+        public ActionResult<string> SendTextMessage(string message, string openId)
+        {
+            string token = GetAccessToken().Value.Trim();
+            string sendUrl = "https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token=" + token.Trim();
+            string postJson = "{\"touser\": \"" + openId + "\", \"msgtype\":\"text\", \"text\": "
+                + "{\"content\":\"" + message + "\"  } }";
 
+            string jsonStr = Util.GetWebContent(sendUrl, postJson);
+            ApiResult r = JsonConvert.DeserializeObject<ApiResult>(jsonStr);
+            return r.errmsg.Trim();
+
+        }
         protected class UserInfo
         {
             public int subscribe = 0;
@@ -246,6 +258,12 @@ namespace LuqinOfficialAccount.Controllers
             public string access_token = "";
             public int expires_in = 0;
 
+        }
+
+        protected class ApiResult
+        {
+            public int errcode = -1;
+            public string errmsg = "";
         }
     }
 }
