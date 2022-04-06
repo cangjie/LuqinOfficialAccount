@@ -4,6 +4,9 @@
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
 
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
   <ItemGroup>
     <None Remove="Swashbuckle.AspNetCore" />
     <None Remove="Controllers\" />
@@ -17,6 +20,9 @@
     <None Remove="System.Drawing.Common, Version=0.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51" />
     <None Remove="System.Drawing.Common" />
     <None Remove="images\" />
+    <None Remove="pages\" />
+    <None Remove="pages\js\" />
+    <None Remove="pages\css\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
@@ -33,6 +39,9 @@
   <ItemGroup>
     <Folder Include="Models\" />
     <Folder Include="images\" />
+    <Folder Include="pages\" />
+    <Folder Include="pages\js\" />
+    <Folder Include="pages\css\" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.Drawing.Common, Version=0.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51" />
