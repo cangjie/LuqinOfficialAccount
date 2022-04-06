@@ -80,9 +80,13 @@ namespace LuqinOfficialAccount
 
             app.UseHttpsRedirection();
 
+            app.UseStaticFiles();
+
             app.UseRouting();
 
-            app.UseStaticFiles();
+            
+
+            
 
             app.UseAuthorization();
 
@@ -90,6 +94,8 @@ namespace LuqinOfficialAccount
             {
                 endpoints.MapControllers();
             });
+
+            
         }
     }
 }
