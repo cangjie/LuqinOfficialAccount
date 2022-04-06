@@ -16,6 +16,7 @@
     <None Remove="ThoughtWorks.QRCode" />
     <None Remove="System.Drawing.Common, Version=0.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51" />
     <None Remove="System.Drawing.Common" />
+    <None Remove="images\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
@@ -31,6 +32,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Models\" />
+    <Folder Include="images\" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.Drawing.Common, Version=0.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51" />

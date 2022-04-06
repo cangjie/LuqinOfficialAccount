@@ -8,6 +8,8 @@ namespace LuqinOfficialAccount
     {
         public static bool isDev = false;
 
+        public static string workingPath = $"{Environment.CurrentDirectory}";
+
         public static string GetLongTimeStamp(DateTime currentDateTime)
         {
             TimeSpan ts = currentDateTime - new DateTime(1970, 1, 1, 0, 0, 0, 0);
