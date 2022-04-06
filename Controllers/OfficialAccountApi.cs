@@ -225,10 +225,12 @@ namespace LuqinOfficialAccount.Controllers
         [HttpGet]
         public async Task<ActionResult<string>> PageAuthCallBack(string code, string state)
         {
+            /*
             if (!Util.isDev)
             {
                 return code.Trim();
             }
+            */
             int stateId = 0;
             try
             {

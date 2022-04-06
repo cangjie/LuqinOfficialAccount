@@ -111,10 +111,12 @@ namespace LuqinOfficialAccount.Controllers
                 }
                 OAUser oaUser = new OAUser()
                 {
+                    id = 0,
                     user_id = userId,
                     open_id = openId.Trim(),
                     original_id = _settings.originalId.Trim()
                 };
+                _context.oAUser.Add(oaUser);
                 _context.SaveChanges();
                 if (oaUser.id == 0)
                 {
