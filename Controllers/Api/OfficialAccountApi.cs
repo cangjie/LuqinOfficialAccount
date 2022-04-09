@@ -240,6 +240,7 @@ namespace LuqinOfficialAccount.Controllers.Api
             {
 
             }
+
             string jsonStr = Util.GetWebContent("https://api.weixin.qq.com/sns/oauth2/access_token?appid="
                 + _settings.appId.Trim() + "&secret=" + _settings.appSecret.Trim() + "&code="
                 + code.Trim() + "&grant_type=authorization_code");

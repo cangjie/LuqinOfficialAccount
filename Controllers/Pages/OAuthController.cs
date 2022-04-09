@@ -8,6 +8,7 @@ using LuqinOfficialAccount.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Hosting;
 using LuqinOfficialAccount.Controllers.Api;
+using Newtonsoft.Json;
 namespace LuqinOfficialAccount.Controllers.Pages
 {
     [Route("pages/[controller]/[action]")]
@@ -31,7 +32,16 @@ namespace LuqinOfficialAccount.Controllers.Pages
 
         public string _state;
 
-      
+        protected class UserToken
+        {
+            public string access_token = "";
+            public int expires_in = 0;
+            public string refresh_token = "";
+            public string openid = "";
+            public string scope = "";
+        }
+
+
         /*
         public OAuthController(AppDBContext context, IConfiguration config)
         {
@@ -70,24 +80,7 @@ namespace LuqinOfficialAccount.Controllers.Pages
             }
             else
             {
-                //Auth();
-                /*
-                string[] pathArr = _request.Path.ToUriComponent().Split('/');
-
-                string newPath = "";
-
-                foreach (string s in pathArr)
-                {
-                    if (!s.Trim().Equals("pages"))
-                    {
-                        newPath = newPath + "/" + s.Trim();
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-                */
+               
 
                 string currentUrl = _request.Scheme.Trim() + "://" + _request.Host.ToString().Trim()
                     + _request.PathBase.ToString().Trim() + _request.Path.ToString().Trim()
@@ -109,6 +102,11 @@ namespace LuqinOfficialAccount.Controllers.Pages
         [HttpGet]
         public void CallBack(string code, string state)
         {
+            string jsonStr = Util.GetWebContent("https://api.weixin.qq.com/sns/oauth2/access_token?appid="
+                + _settings.appId.Trim() + "&secret=" + _settings.appSecret.Trim() + "&code="
+                + code.Trim() + "&grant_type=authorization_code");
+            UserToken token = JsonConvert.DeserializeObject<UserToken>(jsonStr);
+
             string callBack = "";
             try
             {
@@ -118,6 +116,7 @@ namespace LuqinOfficialAccount.Controllers.Pages
             {
 
             }
+
             Response.Redirect(callBack, true);
         }
         
