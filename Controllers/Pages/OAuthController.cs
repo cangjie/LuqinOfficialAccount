@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using LuqinOfficialAccount.Models;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Hosting;
 using LuqinOfficialAccount.Controllers.Api;
 namespace LuqinOfficialAccount.Controllers.Pages
 {
@@ -29,6 +30,9 @@ namespace LuqinOfficialAccount.Controllers.Pages
         public HttpResponse _response;
 
         public string _state;
+
+        public readonly IHostingEnvironment _host;
+
         /*
         public OAuthController(AppDBContext context, IConfiguration config)
         {
@@ -39,22 +43,19 @@ namespace LuqinOfficialAccount.Controllers.Pages
         }
         */
 
-        public OAuthController(AppDBContext context, IConfiguration config)
+        public OAuthController(AppDBContext context, IConfiguration config, IHostingEnvironment host)
         {
             _context = context;
             _config = config;
             _settings = Settings.GetSettings(_config);
-            
+            _host = host;
             
         }
 
         [NonAction]
-        public void AuthWithContext(ISession session,
-            HttpRequest request,
-            HttpResponse response,
-            string state)
+        public void AuthWithContext(HttpRequest request, HttpResponse response, string state)
         {
-            _session = session;
+            _session = Request.HttpContext.Session;
             _request = request;
             _response = response;
             _state = state.Trim();
