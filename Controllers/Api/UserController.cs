@@ -66,7 +66,8 @@ namespace LuqinOfficialAccount.Controllers.Api
                 open_id = openId.Trim(),
                 token = token.Trim(),
                 expire_timestamp = currentTimeStamp + 1000 * (expireSeconds - 720),
-                user_id = userId
+                user_id = userId,
+                state = 1
             };
             _context.token.Add(newToken);
             _context.SaveChanges();
