@@ -19,20 +19,20 @@ namespace LuqinOfficialAccount.Controllers.Pages
 
         private readonly Settings _settings;
 
+        private readonly OAuthController _oauth;
         
         public CommonPageController(AppDBContext context, IConfiguration config)
         {
             _context = context;
             _config = config;
             _settings = Settings.GetSettings(_config);
-            
+            _oauth = new OAuthController(_context, _config);
         }
 
         [HttpGet]
         public IActionResult Index()
         {
-            OAuthController oath = new OAuthController(_context, _config);//, HttpContext.Session, Request, Response, "");
-            oath.AuthWithContext(Request, Response, "");
+            _oauth.AuthWithContext(Request, Response, "");
             return View("/Views/CommonPage.cshtml");
         }
 
