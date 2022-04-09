@@ -35,6 +35,12 @@ namespace LuqinOfficialAccount.Controllers.Pages
             oath.AuthWithContext(Request, Response, "");
             return View("/Views/CommonPage.cshtml");
         }
+
+        [HttpGet]
+        public void Test()
+        {
+
+        }
         
     }
 }
