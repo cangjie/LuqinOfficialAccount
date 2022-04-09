@@ -95,7 +95,7 @@ namespace LuqinOfficialAccount.Controllers.Pages
                     + _request.QueryString.ToString().Trim());
                 _session.SetString("callback", currentUrl);
                 string redirectUrl = _request.Scheme.Trim() + "://"
-                    + _request.Host.ToString().Trim() + _request.PathBase.ToString() + "pages/OAuth/CallBack";
+                    + _request.Host.ToString().Trim() + _request.PathBase.ToString() + "/pages/OAuth/CallBack";
                 string url = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=" + _settings.appId.Trim()
                     + "&redirect_uri=" + Util.UrlEncode(redirectUrl)
                     + "&response_type=code&scope=snsapi_base&state=" + _state.Trim() + "#wechat_redirect";
