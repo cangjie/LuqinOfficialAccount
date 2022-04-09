@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using LuqinOfficialAccount.Models;
 
-namespace LuqinOfficialAccount.Controllers
+namespace LuqinOfficialAccount.Controllers.Pages
 {
     [Route("pages/[controller]/[action]")]
     public class CommonPageController : Controller
@@ -18,23 +18,21 @@ namespace LuqinOfficialAccount.Controllers
 
         private readonly Settings _settings;
 
+        
+
         public CommonPageController(AppDBContext context, IConfiguration config)
         {
             _context = context;
             _config = config;
             _settings = Settings.GetSettings(_config);
+            
         }
 
         [HttpGet]
         public IActionResult Index()
         {
-            //OfficialAccountApi oaa = new OfficialAccountApi(_context, _config);
-
-            if (string.IsNullOrEmpty(HttpContext.Session.GetString("token")))
-            {
-                HttpContext.Session.SetString("token", "asdfasdfasdfasdwww");
-            }
-            
+            OAuthController oath = new OAuthController(_context, _config);//, HttpContext.Session, Request, Response, "");
+            oath.AuthWithContext(HttpContext.Session, Request, Response, "");
             return View("/Views/CommonPage.cshtml");
         }
         
