@@ -23,6 +23,9 @@
     <None Remove="pages\" />
     <None Remove="pages\js\" />
     <None Remove="pages\css\" />
+    <None Remove="Views\" />
+    <None Remove="Controllers\Pages\" />
+    <None Remove="Controllers\Apis\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
@@ -42,6 +45,9 @@
     <Folder Include="wwwroot\" />
     <Folder Include="wwwroot\js\" />
     <Folder Include="wwwroot\css\" />
+    <Folder Include="Views\" />
+    <Folder Include="Controllers\Pages\" />
+    <Folder Include="Controllers\Apis\" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.Drawing.Common, Version=0.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51" />

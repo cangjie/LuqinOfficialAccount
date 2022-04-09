@@ -61,17 +61,25 @@ namespace LuqinOfficialAccount
                 options => options.UseSqlServer(conStr)
             );
 
-            services.AddSession(options=> {
+
+            services.AddDistributedMemoryCache();
+
+            services.AddSession(options =>
+            {
+                options.Cookie.Name = ".AdventureWorks.Session";
                 options.IdleTimeout = TimeSpan.FromSeconds(3600);
                 options.Cookie.HttpOnly = true;
                 options.Cookie.IsEssential = true;
             });
 
+            services.AddRazorPages();
+            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseSession();
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -92,7 +100,7 @@ namespace LuqinOfficialAccount
             app.UseRouting();
 
             
-
+            
             
 
             app.UseAuthorization();
@@ -101,7 +109,7 @@ namespace LuqinOfficialAccount
             {
                 endpoints.MapControllers();
             });
-
+            
             
         }
     }
