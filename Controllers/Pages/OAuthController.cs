@@ -31,8 +31,7 @@ namespace LuqinOfficialAccount.Controllers.Pages
 
         public string _state;
 
-        public readonly IHostingEnvironment _host;
-
+      
         /*
         public OAuthController(AppDBContext context, IConfiguration config)
         {
@@ -43,22 +42,22 @@ namespace LuqinOfficialAccount.Controllers.Pages
         }
         */
 
-        public OAuthController(AppDBContext context, IConfiguration config, IHostingEnvironment host)
+        public OAuthController(AppDBContext context, IConfiguration config)
         {
             _context = context;
             _config = config;
             _settings = Settings.GetSettings(_config);
-            _host = host;
-            
+           
         }
 
         [NonAction]
         public void AuthWithContext(HttpRequest request, HttpResponse response, string state)
         {
-            _session = Request.HttpContext.Session;
+            
             _request = request;
             _response = response;
             _state = state.Trim();
+            _session = _request.HttpContext.Session;
             if (!string.IsNullOrEmpty(_session.GetString("token")))
             {
                 _token = _session.GetString("token").Trim();
@@ -72,6 +71,7 @@ namespace LuqinOfficialAccount.Controllers.Pages
             else
             {
                 //Auth();
+                /*
                 string[] pathArr = _request.Path.ToUriComponent().Split('/');
 
                 string newPath = "";
@@ -87,13 +87,15 @@ namespace LuqinOfficialAccount.Controllers.Pages
                         break;
                     }
                 }
+                */
 
-                string currentUrl = _request.Scheme.Trim() + "://"
-                    + _request.Host.ToString().Trim() + _request.Path.ToString().Trim()
-                    + (_request.QueryString.ToString().Equals("") ? "" : "?" + _request.QueryString.ToString().Trim());
+                string currentUrl = _request.Scheme.Trim() + "://" + _request.Host.ToString().Trim()
+                    + _request.PathBase.ToString().Trim() + _request.Path.ToString().Trim()
+                    + (_request.QueryString.ToString().Equals("") ? "" : "?"
+                    + _request.QueryString.ToString().Trim());
                 _session.SetString("callback", currentUrl);
                 string redirectUrl = _request.Scheme.Trim() + "://"
-                    + _request.Host.ToString().Trim() + newPath + "pages/OAuth/CallBack";
+                    + _request.Host.ToString().Trim() + _request.PathBase.ToString() + "pages/OAuth/CallBack";
                 string url = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=" + _settings.appId.Trim()
                     + "&redirect_uri=" + Util.UrlEncode(redirectUrl)
                     + "&response_type=code&scope=snsapi_base&state=" + _state.Trim() + "#wechat_redirect";
