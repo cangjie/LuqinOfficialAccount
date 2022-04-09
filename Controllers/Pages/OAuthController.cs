@@ -106,7 +106,14 @@ namespace LuqinOfficialAccount.Controllers.Pages
                 + _settings.appId.Trim() + "&secret=" + _settings.appSecret.Trim() + "&code="
                 + code.Trim() + "&grant_type=authorization_code");
             UserToken token = JsonConvert.DeserializeObject<UserToken>(jsonStr);
+            if (token.access_token.Trim().Equals(""))
+            {
+                return;
+            }
 
+            UserController userController = new UserController(_context, _config);
+            userController.SetToken(token.access_token.Trim(), token.openid.Trim(), token.expires_in);
+            _session.SetString("token", token.access_token);
             string callBack = "";
             try
             {
