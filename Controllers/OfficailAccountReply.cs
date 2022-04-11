@@ -57,7 +57,7 @@ namespace LuqinOfficialAccount.Controllers
                 + "<FromUserName ><![CDATA[" + _settings.originalId.Trim() + "]]></FromUserName>"
                 + "<CreateTime >" + Util.GetLongTimeStamp(DateTime.Now) + "</CreateTime>"
                 + "<MsgType><![CDATA[text]]></MsgType>"
-                + "<Content><![CDATA[<a href=\"" + imageUrl + " >点击分享海报</a>]]></Content>"
+                + "<Content><![CDATA[<a href=\"" + imageUrl + "\" >点击分享海报</a>]]></Content>"
                 + "</xml>");
             return xmlD;
         }
