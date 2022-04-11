@@ -239,6 +239,7 @@ namespace LuqinOfficialAccount.Controllers
             return r.errmsg.Trim();
 
         }
+        
         protected class UserInfo
         {
             public int subscribe = 0;

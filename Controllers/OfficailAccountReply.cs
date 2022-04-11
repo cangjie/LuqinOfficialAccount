@@ -43,13 +43,21 @@ namespace LuqinOfficialAccount.Controllers
 
         public XmlDocument GetPoster()
         {
+            UserController user = new UserController(_context, _config);
+            int userId = user.CheckUser(_message.FromUserName);
+            if (userId == 0)
+            {
+                return new XmlDocument();
+            }
+            string landingPageUrl = "http://weixin.luqinwenda.com/service/PosterLanding/Index/" + userId.ToString();
+            string imageUrl = "http://weixin.luqinwenda.com/subscribe/api/Image/CreatePersonalPosterWithTextQrCode?templatePath=%2Fimages%2Ftemplate.jpg&x=310&y=660&scale=160&qrCodeText=" + Util.UrlEncode(landingPageUrl);
             XmlDocument xmlD = new XmlDocument();
             xmlD.LoadXml("<xml>"
                 + "<ToUserName><![CDATA[" + _message.FromUserName.Trim() + "]]></ToUserName>"
                 + "<FromUserName ><![CDATA[" + _settings.originalId.Trim() + "]]></FromUserName>"
                 + "<CreateTime >" + Util.GetLongTimeStamp(DateTime.Now) + "</CreateTime>"
                 + "<MsgType><![CDATA[text]]></MsgType>"
-                + "<Content><![CDATA[<a href=\"http://weixin.luqinwenda.com/service/3\" >点击查看海报</a>]]></Content>"
+                + "<Content><![CDATA[<a href=\"" + imageUrl + " >点击分享海报</a>]]></Content>"
                 + "</xml>");
             return xmlD;
         }
