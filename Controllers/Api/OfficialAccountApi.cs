@@ -123,6 +123,10 @@ namespace LuqinOfficialAccount.Controllers.Api
                 };
                 await _context.oARecevie.AddAsync(msg);
                 await _context.SaveChangesAsync();
+                //return ReturnMessage(msg);
+                OfficailAccountReply reply = new OfficailAccountReply(_context, _config, msg);
+                return reply.Reply().Trim();
+
             }
             catch
             {
@@ -130,6 +134,8 @@ namespace LuqinOfficialAccount.Controllers.Api
             }
             return "success";
         }
+
+        
 
         [HttpGet]
         public ActionResult<string> GetAccessToken()

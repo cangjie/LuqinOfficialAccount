@@ -25,5 +25,7 @@ namespace LuqinOfficialAccount
         public DbSet<OAUser> oAUser { get; set; }
 
         public DbSet<Token> token { get; set; }
+
+        public DbSet<Post> post { get; set; }
     }
 }
