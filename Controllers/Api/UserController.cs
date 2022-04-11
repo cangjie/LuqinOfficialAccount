@@ -32,7 +32,8 @@ namespace LuqinOfficialAccount.Controllers.Api
             token = Util.UrlEncode(token);
             long currentTimeStamp = long.Parse(Util.GetLongTimeStamp(DateTime.Now));
             var tokenList = await _context.token.Where(t =>
-            (t.state == 1 && currentTimeStamp < t.expire_timestamp && t.token.Trim().Equals(token.Trim())))
+            (t.state == 1 && currentTimeStamp < t.expire_timestamp
+            && t.token.Trim().Equals(token.Trim()) && t.original_id.Trim().Equals(_settings.originalId.Trim())))
                 .ToListAsync();
             if (tokenList.Count > 0)
             {
@@ -40,6 +41,26 @@ namespace LuqinOfficialAccount.Controllers.Api
             }
             return false;
         }
+
+        [NonAction]
+        public string GetUserOpenId(string token)
+        {
+            token = Util.UrlEncode(token);
+            long currentTimeStamp = long.Parse(Util.GetLongTimeStamp(DateTime.Now));
+            var tokenList = _context.token.Where(t =>
+            (t.state == 1 && currentTimeStamp < t.expire_timestamp
+            && t.token.Trim().Equals(token.Trim()) && t.original_id.Trim().Equals(_settings.originalId.Trim()))).ToList();
+            if (tokenList.Count > 0)
+            {
+                return tokenList[0].open_id.Trim();
+            }
+            else
+            {
+                return "";
+            }
+                
+        }
+
         [NonAction]
         public int SetToken(string token, string openId, int expireSeconds)
         {
