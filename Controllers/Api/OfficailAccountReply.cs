@@ -2,7 +2,6 @@
 using System.Xml;
 using Microsoft.Extensions.Configuration;
 using LuqinOfficialAccount.Models;
-using System.Xml;
 namespace LuqinOfficialAccount.Controllers.Api
 {
     public class OfficailAccountReply
@@ -50,7 +49,7 @@ namespace LuqinOfficialAccount.Controllers.Api
                 + "<FromUserName ><![CDATA[" + _settings.originalId.Trim() + "]]></FromUserName>"
                 + "<CreateTime >" + Util.GetLongTimeStamp(DateTime.Now) + "</CreateTime>"
                 + "<MsgType><![CDATA[text]]></MsgType>"
-                + "<Content><![CDATA[<a href=\"http://weixin.luqinwenda.com/service/3\" >点击查看海报</a>"
+                + "<Content><![CDATA[<a href=\"http://weixin.luqinwenda.com/service/3\" >点击查看海报</a>]]></Content>"
                 + "</xml>");
             return xmlD;
         }

@@ -135,7 +135,13 @@ namespace LuqinOfficialAccount.Controllers.Api
             return "success";
         }
 
-        
+        [HttpGet]
+        public ActionResult<string> TestReply(int id)
+        {
+            OARecevie msg = _context.oARecevie.Find(id);
+            OfficailAccountReply reply = new OfficailAccountReply(_context, _config, msg);
+            return reply.Reply();
+        }
 
         [HttpGet]
         public ActionResult<string> GetAccessToken()
