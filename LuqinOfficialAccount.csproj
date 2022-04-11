@@ -23,6 +23,9 @@
     <None Remove="pages\" />
     <None Remove="pages\js\" />
     <None Remove="pages\css\" />
+    <None Remove="Views\" />
+    <None Remove="Controllers\Pages\" />
+    <None Remove="Controllers\Apis\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
@@ -40,11 +43,23 @@
     <Folder Include="Models\" />
     <Folder Include="images\" />
     <Folder Include="wwwroot\js\" />
+    <Folder Include="wwwroot\css\" />
+    <Folder Include="Views\" />
+    <Folder Include="Controllers\Pages\" />
+    <Folder Include="Controllers\Api\" />
+    <Folder Include="wwwroot\images\" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.Drawing.Common, Version=0.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51" />
     <Reference Include="ThoughtWorks.QRCode">
       <HintPath>ThoughtWorks.QRCode.dll</HintPath>
     </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Remove="wwwroot\images\" />
+    <Content Remove="wwwroot\images\follow_official_account.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="wwwroot\images\follow_official_account.jpg" />
   </ItemGroup>
 </Project>

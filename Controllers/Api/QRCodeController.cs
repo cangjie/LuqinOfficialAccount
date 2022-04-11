@@ -5,7 +5,7 @@ using System.Drawing;
 using System.IO;
 using System.Drawing.Imaging;
 
-namespace LuqinOfficialAccount.Controllers
+namespace LuqinOfficialAccount.Controllers.Api
 {
     [Route("api/[controller]/[Action]")]
     [ApiController]

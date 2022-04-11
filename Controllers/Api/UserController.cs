@@ -5,8 +5,9 @@ using LuqinOfficialAccount.Models;
 using System.Threading.Tasks;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
 
-namespace LuqinOfficialAccount.Controllers
+namespace LuqinOfficialAccount.Controllers.Api
 {
     [Route("api/[controller]/[Action]")]
     [ApiController]
@@ -31,7 +32,8 @@ namespace LuqinOfficialAccount.Controllers
             token = Util.UrlEncode(token);
             long currentTimeStamp = long.Parse(Util.GetLongTimeStamp(DateTime.Now));
             var tokenList = await _context.token.Where(t =>
-            (t.state == 1 && currentTimeStamp < t.expire_timestamp && t.token.Trim().Equals(token.Trim())))
+            (t.state == 1 && currentTimeStamp < t.expire_timestamp
+            && t.token.Trim().Equals(token.Trim()) && t.original_id.Trim().Equals(_settings.originalId.Trim())))
                 .ToListAsync();
             if (tokenList.Count > 0)
             {
@@ -39,6 +41,26 @@ namespace LuqinOfficialAccount.Controllers
             }
             return false;
         }
+
+        [NonAction]
+        public string GetUserOpenId(string token)
+        {
+            token = Util.UrlEncode(token);
+            long currentTimeStamp = long.Parse(Util.GetLongTimeStamp(DateTime.Now));
+            var tokenList = _context.token.Where(t =>
+            (t.state == 1 && currentTimeStamp < t.expire_timestamp
+            && t.token.Trim().Equals(token.Trim()) && t.original_id.Trim().Equals(_settings.originalId.Trim()))).ToList();
+            if (tokenList.Count > 0)
+            {
+                return tokenList[0].open_id.Trim();
+            }
+            else
+            {
+                return "";
+            }
+                
+        }
+
         [NonAction]
         public int SetToken(string token, string openId, int expireSeconds)
         {
@@ -65,15 +87,21 @@ namespace LuqinOfficialAccount.Controllers
                 open_id = openId.Trim(),
                 token = token.Trim(),
                 expire_timestamp = currentTimeStamp + 1000 * (expireSeconds - 720),
-                user_id = userId
+                user_id = userId,
+                state = 1
             };
             _context.token.Add(newToken);
             _context.SaveChanges();
 
             return newToken.id;
         }
-
-
+        
+        [HttpGet]
+        public void SetTokenInSession(string token)
+        {
+            HttpContext.Session.SetString("token", "test");
+        }
+        
         [NonAction]
         public  int CheckUser(string openId)
         {

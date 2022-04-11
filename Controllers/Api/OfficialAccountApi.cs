@@ -9,7 +9,7 @@ using LuqinOfficialAccount.Models;
 using System.Security.Cryptography;
 using Newtonsoft.Json;
 using System.Web;
-namespace LuqinOfficialAccount.Controllers
+namespace LuqinOfficialAccount.Controllers.Api
 {
     [Route("api/[controller]/[Action]")]
     [ApiController]
@@ -123,12 +123,24 @@ namespace LuqinOfficialAccount.Controllers
                 };
                 await _context.oARecevie.AddAsync(msg);
                 await _context.SaveChangesAsync();
+                //return ReturnMessage(msg);
+                OfficailAccountReply reply = new OfficailAccountReply(_context, _config, msg);
+                return reply.Reply().Trim();
+
             }
             catch
             {
 
             }
             return "success";
+        }
+
+        [HttpGet]
+        public ActionResult<string> TestReply(int id)
+        {
+            OARecevie msg = _context.oARecevie.Find(id);
+            OfficailAccountReply reply = new OfficailAccountReply(_context, _config, msg);
+            return reply.Reply();
         }
 
         [HttpGet]
@@ -240,6 +252,7 @@ namespace LuqinOfficialAccount.Controllers
             {
 
             }
+
             string jsonStr = Util.GetWebContent("https://api.weixin.qq.com/sns/oauth2/access_token?appid="
                 + _settings.appId.Trim() + "&secret=" + _settings.appSecret.Trim() + "&code="
                 + code.Trim() + "&grant_type=authorization_code");

@@ -9,7 +9,7 @@ using LuqinOfficialAccount;
 using LuqinOfficialAccount.Models;
 using Microsoft.Extensions.Configuration;
 
-namespace LuqinOfficialAccount.Controllers
+namespace LuqinOfficialAccount.Controllers.Api
 {
     [Route("api/[controller]")]
     [ApiController]

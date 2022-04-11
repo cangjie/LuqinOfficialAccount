@@ -20,7 +20,8 @@
     "LuqinOfficialAccount": {
       "commandName": "Project",
       "launchBrowser": true,
-      "launchUrl": "boot_sample/grid.htm",
+      "launchUrl": "pages/PosterLanding/Index/1",
+      "applicationUrl": "https://localhost:5001;https://localhost:5000",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },

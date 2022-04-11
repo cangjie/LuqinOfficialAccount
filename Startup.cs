@@ -33,7 +33,7 @@ namespace LuqinOfficialAccount
 
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "SnowmeetApi", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "OfficailAccountApi", Version = "v1" });
             });
 
 
@@ -60,11 +60,26 @@ namespace LuqinOfficialAccount
             services.AddDbContext<AppDBContext>(
                 options => options.UseSqlServer(conStr)
             );
+
+
+            services.AddDistributedMemoryCache();
+
+            services.AddSession(options =>
+            {
+                options.Cookie.Name = ".AdventureWorks.Session";
+                options.IdleTimeout = TimeSpan.FromSeconds(3600);
+                options.Cookie.HttpOnly = true;
+                options.Cookie.IsEssential = true;
+            });
+
+            services.AddRazorPages();
+            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseSession();
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -85,7 +100,7 @@ namespace LuqinOfficialAccount
             app.UseRouting();
 
             
-
+            
             
 
             app.UseAuthorization();
@@ -94,7 +109,7 @@ namespace LuqinOfficialAccount
             {
                 endpoints.MapControllers();
             });
-
+            
             
         }
     }

@@ -7,7 +7,7 @@ using System.IO;
 using System.IO.Pipelines;
 using System.Collections;
 using ThoughtWorks.QRCode.Codec;
-namespace LuqinOfficialAccount.Controllers
+namespace LuqinOfficialAccount.Controllers.Api
 {
     [Route("api/[controller]/[Action]")]
     public class ImageController:ControllerBase
