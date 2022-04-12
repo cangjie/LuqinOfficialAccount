@@ -32,7 +32,7 @@ namespace LuqinOfficialAccount.Controllers.Pages
 
         // GET: /<controller>/
         [HttpGet("{userId}")]
-        public IActionResult Index(int userId)
+        public async Task<IActionResult> Index(int userId)
         {
             _oauth.AuthWithContext(Request, Response, "");
             string token = "";
@@ -50,7 +50,24 @@ namespace LuqinOfficialAccount.Controllers.Pages
                 string openId = user.GetUserOpenId(token);
                 if (!openId.Trim().Equals(""))
                 {
-                    user.CheckUser(openId);
+                    int scanUserId = user.CheckUser(openId);
+                    PosterScanLog log = new PosterScanLog()
+                    {
+                        id = 0,
+                        poster_user_id = userId,
+                        scan_user_id = scanUserId,
+                        original_id = _settings.originalId.Trim(),
+                        open_id = openId
+                    };
+                    try
+                    {
+                        _context.Add(log);
+                        await _context.SaveChangesAsync();
+                    }
+                    catch
+                    {
+
+                    }
                 }
                 
             }

@@ -27,5 +27,7 @@ namespace LuqinOfficialAccount
         public DbSet<Token> token { get; set; }
 
         public DbSet<Post> post { get; set; }
+
+        public DbSet<PosterScanLog> posterScanLog { get; set; }
     }
 }
