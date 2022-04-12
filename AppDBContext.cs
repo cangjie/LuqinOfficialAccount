@@ -23,6 +23,8 @@ namespace LuqinOfficialAccount
         public DbSet<User> user { get; set; }
 
         public DbSet<OASent> oASent { get; set; }
+
+        public DbSet<PosterScanLog> posterScanLog { get; set; }
         
     }
 }

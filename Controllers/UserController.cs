@@ -82,6 +82,8 @@ namespace LuqinOfficialAccount.Controllers
         }
         */
 
+        
+
         [NonAction]
         public  int CheckUser(string openId)
         {

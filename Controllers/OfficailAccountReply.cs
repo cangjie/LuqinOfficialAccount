@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Xml;
 using Microsoft.Extensions.Configuration;
+using System.Linq;
 using LuqinOfficialAccount.Models;
 namespace LuqinOfficialAccount.Controllers
 {
@@ -27,18 +28,24 @@ namespace LuqinOfficialAccount.Controllers
         {
             string retStr = "success";
             XmlDocument xmlD = new XmlDocument();
-            if (_message.MsgType.Trim().ToLower().Equals("text"))
+            switch(_message.MsgType.Trim().ToLower())
             {
-                switch (_message.Content.Trim().ToLower())
-                {
-                    case "海报":
-                        xmlD = GetPoster();
-                        retStr = xmlD.InnerXml.Trim();
-                        break;
-                    default:
-                        retStr = "success";
-                        break;
-                }
+                case "subscribe":
+                    xmlD = CheckSubscribe();
+                    break;
+                case "text":
+                default:
+                    switch (_message.Content.Trim().ToLower())
+                    {
+                        case "海报":
+                            xmlD = GetPoster();
+                            retStr = xmlD.InnerXml.Trim();
+                            break;
+                        default:
+                            retStr = "success";
+                            break;
+                    }
+                    break;
             }
 
             try
@@ -64,6 +71,69 @@ namespace LuqinOfficialAccount.Controllers
 
             }
             return retStr.Trim();
+        }
+
+        public XmlDocument CheckSubscribe()
+        {
+            XmlDocument xmlD = new XmlDocument();
+            UserController uc = new UserController(_context, _config);
+            int subscriberId = uc.CheckUser(_message.FromUserName.Trim());
+            
+            bool fromPoster = true;
+            PosterScanLog scan = _context.posterScanLog
+                .Where(s => (s.scan_user_id == subscriberId))
+                .OrderByDescending(s => s.id).First();
+            if (scan == null)
+            {
+                fromPoster = false;
+            }
+            DateTime scanDate = scan.create_date;
+            if (long.Parse(Util.GetLongTimeStamp(scan.create_date)) - long.Parse(_message.CreateTime) * 1000 > 1000 * 3600)
+            {
+                fromPoster = false;
+            }
+
+            if (fromPoster)
+            {
+                xmlD.LoadXml("<xml>"
+                + "<ToUserName><![CDATA[" + _message.FromUserName.Trim() + "]]></ToUserName>"
+                + "<FromUserName ><![CDATA[" + _settings.originalId.Trim() + "]]></FromUserName>"
+                + "<CreateTime >" + Util.GetLongTimeStamp(DateTime.Now) + "</CreateTime>"
+                + "<MsgType><![CDATA[text]]></MsgType>"
+                + "<Content><![CDATA[感谢您通过您的朋友分享的海报关注到我们，您也可以回复“海报”来和您的其他朋友分享。]]></Content>"
+                + "</xml>");
+                OAUser poster = _context.oAUser
+                    .Where(u => (u.user_id == scan.poster_user_id && u.original_id.Trim().Equals(_settings.originalId.Trim())))
+                    .First();
+                if (poster != null)
+                {
+                    OfficialAccountApi api = new OfficialAccountApi(_context, _config);
+                    OASent sendMessage = new OASent()
+                    {
+                        id = 0,
+                        MsgType = "text",
+                        FromUserName = _settings.originalId,
+                        ToUserName = poster.open_id,
+                        Content = "有一个朋友通过您分享的海报关注了我们，在此表示万分感谢。"
+                    };
+                    api.SendServiceMessage(sendMessage);
+                }
+                
+            }
+            else
+            {
+                xmlD.LoadXml("<xml>"
+                + "<ToUserName><![CDATA[" + _message.FromUserName.Trim() + "]]></ToUserName>"
+                + "<FromUserName ><![CDATA[" + _settings.originalId.Trim() + "]]></FromUserName>"
+                + "<CreateTime >" + Util.GetLongTimeStamp(DateTime.Now) + "</CreateTime>"
+                + "<MsgType><![CDATA[text]]></MsgType>"
+                + "<Content><![CDATA[感谢关注。]]></Content>"
+                + "</xml>");
+            }
+
+                    
+
+            return xmlD;
         }
 
         public XmlDocument GetPoster()
