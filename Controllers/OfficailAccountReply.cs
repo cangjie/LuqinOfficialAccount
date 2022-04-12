@@ -26,17 +26,42 @@ namespace LuqinOfficialAccount.Controllers
         public string Reply()
         {
             string retStr = "success";
+            XmlDocument xmlD = new XmlDocument();
             if (_message.MsgType.Trim().ToLower().Equals("text"))
             {
                 switch (_message.Content.Trim().ToLower())
                 {
                     case "海报":
-                        retStr = GetPoster().InnerXml.Trim();
+                        xmlD = GetPoster();
+                        retStr = xmlD.InnerXml.Trim();
                         break;
                     default:
                         retStr = "success";
                         break;
                 }
+            }
+
+            try
+            {
+                OASent sent = new OASent()
+                {
+                    id = 0,
+                    FromUserName = xmlD.SelectSingleNode("//xml/FromUserName").InnerText.Trim(),
+                    ToUserName = xmlD.SelectSingleNode("//xml/ToUserName").InnerText.Trim(),
+                    is_service = 0,
+                    origin_message_id = _message.id,
+                    MsgType = xmlD.SelectSingleNode("//xml/MsgType").InnerText.Trim(),
+                    Content = xmlD.SelectSingleNode("//xml/Content").InnerXml.Trim(),
+                    err_code = "",
+                    err_msg = ""
+
+                };
+                _context.oASent.Add(sent);
+                _context.SaveChanges();
+            }
+            catch
+            {
+
             }
             return retStr.Trim();
         }

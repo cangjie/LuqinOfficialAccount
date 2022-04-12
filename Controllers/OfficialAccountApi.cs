@@ -35,6 +35,8 @@ namespace LuqinOfficialAccount.Controllers
             return echostr.Trim();
         }
 
+
+
         [HttpPost]
         public async Task<ActionResult<string>> PushMessage([FromQuery]string signature,
             [FromQuery] string timestamp, [FromQuery] string nonce)
@@ -141,8 +143,8 @@ namespace LuqinOfficialAccount.Controllers
             return reply.Reply();
         }
 
-        [HttpGet]
-        public ActionResult<string> GetAccessToken()
+        [NonAction]
+        public string GetAccessToken()
         {
             string tokenFilePath = $"{Environment.CurrentDirectory}";
             tokenFilePath = tokenFilePath + "/access_token.official_account";
@@ -215,7 +217,7 @@ namespace LuqinOfficialAccount.Controllers
         [HttpGet]
         public ActionResult<string> GetUnionId(string openId)
         {
-            string token = GetAccessToken().Value.Trim();
+            string token = GetAccessToken().Trim();
             //token = "55_F7LX5DglNN1jPuuiSHHvsKf3oiXNRsgChaJQXRV992QyCk_H1tVo9ygOZn_aTSK02Kg37kAThhgJ9zrAHS51v_4YAhVVfIAFcqex_MvLSzd36TfxTN21Qz5eE9G91Gt36EuBKwD6vQKqPj5BPGUjAEAULZ";
 
             string getInfoUrl = "https://api.weixin.qq.com/cgi-bin/user/info?access_token="
@@ -226,10 +228,12 @@ namespace LuqinOfficialAccount.Controllers
 
             return info.unionid;
         }
+
+        /*
         [HttpGet]
         public ActionResult<string> SendTextMessage(string message, string openId)
         {
-            string token = GetAccessToken().Value.Trim();
+            string token = GetAccessToken().Trim();
             string sendUrl = "https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token=" + token.Trim();
             string postJson = "{\"touser\": \"" + openId + "\", \"msgtype\":\"text\", \"text\": "
                 + "{\"content\":\"" + message + "\"  } }";
@@ -238,6 +242,55 @@ namespace LuqinOfficialAccount.Controllers
             ApiResult r = JsonConvert.DeserializeObject<ApiResult>(jsonStr);
             return r.errmsg.Trim();
 
+        }
+        */
+        
+        [NonAction]
+        public string SendServiceMessage(OASent message)
+        {
+            string result = "";
+            string token = GetAccessToken().Trim();
+            string sentUrl = "https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token=" + token.Trim();
+            string postJson = "";
+            string messageJson = "";
+            switch (message.MsgType.Trim())
+            {
+                case "text":
+                default:
+                    messageJson = "\"msgtype\": \"text\", \"text\": {\"content\":\"" + message.Content.Trim() + "\" }";
+                    break;
+            }
+            postJson = "{\"touser\":\"" + message.ToUserName.Trim() + "\", " + messageJson.Trim() + " }";
+            string resultJson = Util.GetWebContent(sentUrl, postJson);
+            ApiResult resultObj = JsonConvert.DeserializeObject<ApiResult>(resultJson);
+            message.err_code = resultObj.errcode.ToString();
+            message.err_msg = resultObj.errmsg.ToString();
+            message.is_service = 1;
+            message.origin_message_id = 0;
+            try
+            {
+                _context.oASent.Add(message);
+                _context.SaveChanges();
+            }
+            catch
+            {
+
+            }
+            return result.Trim();
+        }
+
+        [HttpGet]
+        public ActionResult<string> TestSendServiceMessage(string openId)
+        {
+            OASent msg = new OASent()
+            {
+                id = 0,
+                ToUserName = openId,
+                FromUserName = _settings.originalId,
+                MsgType = "text",
+                Content = "测试"
+            };
+            return SendServiceMessage(msg);
         }
         
         protected class UserInfo

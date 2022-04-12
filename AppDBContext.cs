@@ -21,5 +21,8 @@ namespace LuqinOfficialAccount
         public DbSet<OAUser> oAUser { get; set; }
 
         public DbSet<User> user { get; set; }
+
+        public DbSet<OASent> oASent { get; set; }
+        
     }
 }
