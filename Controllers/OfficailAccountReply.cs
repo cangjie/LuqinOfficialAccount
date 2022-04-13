@@ -30,8 +30,16 @@ namespace LuqinOfficialAccount.Controllers
             XmlDocument xmlD = new XmlDocument();
             switch(_message.MsgType.Trim().ToLower())
             {
-                case "subscribe":
-                    xmlD = CheckSubscribe();
+                case "event":
+                    switch (_message.Event.Trim().ToLower())
+                    {
+                        case "subscribe":
+                            xmlD = CheckSubscribe();
+                            break;
+                        default:
+                            break;
+                    }
+                    
                     break;
                 case "text":
                 default:

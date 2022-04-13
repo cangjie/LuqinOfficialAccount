@@ -143,7 +143,7 @@ namespace LuqinOfficialAccount.Controllers
             return reply.Reply();
         }
 
-        [NonAction]
+        [HttpGet]
         public string GetAccessToken()
         {
             string tokenFilePath = $"{Environment.CurrentDirectory}";
@@ -188,7 +188,8 @@ namespace LuqinOfficialAccount.Controllers
                 }
                 else
                 {
-                    return token.Trim();
+                    //return token.Trim();
+                    return "";
                 }
             }
             string getTokenUrl = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid="
@@ -200,7 +201,8 @@ namespace LuqinOfficialAccount.Controllers
                 if (!at.access_token.Trim().Equals(""))
                 {
                     System.IO.File.AppendAllText(tokenFilePath, at.access_token + "\r\n" + nowTime);
-                    return at.access_token.Trim();
+                    //return at.access_token.Trim();
+                    return "";
                 }
                 else
                 {
