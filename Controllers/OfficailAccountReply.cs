@@ -45,7 +45,7 @@ namespace LuqinOfficialAccount.Controllers
                 default:
                     switch (_message.Content.Trim().ToLower())
                     {
-                        case "海报":
+                        case "听课":
                             xmlD = GetPoster();
                             retStr = xmlD.InnerXml.Trim();
                             break;
