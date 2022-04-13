@@ -96,7 +96,7 @@ namespace LuqinOfficialAccount.Controllers
             {
                 var scanList = _context.posterScanLog
                 .Where(s => (s.scan_user_id == subscriberId
-                && s.create_date <  Util.GetDateTimeByTimeStamp(1000 * long.Parse(_message.CreateTime) )
+                && s.create_date <  Util.GetDateTimeByTimeStamp(1000 * long.Parse(_message.CreateTime)).AddHours(8)
                 ))
                 .OrderByDescending(s => s.id).ToList();
                 if (scanList.Count > 0)
