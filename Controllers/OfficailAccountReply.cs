@@ -94,14 +94,20 @@ namespace LuqinOfficialAccount.Controllers
             };
             try
             {
-                scan =  _context.posterScanLog
-                .Where(s => (s.scan_user_id == subscriberId))
-                .OrderByDescending(s => s.id)
-                .First();
+                var scanList = _context.posterScanLog
+                .Where(s => (s.scan_user_id == subscriberId
+                && s.create_date <  Util.GetDateTimeByTimeStamp(1000 * long.Parse(_message.CreateTime) )
+                ))
+                .OrderByDescending(s => s.id).ToList();
+                if (scanList.Count > 0)
+                {
+                    scan = scanList[0];
+                }
+                
             }
-            catch
+            catch(Exception err)
             {
-
+                Console.WriteLine(err.ToString());
             }
             
             if (scan.id == 0)
@@ -116,8 +122,56 @@ namespace LuqinOfficialAccount.Controllers
                 fromPoster = false;
             }
 
+
             if (fromPoster)
             {
+                OAUser posterUser = _context.oAUser.Where(u => (
+                    u.original_id.Trim().Equals(_message.ToUserName.Trim())
+                    && u.user_id == scan.poster_user_id)).First();
+
+                OAUser scanUser = _context.oAUser.Where(u => (
+                    u.original_id.Trim().Equals(_message.ToUserName.Trim())
+                    && u.user_id == scan.scan_user_id)).First();
+
+                var promoteList = _context.promote.Where(p => (
+                    p.original_id.Trim().Equals(_message.ToUserName.Trim())
+                    &&  p.promote_open_id.Trim().Equals(posterUser.open_id.Trim())
+                    && p.follow_open_id.Trim().Equals(scanUser.open_id.Trim())
+                )).ToList();
+                if (promoteList.Count == 0)
+                {
+                    
+                    Promote p = new Promote()
+                    {
+                        id = 0,
+                        original_id = _message.ToUserName.Trim(),
+                        promote_user_id = scan.poster_user_id,
+                        promote_open_id = posterUser.open_id.Trim(),
+                        follow_user_id = scan.scan_user_id,
+                        follow_open_id = scanUser.open_id.Trim(),
+                        create_date = DateTime.Now
+
+                    };
+                    _context.promote.Add(p);
+                    try
+                    {
+                        _context.SaveChanges();
+                    }
+                    catch
+                    {
+                        fromPoster = false;
+                    }
+
+                }
+                else
+                {
+                    fromPoster = false;
+                }
+            }
+
+            if (fromPoster)
+            {
+
                 xmlD.LoadXml("<xml>"
                 + "<ToUserName><![CDATA[" + _message.FromUserName.Trim() + "]]></ToUserName>"
                 + "<FromUserName ><![CDATA[" + _settings.originalId.Trim() + "]]></FromUserName>"

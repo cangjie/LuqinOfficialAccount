@@ -25,6 +25,8 @@ namespace LuqinOfficialAccount
         public DbSet<OASent> oASent { get; set; }
 
         public DbSet<PosterScanLog> posterScanLog { get; set; }
+
+        public DbSet<Promote> promote { get; set; }
         
     }
 }
