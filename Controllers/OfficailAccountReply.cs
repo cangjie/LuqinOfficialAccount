@@ -88,15 +88,30 @@ namespace LuqinOfficialAccount.Controllers
             int subscriberId = uc.CheckUser(_message.FromUserName.Trim());
             
             bool fromPoster = true;
-            PosterScanLog scan = _context.posterScanLog
+            PosterScanLog scan = new PosterScanLog()
+            {
+                id = 0
+            };
+            try
+            {
+                scan =  _context.posterScanLog
                 .Where(s => (s.scan_user_id == subscriberId))
-                .OrderByDescending(s => s.id).First();
-            if (scan == null)
+                .OrderByDescending(s => s.id)
+                .First();
+            }
+            catch
+            {
+
+            }
+            
+            if (scan.id == 0)
             {
                 fromPoster = false;
             }
             DateTime scanDate = scan.create_date;
-            if (long.Parse(Util.GetLongTimeStamp(scan.create_date)) - long.Parse(_message.CreateTime) * 1000 > 1000 * 3600)
+            long scanTimeStamp = long.Parse(Util.GetLongTimeStamp(scan.create_date));
+            long subsTimeStamp = 1000 * long.Parse(_message.CreateTime);
+            if (subsTimeStamp - scanTimeStamp > 1000 * 3600)
             {
                 fromPoster = false;
             }
