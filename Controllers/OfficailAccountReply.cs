@@ -135,7 +135,7 @@ namespace LuqinOfficialAccount.Controllers
 
                 var promoteList = _context.promote.Where(p => (
                     p.original_id.Trim().Equals(_message.ToUserName.Trim())
-                    &&  p.promote_open_id.Trim().Equals(posterUser.open_id.Trim())
+                    //&&  p.promote_open_id.Trim().Equals(posterUser.open_id.Trim())
                     && p.follow_open_id.Trim().Equals(scanUser.open_id.Trim())
                 )).ToList();
                 if (promoteList.Count == 0)
@@ -185,13 +185,36 @@ namespace LuqinOfficialAccount.Controllers
                 if (poster != null)
                 {
                     OfficialAccountApi api = new OfficialAccountApi(_context, _config);
+                    
+
+                    //check promote num
+                    var promoteTotal = _context.promote.Where(p => (p.original_id.Trim().Equals(_settings.originalId.Trim())
+                    && p.promote_open_id.Trim().Equals(poster.open_id.Trim()))).ToList();
+                    string msgText = "";
+                    if (promoteTotal != null && promoteTotal.Count >= 1)
+                    {
+                        msgText = "已经有" + promoteTotal.Count.ToString() + "个朋友通过您的海报关注了我们的公众号，"
+                            + "您可以<a href=\"https://mp.weixin.qq.com/s/Vy3EhVGCTA7LpR3U0TTMeg\" >点击此处</a>开始聆听卢老师的收费课程。";
+                    }
+                    else
+                    {
+                        if (promoteTotal != null)
+                        {
+                            msgText = "已经有" + promoteTotal.Count.ToString() + "个朋友通过您分享的海报关注了我们。";
+                        }
+                        else
+                        {
+                            msgText = "又有一个朋友通过您分享的海报关注了我们。";
+                        }
+                        
+                    }
                     OASent sendMessage = new OASent()
                     {
                         id = 0,
                         MsgType = "text",
                         FromUserName = _settings.originalId,
                         ToUserName = poster.open_id,
-                        Content = "有一个朋友通过您分享的海报关注了我们，在此表示万分感谢。"
+                        Content = msgText.Trim()
                     };
                     api.SendServiceMessage(sendMessage);
                 }
