@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using LuqinOfficialAccount.Models;
 using System.IO;
 using System.IO.Pipelines;
+using System;
 
 namespace LuqinOfficialAccount.Controllers
 {
@@ -24,23 +25,33 @@ namespace LuqinOfficialAccount.Controllers
         }
 
         [HttpGet]
-        public void GetMediaData()
+        public  void GetMediaData()
         {
             string realTemplatePath = Util.workingPath + "/medias/test.mp3";
             Response.ContentType = "audio/mp3";
             PipeWriter pw = Response.BodyWriter;
             Stream s = pw.AsStream();
-            using (FileStream fs = System.IO.File.OpenRead(realTemplatePath))
+            System.IO.FileInfo mediaFileInfo = new System.IO.FileInfo(realTemplatePath);
+            byte[] buffer = new byte[mediaFileInfo.Length];
+            FileStream fs = System.IO.File.OpenRead(realTemplatePath);
+            int seg = 1024*1024;
+            for (int i = 0; (long)(i * seg) < mediaFileInfo.Length; i++)
             {
-                int b = fs.ReadByte();
-                for (; b >= 0;)
+                int count = seg;
+                if ((long)((i + 1) * seg) > mediaFileInfo.Length)
                 {
-                    s.WriteByte((byte)b);
-                    b = fs.ReadByte();
+                    count = (int)(mediaFileInfo.Length - i * seg);
                 }
-                fs.Close();
+                fs.Read(buffer, i * seg, count);
             }
+            fs.Close();
+            fs.Dispose();
+            s.Write(buffer);
+            
             s.Close();
+            s.Dispose();
+            
+            
 
         }
     }
