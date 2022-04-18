@@ -1,0 +1,18 @@
+﻿@{
+    var token = ViewData["token"];
+    var id = ViewData["id"];
+}
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>在线听课</title>
+    <link href="../../../css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body style="text-align:center">
+    <br /><br /><br />
+    <audio controls="controls" autoplay="autoplay" src="http://weixin.luqinwenda.com/subscribe/api/media/playmedia/@id?contentType=audio/mp3&token=@token"></audio>
+</body>
+</html>
