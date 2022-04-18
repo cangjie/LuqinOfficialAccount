@@ -193,6 +193,27 @@ namespace LuqinOfficialAccount.Controllers
                     string msgText = "";
                     if (promoteTotal != null && promoteTotal.Count >= 1)
                     {
+                        try
+                        {
+                            var umaList = _context.userMediaAsset.Where(u =>
+                                (u.user_id == poster.user_id && u.media_id == 1)).ToList();
+                            if (umaList == null || umaList.Count == 0)
+                            {
+                                UserMediaAsset uma = new UserMediaAsset()
+                                {
+                                    media_id = 1,
+                                    user_id = scan.poster_user_id,
+
+                                };
+                                _context.userMediaAsset.Add(uma);
+                                _context.SaveChanges();
+                            }
+                            
+                        }
+                        catch
+                        {
+
+                        }
                         msgText = "已经有" + promoteTotal.Count.ToString() + "个朋友通过您的海报关注了我们的公众号，"
                             + "您可以<a href='https://mp.weixin.qq.com/s/Vy3EhVGCTA7LpR3U0TTMeg' >点击此处</a>开始聆听卢老师的收费课程。";
                     }

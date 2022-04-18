@@ -27,6 +27,10 @@ namespace LuqinOfficialAccount
         public DbSet<PosterScanLog> posterScanLog { get; set; }
 
         public DbSet<Promote> promote { get; set; }
-        
+
+        public DbSet<Token> token { get; set; }
+
+        public DbSet<UserMediaAsset> userMediaAsset { get; set; }
+
     }
 }
