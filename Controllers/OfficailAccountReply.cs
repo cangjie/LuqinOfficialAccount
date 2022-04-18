@@ -274,7 +274,7 @@ namespace LuqinOfficialAccount.Controllers
                 + "<FromUserName ><![CDATA[" + _settings.originalId.Trim() + "]]></FromUserName>"
                 + "<CreateTime >" + Util.GetLongTimeStamp(DateTime.Now) + "</CreateTime>"
                 + "<MsgType><![CDATA[text]]></MsgType>"
-                + "<Content><![CDATA[<a href=\"" + imageUrl + "\" >生成我的专属海报</a>\r\n下载海报后，将海报分享至朋友圈或微信群，邀请3位或3位以上好友关注我们即可解锁课程，在悦长大后台直接领取！]]></Content>"
+                + "<Content><![CDATA[感谢您的关注！\r\n<a href=\"" + imageUrl + "\" >生成我的专属海报</a>\r\n下载海报后，将海报分享至朋友圈或微信群，邀请3位或3位以上好友关注我们即可解锁课程，在悦长大后台直接领取！]]></Content>"
                 + "</xml>");
             return xmlD;
         }
