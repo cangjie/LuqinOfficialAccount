@@ -244,8 +244,9 @@ namespace LuqinOfficialAccount.Controllers
             {
                 return new XmlDocument();
             }
-            string landingPageUrl = "http://weixin.luqinwenda.com/service/pages/PosterLanding/Index/" + userId.ToString();
-            string imageUrl = "http://weixin.luqinwenda.com/subscribe/api/Image/CreatePersonalPosterWithTextQrCode?templatePath=%2Fimages%2Ftemplate2_small.jpg&x=578&y=945&scale=125&qrCodeText=" + Util.UrlEncode(landingPageUrl);
+            //string landingPageUrl = "http://weixin.luqinwenda.com/service/pages/PosterLanding/Index/" + userId.ToString();
+            //string imageUrl = "http://weixin.luqinwenda.com/subscribe/api/Image/CreatePersonalPosterWithTextQrCode?templatePath=%2Fimages%2Ftemplate2_small.jpg&x=578&y=945&scale=125&qrCodeText=" + Util.UrlEncode(landingPageUrl);
+            string imageUrl = "http://weixin.luqinwenda.com/show_poster.html?userid=" + userId.ToString();
             XmlDocument xmlD = new XmlDocument();
             xmlD.LoadXml("<xml>"
                 + "<ToUserName><![CDATA[" + _message.FromUserName.Trim() + "]]></ToUserName>"
