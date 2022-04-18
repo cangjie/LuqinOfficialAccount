@@ -226,8 +226,6 @@ namespace LuqinOfficialAccount.Controllers
         public ActionResult<string> GetUnionId(string openId)
         {
             string token = GetAccessToken().Trim();
-            //token = "55_F7LX5DglNN1jPuuiSHHvsKf3oiXNRsgChaJQXRV992QyCk_H1tVo9ygOZn_aTSK02Kg37kAThhgJ9zrAHS51v_4YAhVVfIAFcqex_MvLSzd36TfxTN21Qz5eE9G91Gt36EuBKwD6vQKqPj5BPGUjAEAULZ";
-
             string getInfoUrl = "https://api.weixin.qq.com/cgi-bin/user/info?access_token="
                 + token + "&openid=" + openId.Trim() + "&lang=zh_CN";
             string jsonStr = Util.GetWebContent(getInfoUrl);
@@ -237,21 +235,6 @@ namespace LuqinOfficialAccount.Controllers
             return info.unionid;
         }
 
-        /*
-        [HttpGet]
-        public ActionResult<string> SendTextMessage(string message, string openId)
-        {
-            string token = GetAccessToken().Trim();
-            string sendUrl = "https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token=" + token.Trim();
-            string postJson = "{\"touser\": \"" + openId + "\", \"msgtype\":\"text\", \"text\": "
-                + "{\"content\":\"" + message + "\"  } }";
-
-            string jsonStr = Util.GetWebContent(sendUrl, postJson);
-            ApiResult r = JsonConvert.DeserializeObject<ApiResult>(jsonStr);
-            return r.errmsg.Trim();
-
-        }
-        */
         
         [NonAction]
         public string SendServiceMessage(OASent message)
