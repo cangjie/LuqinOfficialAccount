@@ -128,7 +128,7 @@ namespace LuqinOfficialAccount.Controllers
 
                 OAUser scanUser = _context.oAUser.Where(u => (
                     u.original_id.Trim().Equals(_message.ToUserName.Trim())
-                    && u.user_id == scan.scan_user_id)).First();
+                    && u.open_id.Trim().Equals(_message.FromUserName.Trim()))).First();
 
                 var promoteList = _context.promote.Where(p => (
                     p.original_id.Trim().Equals(_message.ToUserName.Trim())
