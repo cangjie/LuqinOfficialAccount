@@ -222,7 +222,7 @@ namespace LuqinOfficialAccount.Controllers
 
                         }
                         msgText = "已经有" + promoteTotal.Count.ToString() + "个朋友通过您的海报关注了我们的公众号，"
-                            + "您可以<a href='http://weixin.luqinwenda.com/service/pages/listencourse/index/1' >点击此处</a>开始聆听卢老师的收费课程。";
+                            + "您可以<a href='http://weixin.luqinwenda.com/subscribe/api/media/PlayMedia/1?contentType=audio/mp3&token=aaa' >点击此处</a>开始聆听卢老师的收费课程。";
                     }
                     else
                     {
