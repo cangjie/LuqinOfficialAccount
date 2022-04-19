@@ -92,8 +92,8 @@ namespace LuqinOfficialAccount.Controllers.Pages
                 string url = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=" + _settings.appId.Trim()
                     + "&redirect_uri=" + Util.UrlEncode(redirectUrl)
                     + "&response_type=code&scope=snsapi_base&state=" + _state.Trim() + "#wechat_redirect";
-                _response.WriteAsync(url);
-                return;
+                //_response.WriteAsync(url);
+                //return;
                 _response.Redirect(url);
 
             }
