@@ -198,7 +198,7 @@ namespace LuqinOfficialAccount.Controllers
                     var promoteTotal = _context.promote.Where(p => (p.original_id.Trim().Equals(_settings.originalId.Trim())
                     && p.promote_open_id.Trim().Equals(poster.open_id.Trim()))).ToList();
                     string msgText = "";
-                    if (promoteTotal != null && promoteTotal.Count >= 1)
+                    if (promoteTotal != null && promoteTotal.Count >= 2)
                     {
                         try
                         {
