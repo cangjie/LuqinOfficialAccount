@@ -108,6 +108,7 @@ namespace LuqinOfficialAccount.Controllers.Pages
             //_response.WriteAsync("   !" + code.Trim()+"!");
             //return;
             System.IO.File.AppendAllText(Util.workingPath + "/code.txt", code + " " + DateTime.Now.ToString() + "\r\n");
+            return;
             if (code.Trim().Equals(""))
             {
                 throw new Exception("Code missed.");
