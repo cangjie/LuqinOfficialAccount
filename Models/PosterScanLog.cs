@@ -14,5 +14,7 @@ namespace LuqinOfficialAccount.Models
         public string original_id { get; set; }
         public string open_id { get; set; }
 
+        public int deal { get; set; }
+
     }
 }
