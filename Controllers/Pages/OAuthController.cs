@@ -104,6 +104,8 @@ namespace LuqinOfficialAccount.Controllers.Pages
         [HttpGet]
         public void CallBack(string code, string state)
         {
+            _response.WriteAsync("   !" + code.Trim()+"!");
+            return;
             if (code.Trim().Equals(""))
             {
                 throw new Exception("Code missed.");
