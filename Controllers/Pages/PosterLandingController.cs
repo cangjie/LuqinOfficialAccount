@@ -44,6 +44,10 @@ namespace LuqinOfficialAccount.Controllers.Pages
             {
 
             }
+
+            //token = "56_2isAzKqNt6ns0ks5ASqpItUUv8wRxDWzwJVU4OPfIWqgrUeXighChqAZKpvKJvjbO_hCbjkSMpNUY2VYvSMFJfQia6r71fqV97RBectMCc";
+
+
             if (!token.Trim().Equals(""))
             {
                 UserController user = new UserController(_context, _config);
