@@ -30,6 +30,7 @@ namespace LuqinOfficialAccount.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> PlayMedia(int id, string contentType, string token)
         {
+            /*
             //token = Util.UrlEncode(token);
             string realTemplatePath = Util.workingPath + "/medias/test.mp3";
 
@@ -41,16 +42,17 @@ namespace LuqinOfficialAccount.Controllers
                 .OrderByDescending(t => t.id).ToList();
             if (tokenList == null || tokenList.Count == 0)
             {
-                //return NotFound();
+                return NotFound();
             }
             int userId = tokenList[0].user_id;
             var umaList = _context.userMediaAsset.Where(u => (u.media_id == id
                 && u.user_id == userId )).ToList();
             if (umaList == null || umaList.Count == 0)
             {
-                //return NotFound();
+                return NotFound();
             }
             //contentType = Util.UrlEncode(contentType);
+            */
             Response.ContentType = contentType;
             PipeWriter pw = Response.BodyWriter;
             Stream s = pw.AsStream();
