@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Hosting;
 using LuqinOfficialAccount.Controllers.Api;
 using Newtonsoft.Json;
+using System.IO;
 namespace LuqinOfficialAccount.Controllers.Pages
 {
     [Route("pages/[controller]/[action]")]
@@ -104,8 +105,9 @@ namespace LuqinOfficialAccount.Controllers.Pages
         [HttpGet]
         public void CallBack(string code, string state)
         {
-            _response.WriteAsync("   !" + code.Trim()+"!");
-            return;
+            //_response.WriteAsync("   !" + code.Trim()+"!");
+            //return;
+            System.IO.File.AppendAllText(Util.workingPath + "/code.txt", code + " " + DateTime.Now.ToString() + "\r\n");
             if (code.Trim().Equals(""))
             {
                 throw new Exception("Code missed.");
