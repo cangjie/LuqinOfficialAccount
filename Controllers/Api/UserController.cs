@@ -68,6 +68,10 @@ namespace LuqinOfficialAccount.Controllers.Api
         {
             
             int userId = CheckUser(openId);
+            if (userId == 0)
+            {
+                return 0;
+            }
             long currentTimeStamp = long.Parse(Util.GetLongTimeStamp(DateTime.Now));
             var tokenList = _context.token.Where(t => (
                 t.original_id.Trim().Equals(_settings.originalId)

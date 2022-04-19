@@ -102,7 +102,6 @@ namespace LuqinOfficialAccount.Controllers.Pages
         [HttpGet]
         public void CallBack(string code, string state)
         {
-            return;
             string jsonStr = Util.GetWebContent("https://api.weixin.qq.com/sns/oauth2/access_token?appid="
                 + _settings.appId.Trim() + "&secret=" + _settings.appSecret.Trim() + "&code="
                 + code.Trim() + "&grant_type=authorization_code");
@@ -113,7 +112,12 @@ namespace LuqinOfficialAccount.Controllers.Pages
             }
 
             UserController userController = new UserController(_context, _config);
-            userController.SetToken(token.access_token.Trim(), token.openid.Trim(), token.expires_in);
+            int tokenId = userController.SetToken(token.access_token.Trim(), token.openid.Trim(), token.expires_in);
+            if (tokenId == 0)
+            {
+                HttpContext.Session.SetString("token", "");
+                return;
+            }
             HttpContext.Session.SetString("token", token.access_token);
             string callBack = "";
             try
