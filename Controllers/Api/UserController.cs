@@ -37,6 +37,8 @@ namespace LuqinOfficialAccount.Controllers.Api
                 .ToListAsync();
             if (tokenList.Count > 0)
             {
+                string openId = tokenList[0].open_id.Trim();
+                CheckUser(openId.Trim());
                 return true;
             }
             return false;
@@ -45,7 +47,7 @@ namespace LuqinOfficialAccount.Controllers.Api
         [NonAction]
         public string GetUserOpenId(string token)
         {
-            token = Util.UrlEncode(token);
+            //token = Util.UrlEncode(token);
             long currentTimeStamp = long.Parse(Util.GetLongTimeStamp(DateTime.Now));
             var tokenList = _context.token.Where(t =>
             (t.state == 1 && currentTimeStamp < t.expire_timestamp

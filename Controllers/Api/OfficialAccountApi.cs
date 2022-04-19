@@ -144,7 +144,13 @@ namespace LuqinOfficialAccount.Controllers.Api
         }
 
         [HttpGet]
-        public ActionResult<string> GetAccessToken()
+        public void RefreshAccessToken()
+        {
+            GetAccessToken();
+        }
+
+        [NonAction]
+        public string GetAccessToken()
         {
             string tokenFilePath = $"{Environment.CurrentDirectory}";
             tokenFilePath = tokenFilePath + "/access_token.official_account";
@@ -189,6 +195,7 @@ namespace LuqinOfficialAccount.Controllers.Api
                 else
                 {
                     return token.Trim();
+                    //return "";
                 }
             }
             string getTokenUrl = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid="
@@ -201,6 +208,7 @@ namespace LuqinOfficialAccount.Controllers.Api
                 {
                     System.IO.File.AppendAllText(tokenFilePath, at.access_token + "\r\n" + nowTime);
                     return at.access_token.Trim();
+                    //return "";
                 }
                 else
                 {
@@ -211,9 +219,8 @@ namespace LuqinOfficialAccount.Controllers.Api
             {
                 return "";
             }
-            
-        }
 
+        }
         [HttpGet]
         public void PageAuth(string callBackUrl)
         {
@@ -288,7 +295,7 @@ namespace LuqinOfficialAccount.Controllers.Api
         [HttpGet]
         public ActionResult<string> GetUnionId(string openId)
         {
-            string token = GetAccessToken().Value.Trim();
+            string token = GetAccessToken().Trim();
             //token = "55_F7LX5DglNN1jPuuiSHHvsKf3oiXNRsgChaJQXRV992QyCk_H1tVo9ygOZn_aTSK02Kg37kAThhgJ9zrAHS51v_4YAhVVfIAFcqex_MvLSzd36TfxTN21Qz5eE9G91Gt36EuBKwD6vQKqPj5BPGUjAEAULZ";
 
             string getInfoUrl = "https://api.weixin.qq.com/cgi-bin/user/info?access_token="
