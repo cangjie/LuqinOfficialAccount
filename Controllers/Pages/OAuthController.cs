@@ -102,13 +102,17 @@ namespace LuqinOfficialAccount.Controllers.Pages
         [HttpGet]
         public void CallBack(string code, string state)
         {
+            if (code.Trim().Equals(""))
+            {
+                throw new Exception("Code missed.");
+            }
             string jsonStr = Util.GetWebContent("https://api.weixin.qq.com/sns/oauth2/access_token?appid="
                 + _settings.appId.Trim() + "&secret=" + _settings.appSecret.Trim() + "&code="
                 + code.Trim() + "&grant_type=authorization_code");
             UserToken token = JsonConvert.DeserializeObject<UserToken>(jsonStr);
             if (token.access_token.Trim().Equals(""))
             {
-                return;
+                throw new Exception("Token missed.");
             }
 
             UserController userController = new UserController(_context, _config);
