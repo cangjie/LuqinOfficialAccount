@@ -30,12 +30,12 @@ namespace LuqinOfficialAccount.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> PlayMedia(int id, string contentType, string token)
         {
-            /*
+            
             //token = Util.UrlEncode(token);
             string realTemplatePath = Util.workingPath + "/medias/test.mp3";
 
             //DateTime expireTime = Util.GetDateTimeByTimeStamp(1650301333270);
-
+            /*
             long nowTimeStamp = long.Parse(Util.GetLongTimeStamp(DateTime.Now));
             var tokenList = _context.token.Where(t => ( t.token.Trim().Equals(token.Trim())
                 && t.state == 1 && t.expire_timestamp > nowTimeStamp))
