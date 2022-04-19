@@ -15,5 +15,7 @@ namespace LuqinOfficialAccount.Models
         public string open_id { get; set; }
         public DateTime create_date { get; set; } = DateTime.Now;
 
+        public int deal { get; set; }
+
     }
 }

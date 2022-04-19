@@ -94,15 +94,12 @@ namespace LuqinOfficialAccount.Controllers
             };
             try
             {
-                var scanList = _context.posterScanLog
-                .Where(s => (s.scan_user_id == subscriberId
-                && s.create_date <  Util.GetDateTimeByTimeStamp(1000 * long.Parse(_message.CreateTime)).AddHours(8)
+                scan = _context.posterScanLog
+                .Where(s => (s.deal == 0
+                && s.create_date.AddMinutes(10) >= Util.GetDateTimeByTimeStamp(1000 * long.Parse(_message.CreateTime))
                 ))
-                .OrderByDescending(s => s.id).ToList();
-                if (scanList.Count > 0)
-                {
-                    scan = scanList[0];
-                }
+                .OrderBy(s => s.id).First();
+                
                 
             }
             catch(Exception err)
@@ -156,6 +153,16 @@ namespace LuqinOfficialAccount.Controllers
                     try
                     {
                         _context.SaveChanges();
+                        scan.deal = 1;
+                        _context.Entry(scan);
+                        try
+                        {
+                            _context.SaveChanges();
+                        }
+                        catch
+                        { 
+                        
+                        }
                     }
                     catch
                     {
