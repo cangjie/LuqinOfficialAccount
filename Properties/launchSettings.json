@@ -12,7 +12,7 @@
     "IIS Express": {
       "commandName": "IISExpress",
       "launchBrowser": true,
-      "launchUrl": "boot_sample/grid.htm",
+      "launchUrl": "pages/oauth/callback",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
@@ -20,11 +20,11 @@
     "LuqinOfficialAccount": {
       "commandName": "Project",
       "launchBrowser": true,
-      "launchUrl": "/pages/posterlanding/index/230",
-      "applicationUrl": "https://localhost:5001;https://localhost:5000",
+      "launchUrl": "/pages/oauth/callback",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
-      }
+      },
+      "applicationUrl": "https://localhost:5001;https://localhost:5000"
     }
   }
 }

@@ -92,7 +92,7 @@ namespace LuqinOfficialAccount.Controllers.Pages
                     + _request.Host.ToString().Trim() + _request.PathBase.ToString() + "/pages/OAuth/CallBack";
                 string url = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=" + _settings.appId.Trim()
                     + "&redirect_uri=" + Util.UrlEncode(redirectUrl)
-                    + "&response_type=code&scope=snsapi_base&state=" + _state.Trim() + "#wechat_redirect";
+                    + "&response_type=code&scope=snsapi_userinfo&state=" + _state.Trim() + "#wechat_redirect";
                 //_response.WriteAsync(url);
                 //return;
                 _response.Redirect(url);
@@ -108,7 +108,8 @@ namespace LuqinOfficialAccount.Controllers.Pages
             //_response.WriteAsync("   !" + code.Trim()+"!");
             //return;
             System.IO.File.AppendAllText(Util.workingPath + "/code.txt", code + " " + DateTime.Now.ToString() + "\r\n");
-            return;
+            //return;
+            //code = "031wXEll22n2194zaRml2HGClP3wXEl-";
             if (code.Trim().Equals(""))
             {
                 throw new Exception("Code missed.");
