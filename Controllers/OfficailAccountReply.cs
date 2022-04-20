@@ -184,7 +184,7 @@ namespace LuqinOfficialAccount.Controllers
                 + "<FromUserName ><![CDATA[" + _settings.originalId.Trim() + "]]></FromUserName>"
                 + "<CreateTime >" + Util.GetLongTimeStamp(DateTime.Now) + "</CreateTime>"
                 + "<MsgType><![CDATA[text]]></MsgType>"
-                + "<Content><![CDATA[感谢您通过您的朋友分享的海报关注到我们，您也可以回复“听课”来和您的其他朋友分享。]]></Content>"
+                + "<Content><![CDATA[您的关注，回复“听课”，立即参与活动。]]></Content>"
                 + "</xml>");
                 OAUser poster = _context.oAUser
                     .Where(u => (u.user_id == scan.poster_user_id && u.original_id.Trim().Equals(_settings.originalId.Trim())))
