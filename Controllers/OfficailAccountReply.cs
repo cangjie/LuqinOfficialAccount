@@ -198,7 +198,7 @@ namespace LuqinOfficialAccount.Controllers
                     var promoteTotal = _context.promote.Where(p => (p.original_id.Trim().Equals(_settings.originalId.Trim())
                     && p.promote_open_id.Trim().Equals(poster.open_id.Trim()))).ToList();
                     string msgText = "";
-                    if (promoteTotal != null && promoteTotal.Count >= 2)
+                    if (promoteTotal != null && promoteTotal.Count >= 3)
                     {
                         try
                         {
@@ -255,7 +255,7 @@ namespace LuqinOfficialAccount.Controllers
                 + "<FromUserName ><![CDATA[" + _settings.originalId.Trim() + "]]></FromUserName>"
                 + "<CreateTime >" + Util.GetLongTimeStamp(DateTime.Now) + "</CreateTime>"
                 + "<MsgType><![CDATA[text]]></MsgType>"
-                + "<Content><![CDATA[感谢关注。]]></Content>"
+                + "<Content><![CDATA[您的关注，回复“听课”，立即参与活动。]]></Content>"
                 + "</xml>");
             }
 
