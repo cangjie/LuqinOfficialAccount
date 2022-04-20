@@ -30,6 +30,10 @@ namespace LuqinOfficialAccount.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> PlayMedia(int id, string contentType, string token)
         {
+            if (id == 1)
+            {
+                Response.Redirect("https://mp.weixin.qq.com/s?__biz=MzA3MTM1OTIwNg==&mid=2654310614&idx=1&sn=54cb2dde7498135f256fb15b8e7b4c8e&chksm=84efff5fb39876499e348fd1607c7fc1df866b9ca94bb86882db274315b623fa672768d5e52c#rd", true);
+            }
             
             //token = Util.UrlEncode(token);
             string realTemplatePath = Util.workingPath + "/medias/test.mp3";
