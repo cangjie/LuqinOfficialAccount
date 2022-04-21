@@ -198,54 +198,57 @@ namespace LuqinOfficialAccount.Controllers
                     //check promote num
                     var promoteTotal = _context.promote.Where(p => (p.original_id.Trim().Equals(_settings.originalId.Trim())
                     && p.promote_open_id.Trim().Equals(poster.open_id.Trim()))).ToList();
-                    string msgText = "";
-                    if (promoteTotal != null && promoteTotal.Count >= 3)
+                    
+
+                    if (promoteTotal != null)
                     {
-                        try
+                        if (promoteTotal.Count <= 3)
                         {
-                            var umaList = _context.userMediaAsset.Where(u =>
-                                (u.user_id == poster.user_id && u.media_id == 1)).ToList();
-                            if (umaList == null || umaList.Count == 0)
+                            string msgText = "";
+                            if (promoteTotal.Count == 3)
                             {
-                                UserMediaAsset uma = new UserMediaAsset()
+                                var umaList = _context.userMediaAsset.Where(u =>
+                                (u.user_id == poster.user_id && u.media_id == 1)).ToList();
+                                if (umaList == null || umaList.Count == 0)
                                 {
-                                    media_id = 1,
-                                    user_id = scan.poster_user_id,
+                                    UserMediaAsset uma = new UserMediaAsset()
+                                    {
+                                        media_id = 1,
+                                        user_id = scan.poster_user_id,
 
-                                };
-                                _context.userMediaAsset.Add(uma);
-                                _context.SaveChanges();
+                                    };
+                                    _context.userMediaAsset.Add(uma);
+                                    _context.SaveChanges();
+                                }
+                                msgText = "已经有" + promoteTotal.Count.ToString() + "个朋友通过您的海报关注了我们的公众号，"
+                                    + "您可以<a href='https://mp.weixin.qq.com/s/2gdbiHd9Gk26wIBSSsddAQ' >点击此处</a>开始聆听卢老师的收费课程。";
+
                             }
-                            
-                        }
-                        catch
-                        {
+                            else
+                            {
+                                if (promoteTotal != null)
+                                {
+                                    msgText = "已经有" + promoteTotal.Count.ToString() + "个朋友通过您分享的海报关注了我们。";
+                                }
+                                else
+                                {
+                                    msgText = "又有一个朋友通过您分享的海报关注了我们。";
+                                }
+                            }
 
+                            OASent sendMessage = new OASent()
+                            {
+                                id = 0,
+                                MsgType = "text",
+                                FromUserName = _settings.originalId,
+                                ToUserName = poster.open_id,
+                                Content = msgText.Trim()
+                            };
+                            api.SendServiceMessage(sendMessage);
                         }
-                        msgText = "已经有" + promoteTotal.Count.ToString() + "个朋友通过您的海报关注了我们的公众号，"
-                            + "您可以<a href='https://mp.weixin.qq.com/s/2gdbiHd9Gk26wIBSSsddAQ' >点击此处</a>开始聆听卢老师的收费课程。";
                     }
-                    else
-                    {
-                        if (promoteTotal != null)
-                        {
-                            msgText = "已经有" + promoteTotal.Count.ToString() + "个朋友通过您分享的海报关注了我们。";
-                        }
-                        else
-                        {
-                            msgText = "又有一个朋友通过您分享的海报关注了我们。";
-                        }
-                        
-                    }
-                    OASent sendMessage = new OASent()
-                    {
-                        id = 0,
-                        MsgType = "text",
-                        FromUserName = _settings.originalId,
-                        ToUserName = poster.open_id,
-                        Content = msgText.Trim()
-                    };
-                    api.SendServiceMessage(sendMessage);
+
+
                 }
                 
             }
