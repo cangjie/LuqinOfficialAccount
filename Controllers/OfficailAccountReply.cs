@@ -223,7 +223,7 @@ namespace LuqinOfficialAccount.Controllers
 
                         }
                         msgText = "已经有" + promoteTotal.Count.ToString() + "个朋友通过您的海报关注了我们的公众号，"
-                            + "您可以<a href='https://mp.weixin.qq.com/s?__biz=MzA3MTM1OTIwNg==&mid=2654310614&idx=1&sn=54cb2dde7498135f256fb15b8e7b4c8e&chksm=84efff5fb39876499e348fd1607c7fc1df866b9ca94bb86882db274315b623fa672768d5e52c#rd' >点击此处</a>开始聆听卢老师的收费课程。";
+                            + "您可以<a href='https://mp.weixin.qq.com/s/2gdbiHd9Gk26wIBSSsddAQ' >点击此处</a>开始聆听卢老师的收费课程。";
                     }
                     else
                     {
