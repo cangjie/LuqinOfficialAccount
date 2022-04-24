@@ -270,6 +270,7 @@ namespace LuqinOfficialAccount.Controllers
             return result.Trim();
         }
 
+
         [HttpGet]
         public ActionResult<string> TestSendServiceMessage(string openId)
         {
@@ -282,6 +283,18 @@ namespace LuqinOfficialAccount.Controllers
                 Content = "测试"
             };
             return SendServiceMessage(msg);
+        }
+
+        [HttpGet]
+        public ActionResult<string> GetDraft(int offSet)
+        {
+           
+            string token = GetAccessToken();
+            string url = "https://api.weixin.qq.com/cgi-bin/draft/batchget?access_token=" + token.Trim();
+            string postJson = "{ \"offset\":" + offSet.ToString() + ", \"count\":20, \"no_content\":1 }";
+            string resultJson = Util.GetWebContent(url, postJson);
+            //DraftResult r = JsonConvert.DeserializeObject<DraftResult>(resultJson);
+            return resultJson.Trim();
         }
         
         protected class UserInfo
@@ -319,6 +332,32 @@ namespace LuqinOfficialAccount.Controllers
         {
             public int errcode = -1;
             public string errmsg = "";
+        }
+
+        public class DraftResult
+        {
+            public int total_count = 0;
+            public int item_count = 0;
+            public DraftItem[] item;
+            public class DraftItem
+            {
+                public string media_id = "";
+                public int update_time;
+                public ContentStrct content;
+                public class ContentStrct
+                {
+
+                    public int create_time = 0;
+                    public int update_time = 0;
+                    public NewsItem[] news_item;
+                    public class NewsItem
+                    {
+                        public string title = "";
+                        public string url = "";
+                        public string thumb_url = "";
+                    }
+                }
+            }
         }
     }
 }
