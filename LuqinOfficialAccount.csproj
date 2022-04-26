@@ -57,9 +57,5 @@
   </ItemGroup>
   <ItemGroup>
     <Content Remove="wwwroot\images\" />
-    <Content Remove="wwwroot\images\follow_official_account.jpg" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="wwwroot\images\follow_official_account.jpg" />
   </ItemGroup>
 </Project>
