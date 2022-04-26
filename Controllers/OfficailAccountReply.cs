@@ -86,6 +86,7 @@ namespace LuqinOfficialAccount.Controllers
         {
             XmlDocument xmlD = new XmlDocument();
             UserController uc = new UserController(_context, _config);
+            DateTime submitTime = Util.GetDateTimeByTimeStamp(1000 * long.Parse(_message.CreateTime)).AddHours(8);
             int subscriberId = uc.CheckUser(_message.FromUserName.Trim());
             
             bool fromPoster = true;
@@ -95,16 +96,27 @@ namespace LuqinOfficialAccount.Controllers
             };
             try
             {
-                scan = _context.posterScanLog
+
+                var scanList = _context.posterScanLog
                 .Where(s => (s.deal == 0
-                && s.create_date.AddMinutes(10) >= Util.GetDateTimeByTimeStamp(1000 * long.Parse(_message.CreateTime))
+                && s.create_date <= submitTime
+                && s.create_date >= submitTime.AddMinutes(-5)
                 ))
-                .OrderBy(s => s.id).First();
+                .OrderBy(s => s.id).ToList();
+                if (scanList != null && scanList.Count > 0)
+                {
+                    scan = scanList[0];
+                }
+                else
+                {
+                    fromPoster = false;
+                }
                 
                 
             }
             catch(Exception err)
             {
+                fromPoster = false;
                 Console.WriteLine(err.ToString());
             }
             
@@ -115,11 +127,7 @@ namespace LuqinOfficialAccount.Controllers
             DateTime scanDate = scan.create_date;
             long scanTimeStamp = long.Parse(Util.GetLongTimeStamp(scan.create_date));
             long subsTimeStamp = 1000 * long.Parse(_message.CreateTime);
-            if (subsTimeStamp - scanTimeStamp > 1000 * 3600)
-            {
-                fromPoster = false;
-            }
-
+            
 
             if (fromPoster)
             {
