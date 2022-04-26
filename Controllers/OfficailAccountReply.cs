@@ -37,6 +37,10 @@ namespace LuqinOfficialAccount.Controllers
                             xmlD = CheckSubscribe();
                             retStr = xmlD.InnerXml.Trim();
                             break;
+                        case "click":
+                            xmlD = CheckClick();
+                            retStr = xmlD.InnerXml.Trim();
+                            break;
                         default:
                             break;
                     }
@@ -80,6 +84,46 @@ namespace LuqinOfficialAccount.Controllers
 
             }
             return retStr.Trim();
+        }
+
+        public XmlDocument CheckClick()
+        {
+            XmlDocument xmlD = new XmlDocument();
+            switch (_message.EventKey.ToLower())
+            {
+                case "free":
+                    xmlD = FreeClick();
+                    break;
+                default:
+                    break;
+            }
+            return xmlD;
+        }
+
+        public XmlDocument FreeClick()
+        {
+            UserController uc = new UserController(_context, _config);
+            XmlDocument xmlD = new XmlDocument();
+            int userId = uc.CheckUser(_message.FromUserName.Trim());
+            var assetList = _context.userMediaAsset.Where(a => a.user_id == userId).ToList();
+            if (assetList != null && assetList.Count > 0)
+            {
+                string message = "您可以<a href='https://mp.weixin.qq.com/s/tOUNhLcJMp4uqkDG4PTCKA' >点击此处</a>开始聆听卢老师的收费课程。";
+                xmlD.LoadXml("<xml>"
+                + "<ToUserName><![CDATA[" + _message.FromUserName.Trim() + "]]></ToUserName>"
+                + "<FromUserName ><![CDATA[" + _settings.originalId.Trim() + "]]></FromUserName>"
+                + "<CreateTime >" + Util.GetLongTimeStamp(DateTime.Now) + "</CreateTime>"
+                + "<MsgType><![CDATA[text]]></MsgType>"
+                + "<Content><![CDATA[" + message.Trim() + "]]></Content>"
+                + "</xml>");
+            }
+            else
+            {
+                xmlD = GetPoster();
+            }
+
+            
+            return xmlD;
         }
 
         public XmlDocument CheckSubscribe()
