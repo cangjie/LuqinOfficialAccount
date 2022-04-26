@@ -193,7 +193,7 @@ namespace LuqinOfficialAccount.Controllers
                 + "<FromUserName ><![CDATA[" + _settings.originalId.Trim() + "]]></FromUserName>"
                 + "<CreateTime >" + Util.GetLongTimeStamp(DateTime.Now) + "</CreateTime>"
                 + "<MsgType><![CDATA[text]]></MsgType>"
-                + "<Content><![CDATA[感谢您的关注，回复“听课”，立即参与活动。]]></Content>"
+                + "<Content><![CDATA[感谢您的关注，回复“听课”，立即参与「0元免费领」活动！]]></Content>"
                 + "</xml>");
                 OAUser poster = _context.oAUser
                     .Where(u => (u.user_id == scan.poster_user_id && u.original_id.Trim().Equals(_settings.originalId.Trim())))
@@ -267,7 +267,7 @@ namespace LuqinOfficialAccount.Controllers
                 + "<FromUserName ><![CDATA[" + _settings.originalId.Trim() + "]]></FromUserName>"
                 + "<CreateTime >" + Util.GetLongTimeStamp(DateTime.Now) + "</CreateTime>"
                 + "<MsgType><![CDATA[text]]></MsgType>"
-                + "<Content><![CDATA[感谢您的关注，回复“听课”，立即参与活动。]]></Content>"
+                + "<Content><![CDATA[感谢您的关注，回复“听课”，立即参与「0元免费领」活动！]]></Content>"
                 + "</xml>");
             }
 
