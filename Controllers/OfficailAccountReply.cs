@@ -37,6 +37,10 @@ namespace LuqinOfficialAccount.Controllers
                             xmlD = CheckSubscribe();
                             retStr = xmlD.InnerXml.Trim();
                             break;
+                        case "click":
+                            xmlD = CheckClick();
+                            retStr = xmlD.InnerXml.Trim();
+                            break;
                         default:
                             break;
                     }
@@ -86,10 +90,51 @@ namespace LuqinOfficialAccount.Controllers
             return retStr.Trim();
         }
 
+        public XmlDocument CheckClick()
+        {
+            XmlDocument xmlD = new XmlDocument();
+            switch (_message.EventKey.ToLower())
+            {
+                case "free":
+                    xmlD = FreeClick();
+                    break;
+                default:
+                    break;
+            }
+            return xmlD;
+        }
+
+        public XmlDocument FreeClick()
+        {
+            UserController uc = new UserController(_context, _config);
+            XmlDocument xmlD = new XmlDocument();
+            int userId = uc.CheckUser(_message.FromUserName.Trim());
+            var assetList = _context.userMediaAsset.Where(a => a.user_id == userId).ToList();
+            if (assetList != null && assetList.Count > 0)
+            {
+                string message = "您可以<a href='https://mp.weixin.qq.com/s/tOUNhLcJMp4uqkDG4PTCKA' >点击此处</a>开始聆听卢老师的收费课程。";
+                xmlD.LoadXml("<xml>"
+                + "<ToUserName><![CDATA[" + _message.FromUserName.Trim() + "]]></ToUserName>"
+                + "<FromUserName ><![CDATA[" + _settings.originalId.Trim() + "]]></FromUserName>"
+                + "<CreateTime >" + Util.GetLongTimeStamp(DateTime.Now) + "</CreateTime>"
+                + "<MsgType><![CDATA[text]]></MsgType>"
+                + "<Content><![CDATA[" + message.Trim() + "]]></Content>"
+                + "</xml>");
+            }
+            else
+            {
+                xmlD = GetPoster();
+            }
+
+            
+            return xmlD;
+        }
+
         public XmlDocument CheckSubscribe()
         {
             XmlDocument xmlD = new XmlDocument();
             UserController uc = new UserController(_context, _config);
+            DateTime submitTime = Util.GetDateTimeByTimeStamp(1000 * long.Parse(_message.CreateTime)).AddHours(8);
             int subscriberId = uc.CheckUser(_message.FromUserName.Trim());
             
             bool fromPoster = true;
@@ -99,16 +144,27 @@ namespace LuqinOfficialAccount.Controllers
             };
             try
             {
-                scan = _context.posterScanLog
+
+                var scanList = _context.posterScanLog
                 .Where(s => (s.deal == 0
-                && s.create_date.AddMinutes(10) >= Util.GetDateTimeByTimeStamp(1000 * long.Parse(_message.CreateTime))
+                && s.create_date <= submitTime
+                && s.create_date >= submitTime.AddMinutes(-5)
                 ))
-                .OrderBy(s => s.id).First();
+                .OrderBy(s => s.id).ToList();
+                if (scanList != null && scanList.Count > 0)
+                {
+                    scan = scanList[0];
+                }
+                else
+                {
+                    fromPoster = false;
+                }
                 
                 
             }
             catch(Exception err)
             {
+                fromPoster = false;
                 Console.WriteLine(err.ToString());
             }
             
@@ -119,11 +175,7 @@ namespace LuqinOfficialAccount.Controllers
             DateTime scanDate = scan.create_date;
             long scanTimeStamp = long.Parse(Util.GetLongTimeStamp(scan.create_date));
             long subsTimeStamp = 1000 * long.Parse(_message.CreateTime);
-            if (subsTimeStamp - scanTimeStamp > 1000 * 3600)
-            {
-                fromPoster = false;
-            }
-
+            
 
             if (fromPoster)
             {
@@ -189,7 +241,7 @@ namespace LuqinOfficialAccount.Controllers
                 + "<FromUserName ><![CDATA[" + _settings.originalId.Trim() + "]]></FromUserName>"
                 + "<CreateTime >" + Util.GetLongTimeStamp(DateTime.Now) + "</CreateTime>"
                 + "<MsgType><![CDATA[text]]></MsgType>"
-                + "<Content><![CDATA[感谢您的关注，回复“听课”，立即参与活动。]]></Content>"
+                + "<Content><![CDATA[感谢您的关注，回复“听课”，立即参与「0元免费领」活动！]]></Content>"
                 + "</xml>");
                 OAUser poster = _context.oAUser
                     .Where(u => (u.user_id == scan.poster_user_id && u.original_id.Trim().Equals(_settings.originalId.Trim())))
@@ -225,7 +277,7 @@ namespace LuqinOfficialAccount.Controllers
                                     _context.SaveChanges();
                                 }
                                 msgText = "已经有" + promoteTotal.Count.ToString() + "个朋友通过您的海报关注了我们的公众号，"
-                                    + "您可以<a href='https://mp.weixin.qq.com/s/2gdbiHd9Gk26wIBSSsddAQ' >点击此处</a>开始聆听卢老师的收费课程。";
+                                    + "您可以<a href='https://mp.weixin.qq.com/s/tOUNhLcJMp4uqkDG4PTCKA' >点击此处</a>开始聆听卢老师的收费课程。";
 
                             }
                             else
@@ -263,7 +315,7 @@ namespace LuqinOfficialAccount.Controllers
                 + "<FromUserName ><![CDATA[" + _settings.originalId.Trim() + "]]></FromUserName>"
                 + "<CreateTime >" + Util.GetLongTimeStamp(DateTime.Now) + "</CreateTime>"
                 + "<MsgType><![CDATA[text]]></MsgType>"
-                + "<Content><![CDATA[感谢您的关注，回复“听课”，立即参与活动。]]></Content>"
+                + "<Content><![CDATA[感谢您的关注，回复“听课”，立即参与「0元免费领」活动！]]></Content>"
                 + "</xml>");
             }
 
