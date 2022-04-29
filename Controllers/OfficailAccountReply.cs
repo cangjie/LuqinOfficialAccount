@@ -50,6 +50,10 @@ namespace LuqinOfficialAccount.Controllers
                             xmlD = GetPoster();
                             retStr = xmlD.InnerXml.Trim();
                             break;
+                        case "听课1":
+                            xmlD = GetPosterMApp();
+                            retStr = xmlD.InnerXml.Trim();
+                            break;
                         default:
                             retStr = "success";
                             break;
@@ -279,6 +283,28 @@ namespace LuqinOfficialAccount.Controllers
             //string landingPageUrl = "http://weixin.luqinwenda.com/service/pages/PosterLanding/Index/" + userId.ToString();
             //string imageUrl = "http://weixin.luqinwenda.com/subscribe/api/Image/CreatePersonalPosterWithTextQrCode?templatePath=%2Fimages%2Ftemplate2_small.jpg&x=580&y=975&scale=125&qrCodeText=" + Util.UrlEncode(landingPageUrl);
             string imageUrl = "http://weixin.luqinwenda.com/subscribe/show_poster.html?userid=" + userId.ToString();
+            XmlDocument xmlD = new XmlDocument();
+            xmlD.LoadXml("<xml>"
+                + "<ToUserName><![CDATA[" + _message.FromUserName.Trim() + "]]></ToUserName>"
+                + "<FromUserName ><![CDATA[" + _settings.originalId.Trim() + "]]></FromUserName>"
+                + "<CreateTime >" + Util.GetLongTimeStamp(DateTime.Now) + "</CreateTime>"
+                + "<MsgType><![CDATA[text]]></MsgType>"
+                + "<Content><![CDATA[感谢您的关注！\r\n<a href=\"" + imageUrl + "\" >生成我的专属海报</a>\r\n下载海报后，将海报分享至朋友圈或微信群，邀请3位或3位以上好友关注我们即可解锁课程，在悦长大后台直接领取！]]></Content>"
+                + "</xml>");
+            return xmlD;
+        }
+
+        public XmlDocument GetPosterMApp()
+        {
+            UserController user = new UserController(_context, _config);
+            int userId = user.CheckUser(_message.FromUserName);
+            if (userId == 0)
+            {
+                return new XmlDocument();
+            }
+            //string landingPageUrl = "http://weixin.luqinwenda.com/service/pages/PosterLanding/Index/" + userId.ToString();
+            //string imageUrl = "http://weixin.luqinwenda.com/subscribe/api/Image/CreatePersonalPosterWithTextQrCode?templatePath=%2Fimages%2Ftemplate2_small.jpg&x=580&y=975&scale=125&qrCodeText=" + Util.UrlEncode(landingPageUrl);
+            string imageUrl = "http://weixin.luqinwenda.com/subscribe/show_poster_mapp.html?userid=" + userId.ToString();
             XmlDocument xmlD = new XmlDocument();
             xmlD.LoadXml("<xml>"
                 + "<ToUserName><![CDATA[" + _message.FromUserName.Trim() + "]]></ToUserName>"
