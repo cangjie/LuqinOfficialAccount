@@ -132,7 +132,11 @@ namespace LuqinOfficialAccount.Controllers
             UserController uc = new UserController(_context, _config);
             DateTime submitTime = Util.GetDateTimeByTimeStamp(1000 * long.Parse(_message.CreateTime)).AddHours(8);
             int subscriberId = uc.CheckUser(_message.FromUserName.Trim());
-            
+
+            OAUser scanUser = _context.oAUser.Where(u => (
+                u.original_id.Trim().Equals(_message.ToUserName.Trim())
+                && u.open_id.Trim().Equals(_message.FromUserName.Trim()))).First();
+
             bool fromPoster = true;
             PosterScanLog scan = new PosterScanLog()
             {
@@ -145,11 +149,22 @@ namespace LuqinOfficialAccount.Controllers
                 .Where(s => (s.deal == 0
                 && s.create_date <= submitTime
                 && s.create_date >= submitTime.AddMinutes(-5)
+                && s.scan_user_id == scanUser.user_id
                 ))
                 .OrderBy(s => s.id).ToList();
                 if (scanList != null && scanList.Count > 0)
                 {
                     scan = scanList[0];
+                    scan.deal = 1;
+                    _context.Entry(scan);
+                    try
+                    {
+                        _context.SaveChanges();
+                    }
+                    catch
+                    {
+
+                    }
                 }
                 else
                 {
@@ -179,13 +194,11 @@ namespace LuqinOfficialAccount.Controllers
                     u.original_id.Trim().Equals(_message.ToUserName.Trim())
                     && u.user_id == scan.poster_user_id)).First();
 
-                OAUser scanUser = _context.oAUser.Where(u => (
-                    u.original_id.Trim().Equals(_message.ToUserName.Trim())
-                    && u.open_id.Trim().Equals(_message.FromUserName.Trim()))).First();
+                
 
                 var promoteList = _context.promote.Where(p => (
                     p.original_id.Trim().Equals(_message.ToUserName.Trim())
-                    //&&  p.promote_open_id.Trim().Equals(posterUser.open_id.Trim())
+                    &&  p.promote_open_id.Trim().Equals(posterUser.open_id.Trim())
                     && p.follow_open_id.Trim().Equals(scanUser.open_id.Trim())
                 )).ToList();
                 if (promoteList.Count == 0)
@@ -206,16 +219,7 @@ namespace LuqinOfficialAccount.Controllers
                     try
                     {
                         _context.SaveChanges();
-                        scan.deal = 1;
-                        _context.Entry(scan);
-                        try
-                        {
-                            _context.SaveChanges();
-                        }
-                        catch
-                        { 
                         
-                        }
                     }
                     catch
                     {
