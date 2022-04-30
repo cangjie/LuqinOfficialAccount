@@ -51,7 +51,7 @@ namespace LuqinOfficialAccount.Controllers
                     switch (_message.Content.Trim().ToLower())
                     {
                         case "听课":
-                            xmlD = GetPoster();
+                            xmlD = GetPosterMApp();
                             retStr = xmlD.InnerXml.Trim();
                             break;
                         case "听课1":
