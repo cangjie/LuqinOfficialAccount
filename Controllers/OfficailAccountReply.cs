@@ -123,7 +123,7 @@ namespace LuqinOfficialAccount.Controllers
             }
             else
             {
-                xmlD = GetPoster();
+                xmlD = GetPosterMApp();
             }
 
             
