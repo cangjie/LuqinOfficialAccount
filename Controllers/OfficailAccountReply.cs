@@ -119,7 +119,7 @@ namespace LuqinOfficialAccount.Controllers
                 + "<FromUserName ><![CDATA[" + _settings.originalId.Trim() + "]]></FromUserName>"
                 + "<CreateTime >" + Util.GetLongTimeStamp(DateTime.Now) + "</CreateTime>"
                 + "<MsgType><![CDATA[text]]></MsgType>"
-                + "<Content>" + message.Trim() + "</Content>"
+                + "<Content><![CDATA[" + message.Trim() + "]]></Content>"
                 + "</xml>");
             }
             else
