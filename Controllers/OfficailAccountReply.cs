@@ -112,7 +112,8 @@ namespace LuqinOfficialAccount.Controllers
             var assetList = _context.userMediaAsset.Where(a => a.user_id == userId).ToList();
             if (assetList != null && assetList.Count > 0)
             {
-                string message = "您可以<a href='https://mp.weixin.qq.com/s/tOUNhLcJMp4uqkDG4PTCKA' >点击此处</a>开始聆听卢老师的收费课程。";
+                //string message = "您可以<a href='https://mp.weixin.qq.com/s/tOUNhLcJMp4uqkDG4PTCKA' >点击此处</a>开始聆听卢老师的收费课程。";
+                string message = "您可以<a data-miniprogram-appid=\"wx34bd31c8bf72b589\" data-miniprogram-path=\"pages/customer/media/quick_player?id=4\" >点击此处</a>开始聆听卢老师的收费课程。";
                 xmlD.LoadXml("<xml>"
                 + "<ToUserName><![CDATA[" + _message.FromUserName.Trim() + "]]></ToUserName>"
                 + "<FromUserName ><![CDATA[" + _settings.originalId.Trim() + "]]></FromUserName>"
