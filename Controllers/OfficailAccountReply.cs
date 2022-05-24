@@ -191,6 +191,7 @@ namespace LuqinOfficialAccount.Controllers
             DateTime scanDate = scan.create_date;
             long scanTimeStamp = long.Parse(Util.GetLongTimeStamp(scan.create_date));
             long subsTimeStamp = 1000 * long.Parse(_message.CreateTime);
+
             
 
             if (fromPoster)
@@ -237,7 +238,7 @@ namespace LuqinOfficialAccount.Controllers
                     fromPoster = false;
                 }
             }
-
+            
             if (fromPoster)
             {
 
@@ -278,8 +279,15 @@ namespace LuqinOfficialAccount.Controllers
                                         user_id = scan.poster_user_id,
 
                                     };
-                                    _context.userMediaAsset.Add(uma);
-                                    _context.SaveChanges();
+                                    try
+                                    {
+                                        _context.userMediaAsset.Add(uma);
+                                        _context.SaveChanges();
+                                    }
+                                    catch
+                                    { 
+                                    
+                                    }
                                 }
                                 msgText = "已经有" + promoteTotal.Count.ToString() + "个朋友通过您的海报关注了我们的公众号，"
                                     + "您可以<a href='https://mp.weixin.qq.com/s/tOUNhLcJMp4uqkDG4PTCKA' >点击此处</a>开始聆听卢老师的收费课程。";
