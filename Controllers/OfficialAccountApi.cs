@@ -123,8 +123,8 @@ namespace LuqinOfficialAccount.Controllers
                     Content = content
 
                 };
-                await _context.oARecevie.AddAsync(msg);
-                await _context.SaveChangesAsync();
+                _context.oARecevie.Add(msg);
+                _context.SaveChanges();
                 OfficailAccountReply reply = new OfficailAccountReply(_context, _config, msg);
                 return reply.Reply().Trim();
             }
