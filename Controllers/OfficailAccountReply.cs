@@ -249,74 +249,77 @@ namespace LuqinOfficialAccount.Controllers
                 + "<MsgType><![CDATA[text]]></MsgType>"
                 + "<Content><![CDATA[感谢您的关注，回复“听课”，立即参与「0元免费领」活动！]]></Content>"
                 + "</xml>");
-                OAUser poster = _context.oAUser
-                    .Where(u => (u.user_id == scan.poster_user_id && u.original_id.Trim().Equals(_settings.originalId.Trim())))
-                    .First();
-                if (poster != null)
+
+                try
                 {
-                    OfficialAccountApi api = new OfficialAccountApi(_context, _config);
-                    
 
-                    //check promote num
-                    var promoteTotal = _context.promote.Where(p => (p.original_id.Trim().Equals(_settings.originalId.Trim())
-                    && p.promote_open_id.Trim().Equals(poster.open_id.Trim()))).ToList();
-                    
-
-                    if (promoteTotal != null)
+                    OAUser poster = _context.oAUser
+                        .Where(u => (u.user_id == scan.poster_user_id && u.original_id.Trim().Equals(_settings.originalId.Trim())))
+                        .First();
+                    if (poster != null)
                     {
-                        if (promoteTotal.Count <= 3)
-                        {
-                            string msgText = "";
-                            if (promoteTotal.Count == 3)
-                            {
-                                var umaList = _context.userMediaAsset.Where(u =>
-                                (u.user_id == poster.user_id && u.media_id == 1)).ToList();
-                                if (umaList == null || umaList.Count == 0)
-                                {
-                                    UserMediaAsset uma = new UserMediaAsset()
-                                    {
-                                        media_id = 1,
-                                        user_id = scan.poster_user_id,
+                        OfficialAccountApi api = new OfficialAccountApi(_context, _config);
 
-                                    };
-                                    try
+
+                        //check promote num
+                        var promoteTotal = _context.promote.Where(p => (p.original_id.Trim().Equals(_settings.originalId.Trim())
+                        && p.promote_open_id.Trim().Equals(poster.open_id.Trim()))).ToList();
+
+
+                        if (promoteTotal != null)
+                        {
+                            if (promoteTotal.Count <= 3)
+                            {
+                                string msgText = "";
+                                if (promoteTotal.Count == 3)
+                                {
+                                    var umaList = _context.userMediaAsset.Where(u =>
+                                    (u.user_id == poster.user_id && u.media_id == 1)).ToList();
+                                    if (umaList == null || umaList.Count == 0)
                                     {
+                                        UserMediaAsset uma = new UserMediaAsset()
+                                        {
+                                            media_id = 1,
+                                            user_id = scan.poster_user_id,
+
+                                        };
                                         _context.userMediaAsset.Add(uma);
                                         _context.SaveChanges();
+                                       
                                     }
-                                    catch
-                                    { 
-                                    
-                                    }
-                                }
-                                msgText = "已经有" + promoteTotal.Count.ToString() + "个朋友通过您的海报关注了我们的公众号，"
-                                    + "您可以<a href='https://mp.weixin.qq.com/s/tOUNhLcJMp4uqkDG4PTCKA' >点击此处</a>开始聆听卢老师的收费课程。";
+                                    msgText = "已经有" + promoteTotal.Count.ToString() + "个朋友通过您的海报关注了我们的公众号，"
+                                        + "您可以<a data-miniprogram-appid=\"wx34bd31c8bf72b589\" data-miniprogram-path=\"pages/customer/media/quick_player?id=4\" href=\"https://mp.weixin.qq.com/s/tOUNhLcJMp4uqkDG4PTCKA\" >点击此处</a>开始聆听卢老师的收费课程。";
 
-                            }
-                            else
-                            {
-                                if (promoteTotal != null)
-                                {
-                                    msgText = "已经有" + promoteTotal.Count.ToString() + "个朋友通过您分享的海报关注了我们。";
                                 }
                                 else
                                 {
-                                    msgText = "又有一个朋友通过您分享的海报关注了我们。";
+                                    if (promoteTotal != null)
+                                    {
+                                        msgText = "已经有" + promoteTotal.Count.ToString() + "个朋友通过您分享的海报关注了我们。";
+                                    }
+                                    else
+                                    {
+                                        msgText = "又有一个朋友通过您分享的海报关注了我们。";
+                                    }
                                 }
+
+                                OASent sendMessage = new OASent()
+                                {
+                                    id = 0,
+                                    MsgType = "text",
+                                    FromUserName = _settings.originalId,
+                                    ToUserName = poster.open_id,
+                                    Content = msgText.Trim()
+                                };
+                                api.SendServiceMessage(sendMessage);
                             }
-
-                            OASent sendMessage = new OASent()
-                            {
-                                id = 0,
-                                MsgType = "text",
-                                FromUserName = _settings.originalId,
-                                ToUserName = poster.open_id,
-                                Content = msgText.Trim()
-                            };
-                            api.SendServiceMessage(sendMessage);
                         }
-                    }
 
+
+                    }
+                }
+                catch
+                {
 
                 }
                 
