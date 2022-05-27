@@ -350,7 +350,7 @@ namespace LuqinOfficialAccount.Controllers
             }
             //string landingPageUrl = "http://weixin.luqinwenda.com/service/pages/PosterLanding/Index/" + userId.ToString();
             //string imageUrl = "http://weixin.luqinwenda.com/subscribe/api/Image/CreatePersonalPosterWithTextQrCode?templatePath=%2Fimages%2Ftemplate2_small.jpg&x=580&y=975&scale=125&qrCodeText=" + Util.UrlEncode(landingPageUrl);
-            string imageUrl = "http://weixin.luqinwenda.com/subscribe/show_poster.html?userid=" + userId.ToString();
+            string imageUrl = "http://weixin.luqinwenda.com/subscribe/show_poster.html?userid=" + userId.ToString() + "&rnd=" + Util.GetLongTimeStamp(DateTime.Now);
             XmlDocument xmlD = new XmlDocument();
             xmlD.LoadXml("<xml>"
                 + "<ToUserName><![CDATA[" + _message.FromUserName.Trim() + "]]></ToUserName>"
@@ -372,7 +372,7 @@ namespace LuqinOfficialAccount.Controllers
             }
             //string landingPageUrl = "http://weixin.luqinwenda.com/service/pages/PosterLanding/Index/" + userId.ToString();
             //string imageUrl = "http://weixin.luqinwenda.com/subscribe/api/Image/CreatePersonalPosterWithTextQrCode?templatePath=%2Fimages%2Ftemplate2_small.jpg&x=580&y=975&scale=125&qrCodeText=" + Util.UrlEncode(landingPageUrl);
-            string imageUrl = "http://weixin.luqinwenda.com/subscribe/show_poster_mapp.html?userid=" + userId.ToString();
+            string imageUrl = "http://weixin.luqinwenda.com/subscribe/show_poster_mapp.html?userid=" + userId.ToString()+"&rnd=" + Util.GetLongTimeStamp(DateTime.Now);
             XmlDocument xmlD = new XmlDocument();
             xmlD.LoadXml("<xml>"
                 + "<ToUserName><![CDATA[" + _message.FromUserName.Trim() + "]]></ToUserName>"
