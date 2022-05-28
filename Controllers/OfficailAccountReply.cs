@@ -5,6 +5,7 @@ using System.Linq;
 using LuqinOfficialAccount.Models;
 namespace LuqinOfficialAccount.Controllers
 {
+
     public class OfficailAccountReply
     {
         private readonly AppDBContext _context;
@@ -54,8 +55,8 @@ namespace LuqinOfficialAccount.Controllers
                             xmlD = GetPosterMApp();
                             retStr = xmlD.InnerXml.Trim();
                             break;
-                        case "听课1":
-                            xmlD = GetPosterMApp();
+                        case "1":
+                            xmlD = SubscribePoster();
                             retStr = xmlD.InnerXml.Trim();
                             break;
                         default:
@@ -128,6 +129,39 @@ namespace LuqinOfficialAccount.Controllers
             }
 
             
+            return xmlD;
+        }
+
+        public XmlDocument SubscribePoster()
+        {
+            UserController uc = new UserController(_context, _config);
+            int userId = uc.CheckUser(_message.FromUserName.Trim());
+            string landingPage = "https://mini.luqinwenda.com/mapp/customer/poster/landing?id=" + userId;
+            string img_url = "http://weixin.luqinwenda.com/subscribe/api/Image/CreatePersonalPosterWithTextQrCode?templatePath=%2Fimages%2Ftemplate_new.jpg&x=1180&y=2005&scale=350&qrCodeText="
+                + System.Web.HttpUtility.UrlEncode(landingPage) + "&rnd=" + Util.GetLongTimeStamp(DateTime.Now);
+            string fileName = "poster_" + userId.ToString() + ".jpg";
+            Util.DownloadFile(img_url, fileName.Trim(),  "/images");
+            OfficialAccountApi api = new OfficialAccountApi(_context, _config);
+            string mediaId = api.UploadImageToWeixin("/images/" + fileName.Trim(), "image");
+
+            OASent sendMessage = new OASent()
+            {
+                id = 0,
+                MsgType = "text",
+                FromUserName = _settings.originalId,
+                ToUserName = _message.FromUserName.Trim(),
+                Content = "谢谢关注，请将下面的海报分享到您的朋友圈。👇👇👇"
+            };
+            api.SendServiceMessage(sendMessage);
+            XmlDocument xmlD = new XmlDocument();
+            xmlD.LoadXml("<xml>"
+                + "<ToUserName><![CDATA[" + _message.FromUserName.Trim() + "]]></ToUserName>"
+                + "<FromUserName ><![CDATA[" + _settings.originalId.Trim() + "]]></FromUserName>"
+                + "<CreateTime >" + Util.GetLongTimeStamp(DateTime.Now) + "</CreateTime>"
+                + "<MsgType><![CDATA[image]]></MsgType>"
+                + "<Image><MediaId><![CDATA[" + mediaId.Trim() + "]]></MediaId></Image>"
+                + "</xml>");
+
             return xmlD;
         }
 
@@ -312,6 +346,8 @@ namespace LuqinOfficialAccount.Controllers
                                     Content = msgText.Trim()
                                 };
                                 api.SendServiceMessage(sendMessage);
+
+
                             }
                         }
 

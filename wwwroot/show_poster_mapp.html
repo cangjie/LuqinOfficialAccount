@@ -15,7 +15,6 @@
     var rnd = Math.floor(Math.random() * 1000000).toString();
     var user_id = getQueryString('userid');
     var landing_page = 'https://mini.luqinwenda.com/mapp/customer/poster/landing?id=' + user_id
-    var img_url = 'http://weixin.luqinwenda.com/subscribe/api/Image/CreatePersonalPosterWithTextQrCode?templatePath=%2Fimages%2Ftemplate_new.jpg&x=539&y=909&scale=150&qrCodeText='
+    var img_url = 'http://weixin.luqinwenda.com/subscribe/api/Image/CreatePersonalPosterWithTextQrCode?templatePath=%2Fimages%2Ftemplate_new.jpg&x=1180&y=2005&scale=350&qrCodeText='
         + encodeURIComponent(landing_page) + '&rnd=' + rnd;
-    document.getElementById('img-poster').src = img_url
-</script>
+    document.getElementById('img-poster').src = img_url</script>

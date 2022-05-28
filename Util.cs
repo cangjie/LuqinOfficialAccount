@@ -10,6 +10,29 @@ namespace LuqinOfficialAccount
 
         public static string workingPath = $"{Environment.CurrentDirectory}";
 
+        public static void DownloadFile(string url, string fileName, string path)
+        {
+            HttpWebRequest req = (HttpWebRequest)WebRequest.Create(url);
+            req.Method = "GET";
+            HttpWebResponse res = (HttpWebResponse)req.GetResponse();
+            Stream s = res.GetResponseStream();
+            string fileNamePath = workingPath + path + "/" + fileName.Trim();
+            if (File.Exists(fileNamePath))
+            {
+                File.Delete(fileNamePath);
+            }
+            FileStream fs = File.OpenWrite(fileNamePath);
+            
+            
+            int b = s.ReadByte();
+            for ( ;b != -1; )
+            {
+                fs.WriteByte((byte)b);
+                b = s.ReadByte();
+            }
+            
+            fs.Close();
+        }
 
         public static string GetLongTimeStamp(DateTime currentDateTime)
         {
