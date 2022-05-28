@@ -30,8 +30,9 @@ namespace LuqinOfficialAccount
                 fs.WriteByte((byte)b);
                 b = s.ReadByte();
             }
-            s.Close();
+            
             fs.Close();
+            s.Close();
             fs.Dispose();
             res.Close();
             req.Abort();
