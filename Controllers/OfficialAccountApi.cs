@@ -95,6 +95,7 @@ namespace LuqinOfficialAccount.Controllers
                     requestStream.Write(buffer, 0, bytesRead);
                 //结尾 
                 requestStream.Write(foot_data, 0, foot_data.Length);
+                fileStream.Close();
             }
             requestStream.Close();
 

@@ -142,8 +142,8 @@ namespace LuqinOfficialAccount.Controllers
             string fileName = "poster_" + userId.ToString() + ".jpg";
             Util.DownloadFile(img_url, fileName.Trim(),  "/images");
             OfficialAccountApi api = new OfficialAccountApi(_context, _config);
-            //string mediaId = api.UploadImageToWeixin("/images/" + fileName.Trim(), "image");
-            string mediaId = "";
+            string mediaId = api.UploadImageToWeixin("/images/" + fileName.Trim(), "image");
+            //string mediaId = "";
 
             if (mediaId.Trim().Equals(""))
             {
