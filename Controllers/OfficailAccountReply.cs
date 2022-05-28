@@ -157,7 +157,7 @@ namespace LuqinOfficialAccount.Controllers
                 ToUserName = _message.FromUserName.Trim(),
                 Content = "谢谢关注，请将下面的海报分享到您的朋友圈。👇👇👇"
             };
-            //api.SendServiceMessage(sendMessage);
+            api.SendServiceMessage(sendMessage);
             XmlDocument xmlD = new XmlDocument();
             xmlD.LoadXml("<xml>"
                 + "<ToUserName><![CDATA[" + _message.FromUserName.Trim() + "]]></ToUserName>"
