@@ -21,19 +21,23 @@ namespace LuqinOfficialAccount
             {
                 File.Delete(fileNamePath);
             }
-            FileStream fs = File.OpenWrite(fileNamePath);
-            
-            
-            int b = s.ReadByte();
-            for ( ;b != -1; )
+            using (FileStream fs = File.OpenWrite(fileNamePath))
             {
-                fs.WriteByte((byte)b);
-                b = s.ReadByte();
+                int b = s.ReadByte();
+                for (; b != -1;)
+                {
+                    fs.WriteByte((byte)b);
+                    b = s.ReadByte();
+                }
+
+                fs.Close();
+                fs.Dispose();
             }
+
+
             
-            fs.Close();
             s.Close();
-            fs.Dispose();
+            
             res.Close();
             req.Abort();
             
