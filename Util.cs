@@ -32,6 +32,7 @@ namespace LuqinOfficialAccount
             }
             
             fs.Close();
+            fs.Dispose();
         }
 
         public static string GetLongTimeStamp(DateTime currentDateTime)
