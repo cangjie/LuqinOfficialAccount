@@ -144,6 +144,11 @@ namespace LuqinOfficialAccount.Controllers
             OfficialAccountApi api = new OfficialAccountApi(_context, _config);
             string mediaId = api.UploadImageToWeixin("/images/" + fileName.Trim(), "image");
 
+            if (mediaId.Trim().Equals(""))
+            {
+                return new XmlDocument();
+            }
+
             OASent sendMessage = new OASent()
             {
                 id = 0,
@@ -152,7 +157,7 @@ namespace LuqinOfficialAccount.Controllers
                 ToUserName = _message.FromUserName.Trim(),
                 Content = "谢谢关注，请将下面的海报分享到您的朋友圈。👇👇👇"
             };
-            api.SendServiceMessage(sendMessage);
+            //api.SendServiceMessage(sendMessage);
             XmlDocument xmlD = new XmlDocument();
             xmlD.LoadXml("<xml>"
                 + "<ToUserName><![CDATA[" + _message.FromUserName.Trim() + "]]></ToUserName>"
