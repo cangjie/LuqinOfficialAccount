@@ -505,6 +505,7 @@ namespace LuqinOfficialAccount.Controllers
                 + token.Trim() + "&type=" + type.Trim() );
 
             Newtonsoft.Json.Linq.JObject ret = (Newtonsoft.Json.Linq.JObject)JsonConvert.DeserializeObject(jsonStr);
+            list.Clear();
 
             try
             {
