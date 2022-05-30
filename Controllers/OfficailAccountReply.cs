@@ -138,7 +138,7 @@ namespace LuqinOfficialAccount.Controllers
             UserController uc = new UserController(_context, _config);
             int userId = uc.CheckUser(_message.FromUserName.Trim());
             string landingPage = "https://mini.luqinwenda.com/mapp/customer/poster/landing?id=" + userId;
-            string img_url = "http://weixin.luqinwenda.com/subscribe/api/Image/CreatePersonalPosterWithTextQrCode?templatePath=%2Fimages%2Ftemplate_new.jpg&x=1180&y=2005&scale=350&qrCodeText="
+            string img_url = "http://weixin.luqinwenda.com/subscribe/api/Image/CreatePersonalPosterWithTextQrCode?templatePath=%2Fimages%2Ftemplate_new.jpg&x=1000&y=1695&scale=300&qrCodeText="
                 + System.Web.HttpUtility.UrlEncode(landingPage) + "&rnd=" + Util.GetLongTimeStamp(DateTime.Now);
             string fileName = "poster_" + userId.ToString() + ".jpg";
             Util.DownloadFile(img_url, fileName.Trim(),  "/images");
