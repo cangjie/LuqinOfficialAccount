@@ -194,7 +194,7 @@ namespace LuqinOfficialAccount.Controllers
                 var scanList = _context.posterScanLog
                 .Where(s => (s.deal == 0
                 && s.create_date <= submitTime
-                && s.create_date >= submitTime.AddMinutes(-5)
+                && s.create_date >= submitTime.AddMinutes(-30)
                 && s.scan_user_id == scanUser.user_id
                 ))
                 .OrderBy(s => s.id).ToList();
