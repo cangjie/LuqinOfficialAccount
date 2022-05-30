@@ -423,7 +423,7 @@ namespace LuqinOfficialAccount.Controllers
             {
                 case "text":
                 default:
-                    messageJson = "\"msgtype\": \"text\", \"text\": {\"content\":\"" + message.Content.Trim() + "\" }";
+                    messageJson = "\"msgtype\": \"text\", \"text\": {\"content\":\"" + message.Content.Trim().Replace("\"", "'") + "\" }";
                     break;
             }
             postJson = "{\"touser\":\"" + message.ToUserName.Trim() + "\", " + messageJson.Trim() + " }";
