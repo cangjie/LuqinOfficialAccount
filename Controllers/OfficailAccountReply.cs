@@ -282,7 +282,7 @@ namespace LuqinOfficialAccount.Controllers
             
             if (fromPoster)
             {
-
+                /*
                 xmlD.LoadXml("<xml>"
                 + "<ToUserName><![CDATA[" + _message.FromUserName.Trim() + "]]></ToUserName>"
                 + "<FromUserName ><![CDATA[" + _settings.originalId.Trim() + "]]></FromUserName>"
@@ -290,7 +290,8 @@ namespace LuqinOfficialAccount.Controllers
                 + "<MsgType><![CDATA[text]]></MsgType>"
                 + "<Content><![CDATA[感谢您的关注，回复“听课”，立即参与「0元免费领」活动！]]></Content>"
                 + "</xml>");
-
+                */
+                xmlD = SubscribePoster();
                 try
                 {
 
