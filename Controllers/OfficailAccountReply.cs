@@ -52,7 +52,8 @@ namespace LuqinOfficialAccount.Controllers
                     switch (_message.Content.Trim().ToLower())
                     {
                         case "听课":
-                            xmlD = GetPosterMApp();
+                            //xmlD = GetPosterMApp();
+                            xmlD = SubscribePoster();
                             retStr = xmlD.InnerXml.Trim();
                             break;
                         case "1":
@@ -156,7 +157,7 @@ namespace LuqinOfficialAccount.Controllers
                 MsgType = "text",
                 FromUserName = _settings.originalId,
                 ToUserName = _message.FromUserName.Trim(),
-                Content = "谢谢关注，请将下面的海报分享到您的朋友圈。👇👇👇"
+                Content = "感谢您的关注！\r\n下方海报保存到手机👇👇👇\r\n并分享至朋友圈或微信群，邀请3位好友关注我们，即可在悦长大后台直接领取课程！"
             };
             api.SendServiceMessage(sendMessage);
             XmlDocument xmlD = new XmlDocument();
