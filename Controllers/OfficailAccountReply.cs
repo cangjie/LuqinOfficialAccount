@@ -57,7 +57,7 @@ namespace LuqinOfficialAccount.Controllers
                             retStr = xmlD.InnerXml.Trim();
                             break;
                         case "1":
-                            xmlD = SubscribePoster();
+                            xmlD = Help();
                             retStr = xmlD.InnerXml.Trim();
                             break;
                         default:
@@ -132,6 +132,43 @@ namespace LuqinOfficialAccount.Controllers
             
             return xmlD;
         }
+
+        public XmlDocument Help()
+        {
+            OfficialAccountApi api = new OfficialAccountApi(_context, _config);
+            
+            OASent sendMessage = new OASent()
+            {
+                id = 0,
+                MsgType = "video",
+                FromUserName = _settings.originalId,
+                ToUserName = _message.FromUserName.Trim(),
+                Content = "b4jyA__yqy1crwzwSktKUwMf04GKGqzAjPbM2PmGdmFY13sBy7otre5t23h55w33"
+            };
+            api.SendServiceMessage(sendMessage);
+            /*
+            sendMessage = new OASent()
+            {
+                id = 0,
+                MsgType = "text",
+                FromUserName = _settings.originalId,
+                ToUserName = _message.FromUserName.Trim(),
+                Content = "如何下载专属海报？"
+            };
+            api.SendServiceMessage(sendMessage);
+            */
+            XmlDocument xmlD = new XmlDocument();
+            xmlD.LoadXml("<xml>"
+                + "<ToUserName><![CDATA[" + _message.FromUserName.Trim() + "]]></ToUserName>"
+                + "<FromUserName ><![CDATA[" + _settings.originalId.Trim() + "]]></FromUserName>"
+                + "<CreateTime >" + Util.GetLongTimeStamp(DateTime.Now) + "</CreateTime>"
+                + "<MsgType><![CDATA[video]]></MsgType>"
+                + "<Video><MediaId><![CDATA[b4jyA__yqy1crwzwSktKU2tm88qzh3s2Uka3RfwUZCK-t9MRViZJD25St7LRPe8J]]></MediaId><Title><![CDATA[]]></Title><Description><![CDATA[]]></Description ></Video>"
+                + "</xml>");
+
+            return xmlD;
+        }
+
 
         public XmlDocument SubscribePoster()
         {

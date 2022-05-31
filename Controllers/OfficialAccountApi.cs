@@ -421,6 +421,10 @@ namespace LuqinOfficialAccount.Controllers
             string messageJson = "";
             switch (message.MsgType.Trim())
             {
+                case "video":
+                    messageJson = "\"msgtype\": \"video\", \"video\": {\"media_id\":\"" + message.Content.Trim() + "\", "
+                        + " \"thumb_media_id\":\"" + message.Content.Trim() + "\", \"title\": \"\", \"description\":\"\"  }";
+                    break;
                 case "text":
                 default:
                     messageJson = "\"msgtype\": \"text\", \"text\": {\"content\":\"" + message.Content.Trim().Replace("\"", "'") + "\" }";
