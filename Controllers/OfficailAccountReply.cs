@@ -143,7 +143,8 @@ namespace LuqinOfficialAccount.Controllers
                 MsgType = "video",
                 FromUserName = _settings.originalId,
                 ToUserName = _message.FromUserName.Trim(),
-                Content = "b4jyA__yqy1crwzwSktKUwMf04GKGqzAjPbM2PmGdmFY13sBy7otre5t23h55w33"
+                Content = "b4jyA__yqy1crwzwSktKUwMf04GKGqzAjPbM2PmGdmFY13sBy7otre5t23h55w33",
+                Thumb = "b4jyA__yqy1crwzwSktKU9JKPizzWEh-ZHywQ1QW2MWb8K5rMvU84VGcg_wFW-by"
             };
             api.SendServiceMessage(sendMessage);
             /*

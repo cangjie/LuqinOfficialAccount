@@ -15,6 +15,7 @@ namespace LuqinOfficialAccount.Models
         public int origin_message_id { get; set; } = 0;
         public string MsgType { get; set; } = "";
         public string Content { get; set; } = "";
+        public string Thumb { get; set; } = "";
         public string err_code { get; set; } = "";
         public string err_msg { get; set; } = "";
 

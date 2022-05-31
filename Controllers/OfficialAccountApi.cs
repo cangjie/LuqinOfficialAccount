@@ -422,8 +422,9 @@ namespace LuqinOfficialAccount.Controllers
             switch (message.MsgType.Trim())
             {
                 case "video":
-                    messageJson = "\"msgtype\": \"video\", \"video\": {\"media_id\":\"" + message.Content.Trim() + "\", "
-                        + " \"thumb_media_id\":\"" + message.Content.Trim() + "\", \"title\": \"\", \"description\":\"\"  }";
+                    messageJson = "\"msgtype\": \"video\", \"video\": {\"media_id\":\"" + message.Content.Trim() + "\" "
+                        + ",  \"thumb_media_id\":\"" + message.Thumb.Trim() + "\" }"; //, \"title\": \"test\", \"description\":\"aaa\"  }";
+                        //+ " }";
                     break;
                 case "text":
                 default:
