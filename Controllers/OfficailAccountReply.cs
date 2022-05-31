@@ -111,7 +111,7 @@ namespace LuqinOfficialAccount.Controllers
             UserController uc = new UserController(_context, _config);
             XmlDocument xmlD = new XmlDocument();
             int userId = uc.CheckUser(_message.FromUserName.Trim());
-            var assetList = _context.userMediaAsset.Where(a => a.user_id == userId).ToList();
+            var assetList = _context.userMediaAsset.Where(a => (a.user_id == userId && a.media_id == 4)).ToList();
             if (assetList != null && assetList.Count > 0)
             {
                 //string message = "您可以<a href='https://mp.weixin.qq.com/s/tOUNhLcJMp4uqkDG4PTCKA' >点击此处</a>开始聆听卢老师的收费课程。";
@@ -321,7 +321,7 @@ namespace LuqinOfficialAccount.Controllers
                                     {
                                         UserMediaAsset uma = new UserMediaAsset()
                                         {
-                                            media_id = 1,
+                                            media_id = 4,
                                             user_id = scan.poster_user_id,
 
                                         };
