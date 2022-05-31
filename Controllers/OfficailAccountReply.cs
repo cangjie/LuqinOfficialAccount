@@ -100,6 +100,9 @@ namespace LuqinOfficialAccount.Controllers
                 case "free":
                     xmlD = FreeClick();
                     break;
+                case "help":
+                    xmlD = Help();
+                    break;
                 default:
                     break;
             }
