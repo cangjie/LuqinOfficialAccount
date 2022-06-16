@@ -60,6 +60,8 @@ namespace LuqinOfficialAccount.Controllers
                             xmlD = Help();
                             retStr = xmlD.InnerXml.Trim();
                             break;
+                        case "治愈动画":
+                            break;
                         default:
                             retStr = "success";
                             break;
@@ -133,6 +135,26 @@ namespace LuqinOfficialAccount.Controllers
             }
 
             
+            return xmlD;
+        }
+
+        public XmlDocument ZhiyuCatoon()
+        {
+            string message = "跳跳羊： https://b23.tv/41qUv6I\r\n"
+                + "远在天边： https://b23.tv/2CSc8mP\r\n"
+                + "狮子王：http://m.v.qq.com/x/cover/x/lh4cj69w87hfodz/a00136jovza.html?&url_from=share&second_share=0&share_from=copy\r\n"
+                + "心灵奇旅：https://v.qq.com/x/cover/mzc002009xj5sve/m0039lbpnkr.html?n_version=2021\r\n"
+                + "龙猫：http://m.iqiyi.com/v_19rqv721o4.html?social_platform=link&p1=2_22_221&_psc=58d4e8eb6ed44e79a4f4a9f942dba80f\r\n"
+                + "寻梦环游记：http://m.v.qq.com/x/cover/x/vjrvzv3s517g6m8/w0025hgvzin.html?&url_from=share&second_share=0&share_from=copy&pgid=page_detail&mod_id=mod_toolbar_new";
+
+            XmlDocument xmlD = new XmlDocument();
+            xmlD.LoadXml("<xml>"
+                + "<ToUserName><![CDATA[" + _message.FromUserName.Trim() + "]]></ToUserName>"
+                + "<FromUserName ><![CDATA[" + _settings.originalId.Trim() + "]]></FromUserName>"
+                + "<CreateTime >" + Util.GetLongTimeStamp(DateTime.Now) + "</CreateTime>"
+                + "<MsgType><![CDATA[text]]></MsgType>"
+                + "<Content><![CDATA[" + message.Trim() + "]]></Content>"
+                + "</xml>");
             return xmlD;
         }
 
