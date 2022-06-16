@@ -61,6 +61,8 @@ namespace LuqinOfficialAccount.Controllers
                             retStr = xmlD.InnerXml.Trim();
                             break;
                         case "治愈动画":
+                            xmlD = ZhiyuCatoon();
+                            retStr = xmlD.InnerXml.Trim();
                             break;
                         default:
                             retStr = "success";
