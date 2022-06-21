@@ -18,6 +18,15 @@ namespace LuqinOfficialAccount.Models
         public string Thumb { get; set; } = "";
         public string err_code { get; set; } = "";
         public string err_msg { get; set; } = "";
+        public Article[] articles;
 
+    }
+
+    public class Article
+    {
+        public string title = "";
+        public string description = "";
+        public string url = "";
+        public string picurl = "";
     }
 }

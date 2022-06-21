@@ -426,6 +426,16 @@ namespace LuqinOfficialAccount.Controllers
                         + ",  \"thumb_media_id\":\"" + message.Thumb.Trim() + "\" }"; //, \"title\": \"test\", \"description\":\"aaa\"  }";
                         //+ " }";
                     break;
+                case "news":
+                    string articleJson = "";
+                    for (int i = 0; i < message.articles.Length; i++)
+                    {
+                        articleJson = articleJson + ((!articleJson.Trim().Equals("")) ? ", " : "")
+                            + "{\"title\": \"" + message.articles[i].title.Trim() + "\", \"description\": \"" + message.articles[i].description.Trim() + "\", "
+                            + "\"url\": \"" + message.articles[i].url.Trim() + "\", \"picurl\": \"" + message.articles[i].picurl.Trim() + "\" } ";
+                    }
+                    messageJson = "\"msgtype\": \"news\", \"news\": {\"articles\": [" + articleJson + "]}";
+                    break;
                 case "text":
                 default:
                     messageJson = "\"msgtype\": \"text\", \"text\": {\"content\":\"" + message.Content.Trim().Replace("\"", "'") + "\" }";

@@ -167,11 +167,17 @@ namespace LuqinOfficialAccount.Controllers
             OASent sendMessage = new OASent()
             {
                 id = 0,
-                MsgType = "video",
+                MsgType = "news",
                 FromUserName = _settings.originalId,
                 ToUserName = _message.FromUserName.Trim(),
-                Content = "b4jyA__yqy1crwzwSktKUwMf04GKGqzAjPbM2PmGdmFY13sBy7otre5t23h55w33",
-                Thumb = "DKLqmuqTxW5A3Bbrn9Ff78ARoT-N-m9sVRyTVD4n66vfEUeeb9jkW6WC2QWPxnUE"
+                articles = new Article[] { new Article() {
+                    title = "如何邀请好友助力？",
+                    description = "如何邀请好友助力？",
+                    url = "https://mp.weixin.qq.com/s?__biz=MzA3MTM1OTIwNg==&mid=2654314390&idx=1&sn=b5e1af5cbe45aeb208fbdce55f41c758&chksm=84eff01fb3987909038bfdd3739d4c6405980a22f7c50f11dcc93cddf119055e6f2e95a166d6#rd",
+                    picurl = "https://mmbiz.qpic.cn/mmbiz_png/2x9sALwpIbXPxvWXbibNB4icdlahZq3837sDuqQf82hJY97ib3DqRsTR5Ns8qp9cQnMv2Mtd43ulTH2TJ3Dkejibew/0?wx_fmt=png"
+                } }
+                //Content = "b4jyA__yqy1crwzwSktKUwMf04GKGqzAjPbM2PmGdmFY13sBy7otre5t23h55w33",
+                //Thumb = "DKLqmuqTxW5A3Bbrn9Ff78ARoT-N-m9sVRyTVD4n66vfEUeeb9jkW6WC2QWPxnUE"
             };
             api.SendServiceMessage(sendMessage);
             /*
