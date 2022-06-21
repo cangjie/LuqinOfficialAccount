@@ -171,7 +171,7 @@ namespace LuqinOfficialAccount.Controllers
                 FromUserName = _settings.originalId,
                 ToUserName = _message.FromUserName.Trim(),
                 Content = "b4jyA__yqy1crwzwSktKUwMf04GKGqzAjPbM2PmGdmFY13sBy7otre5t23h55w33",
-                Thumb = "DKLqmuqTxW5A3Bbrn9Ff7_jKTzGtXcYwfErCQU1bmQVHrHu-mvQeXUweu07jCSpH"
+                Thumb = "DKLqmuqTxW5A3Bbrn9Ff79gAPtxGjxyhB19G_LHxPuxX6CH7-W9EnI4UEE0i4Zr1"
             };
             api.SendServiceMessage(sendMessage);
             /*
