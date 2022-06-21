@@ -180,6 +180,19 @@ namespace LuqinOfficialAccount.Controllers
                 //Thumb = "DKLqmuqTxW5A3Bbrn9Ff78ARoT-N-m9sVRyTVD4n66vfEUeeb9jkW6WC2QWPxnUE"
             };
             api.SendServiceMessage(sendMessage);
+            sendMessage = new OASent()
+            {
+                id = 0,
+                MsgType = "news",
+                FromUserName = _settings.originalId,
+                ToUserName = _message.FromUserName.Trim(),
+                articles = new Article[] { new Article() {
+                    title = "如何下载专属海报？",
+                    description = "如何下载专属海报？",
+                    url = "https://mp.weixin.qq.com/s?__biz=MzA3MTM1OTIwNg==&mid=2654314391&idx=1&sn=748bcfe8ba281b53792cd555722d46bf&chksm=84eff01eb398790874ebfdc0aced7d5386ef8d1d2f48a9f2b4b018c9378ee253954a868f4dcf#rd",
+                    picurl = "https://mmbiz.qpic.cn/mmbiz_png/2x9sALwpIbXPxvWXbibNB4icdlahZq3837IrNt726gwOfQYBHdLfBXpIPSVh65Q1RhudxZY5Rsou5ibYlP6PHRcFQ/0?wx_fmt=png"
+                } }
+            };
             /*
             sendMessage = new OASent()
             {
@@ -192,6 +205,7 @@ namespace LuqinOfficialAccount.Controllers
             api.SendServiceMessage(sendMessage);
             */
             XmlDocument xmlD = new XmlDocument();
+            /*
             xmlD.LoadXml("<xml>"
                 + "<ToUserName><![CDATA[" + _message.FromUserName.Trim() + "]]></ToUserName>"
                 + "<FromUserName ><![CDATA[" + _settings.originalId.Trim() + "]]></FromUserName>"
@@ -199,7 +213,8 @@ namespace LuqinOfficialAccount.Controllers
                 + "<MsgType><![CDATA[video]]></MsgType>"
                 + "<Video><MediaId><![CDATA[b4jyA__yqy1crwzwSktKU2tm88qzh3s2Uka3RfwUZCK-t9MRViZJD25St7LRPe8J]]></MediaId><Title><![CDATA[]]></Title><Description><![CDATA[]]></Description ></Video>"
                 + "</xml>");
-
+            */
+            xmlD.LoadXml("<xml/>");
             return xmlD;
         }
 
