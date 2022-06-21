@@ -40,7 +40,7 @@ namespace LuqinOfficialAccount.Controllers
                             break;
                         case "click":
                             xmlD = CheckClick();
-                            retStr = xmlD.InnerXml.Trim();
+                            retStr = (xmlD.InnerText.Trim().Equals("")? "success" : xmlD.InnerXml.Trim());
                             break;
                         default:
                             break;
@@ -193,6 +193,7 @@ namespace LuqinOfficialAccount.Controllers
                     picurl = "https://mmbiz.qpic.cn/mmbiz_png/2x9sALwpIbXPxvWXbibNB4icdlahZq3837IrNt726gwOfQYBHdLfBXpIPSVh65Q1RhudxZY5Rsou5ibYlP6PHRcFQ/0?wx_fmt=png"
                 } }
             };
+            api.SendServiceMessage(sendMessage);
             /*
             sendMessage = new OASent()
             {
