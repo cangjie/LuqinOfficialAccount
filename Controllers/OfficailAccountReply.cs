@@ -64,6 +64,10 @@ namespace LuqinOfficialAccount.Controllers
                             xmlD = ZhiyuCatoon();
                             retStr = xmlD.InnerXml.Trim();
                             break;
+                        case "广告":
+                        case "合作":
+                            retStr = AdCorp().InnerXml.Trim();
+                            break;
                         default:
                             retStr = "success";
                             break;
@@ -107,9 +111,25 @@ namespace LuqinOfficialAccount.Controllers
                 case "help":
                     xmlD = Help();
                     break;
+                case "ad":
+                    xmlD = AdCorp();
+                    break;
                 default:
                     break;
             }
+            return xmlD;
+        }
+
+        public XmlDocument AdCorp()
+        {
+            XmlDocument xmlD = new XmlDocument();
+            xmlD.LoadXml("<xml>"
+                + "<ToUserName><![CDATA[" + _message.FromUserName.Trim() + "]]></ToUserName>"
+                + "<FromUserName ><![CDATA[" + _settings.originalId.Trim() + "]]></FromUserName>"
+                + "<CreateTime >" + Util.GetLongTimeStamp(DateTime.Now) + "</CreateTime>"
+                + "<MsgType><![CDATA[image]]></MsgType>"
+                + "<Image><MediaId><![CDATA[DKLqmuqTxW5A3Bbrn9Ff7yngT-ZVwWr9zsfawNphW8WrRDaYC3BGYUSx0tuYLiUl]]></MediaId></Image>"
+                + "</xml>");
             return xmlD;
         }
 
