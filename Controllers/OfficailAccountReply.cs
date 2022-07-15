@@ -66,6 +66,7 @@ namespace LuqinOfficialAccount.Controllers
                             break;
                         case "广告":
                         case "合作":
+                        case "广告合作":
                             retStr = AdCorp().InnerXml.Trim();
                             break;
                         default:
