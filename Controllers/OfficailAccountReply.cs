@@ -129,7 +129,7 @@ namespace LuqinOfficialAccount.Controllers
                 + "<FromUserName ><![CDATA[" + _settings.originalId.Trim() + "]]></FromUserName>"
                 + "<CreateTime >" + Util.GetLongTimeStamp(DateTime.Now) + "</CreateTime>"
                 + "<MsgType><![CDATA[image]]></MsgType>"
-                + "<Image><MediaId><![CDATA[DKLqmuqTxW5A3Bbrn9Ff7yngT-ZVwWr9zsfawNphW8WrRDaYC3BGYUSx0tuYLiUl]]></MediaId></Image>"
+                + "<Image><MediaId><![CDATA[DKLqmuqTxW5A3Bbrn9Ff75W913rtti2XcO6pfqGQCpPYaWtuB1LVOm4BF9AIQjU3]]></MediaId></Image>"
                 + "</xml>");
             return xmlD;
         }
