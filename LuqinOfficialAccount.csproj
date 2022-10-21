@@ -18,6 +18,9 @@
     <None Remove="System.Drawing.Common" />
     <None Remove="images\" />
     <None Remove="Microsoft.Extensions.FileSystemGlobbing" />
+    <None Remove="NewLife.Redis" />
+    <None Remove="BeetleX.Redis" />
+    <None Remove="StackExchange.Redis" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
@@ -32,6 +35,7 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="System.Drawing.Common" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.FileSystemGlobbing" Version="6.0.0" />
+    <PackageReference Include="StackExchange.Redis" Version="2.6.70" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Models\" />

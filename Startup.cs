@@ -57,6 +57,10 @@ namespace LuqinOfficialAccount
                 sr.Close();
             }
 
+            RedisClient.Init("127.0.0.1");
+
+            Util.GetStockList();
+
             services.AddDbContext<AppDBContext>(
                 options => options.UseSqlServer(conStr)
             );

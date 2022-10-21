@@ -32,6 +32,7 @@ namespace LuqinOfficialAccount.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<EfTest>>> GetEfTest()
         {
+            
             return await _context.EfTest.ToListAsync();
         }
 

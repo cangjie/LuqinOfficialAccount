@@ -11,8 +11,12 @@ namespace LuqinOfficialAccount
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<LimitUp>().HasKey(l => new { l.gid, l.alert_date});
 
+            modelBuilder.Entity<Holiday>().HasNoKey();
         }
+
+        
 
         public DbSet<LuqinOfficialAccount.Models.EfTest> EfTest { get; set; }
 
@@ -31,6 +35,11 @@ namespace LuqinOfficialAccount
         public DbSet<Token> token { get; set; }
 
         public DbSet<UserMediaAsset> userMediaAsset { get; set; }
+
+        public DbSet<Holiday> holiday { get; set; }
+
+        public DbSet<LuqinOfficialAccount.Models.LimitUp> LimitUp { get; set; }
+
 
     }
 }
