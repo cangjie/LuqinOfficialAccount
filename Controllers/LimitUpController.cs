@@ -31,10 +31,10 @@ namespace LuqinOfficialAccount.Controllers
        
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<LimitUp>>> GetLimitUpTwice(string startStr, string endStr)
+        public async Task<ActionResult<IEnumerable<LimitUp>>> GetLimitUpTwice(string startDate, string endDate)
         {
-            DateTime start = DateTime.Parse(startStr);
-            DateTime end = DateTime.Parse(endStr);
+            DateTime start = DateTime.Parse(startDate);
+            DateTime end = DateTime.Parse(endDate);
             string sqlStr = "  select * from limit_up a where exists "
                 + " ( select 'a' from limit_up b where a.gid = b.gid and b.alert_date = dbo.func_GetLastTransactDate(a.alert_date, 1) )  "
                 + " and a.alert_date >= '" + start.Date.ToShortDateString() + "' and a.alert_date <= '" + end.Date.ToShortDateString() + "' ";

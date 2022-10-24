@@ -1,0 +1,160 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>二连板</title>
+    <link rel="stylesheet" href="css/bootstrap.css" />
+    <link rel="stylesheet" href="css/bootstrap-grid.css" />
+    <link rel="stylesheet" href="css/bootstrap-reboot.css" />
+    <script type="text/javascript" src="js/jquery-3.6.1.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="js/util.js?sdfsdsw"></script>
+    <script type="text/javascript">var currentDate = new Date();
+        var currentDateStr = getUrlParameter('month');
+        if (currentDateStr.trim() == '') {
+            currentDateStr = (currentDate.getFullYear() - 2000).toString() + '-' + (currentDate.getMonth() + 1).toString();
+        }
+
+        var pageArr = [];
+
+        var currentDate = convertStrToDate('20' + currentDateStr + '-1');
+
+        var topDate = new Date();
+        topDate.setDate(1);
+        topDate.setHours(0);
+        topDate.setMinutes(0);
+        topDate.setSeconds(0);
+        topDate.setMilliseconds(0);
+        currentDate.setMonth(currentDate.getMonth() + 2);
+        if (currentDate < topDate) {
+            pageArr[pageArr.length] = (currentDate.getFullYear() - 2000).toString() + '-' + (currentDate.getMonth()+1).toString();
+        }
+        currentDate.setMonth(currentDate.getMonth() - 1);
+        if (currentDate < topDate) {
+            pageArr[pageArr.length] = (currentDate.getFullYear() - 2000).toString() + '-' + (currentDate.getMonth() + 1).toString();
+        }
+        currentDate.setMonth(currentDate.getMonth() - 1);
+        if (currentDate < topDate) {
+            pageArr[pageArr.length] = (currentDate.getFullYear() - 2000).toString() + '-' + (currentDate.getMonth() + 1).toString();
+        }
+
+
+        
+
+
+
+        for (var i = 0; pageArr.length < 5; i++) {
+
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            pageArr[pageArr.length] = (currentDate.getFullYear() - 2000).toString() + '-' + (currentDate.getMonth() + 1).toString();
+        }
+        var startDateStr = '20' + currentDateStr + '-01 00:00:00';
+        var startDate = convertStrToDate(startDateStr);
+        var endDate = convertStrToDate(startDateStr);
+        endDate.setMonth(endDate.getMonth() + 1);
+        endDate.setDate(endDate.getDate() - 1);
+        var getDataUrl = 'api/LimitUp/GetLimitUpTwice?startDate='
+            + encodeURIComponent(startDate.getFullYear().toString() + '-' + (startDate.getMonth() + 1).toString() + '-' + startDate.getDate().toString())
+            + '&endDate=' + encodeURIComponent(endDate.getFullYear().toString() + '-' + (endDate.getMonth() + 1).toString() + '-' + endDate.getDate().toString());
+        $.ajax({
+            url: getDataUrl,
+            type: 'GET',
+            success: function (msg, status) {
+                console.log(msg);
+                var data = document.getElementById('data');
+                for (var i = 0; i < msg.length; i++) {
+                    var item = msg[i];
+                    var date = new Date(item.alert_date);
+                    item.date = date.getFullYear().toString() + '-' + (date.getMonth() + 1).toString() + '-' + date.getDate().toString();
+                    var tr = document.createElement('tr');
+                    var tdDate = document.createElement('td');
+                    tdDate.innerText = item.date;
+                    tr.appendChild(tdDate);
+                    var tdGid = document.createElement('td');
+                    tdGid.innerText = item.gid;
+                    tr.appendChild(tdGid);
+                    var tdName = document.createElement('td');
+                    tdName.innerText = item.name;
+                    tr.appendChild(tdName);
+                    data.appendChild(tr);
+                }
+            }
+        })</script>
+</head>
+<body >
+    <div>
+        <nav aria-label="Page navigation example"  >
+            <ul id="nav_up" class="pagination" style="margin-left:200px"   >
+                
+            </ul>
+        </nav>
+    </div>
+    <div>
+        <table class="table">
+            <thead>
+                <tr>
+                    <td><b>日期</b></td>
+                    <td><b>代码</b></td>
+                    <td><b>名称</b></td>
+                </tr>
+            </thead>
+            <tbody id="data" >
+
+            </tbody>
+        </table>
+    </div>
+
+    <div>
+        <nav aria-label="Page navigation example">
+            <ul id="nav_down" class="pagination" style="margin-left:200px"  >
+                
+            </ul>
+        </nav>
+    </div>
+</body>
+</html>
+<script type="text/javascript" >
+
+    
+    var navUp = document.getElementById("nav_up");
+    
+    CreateNav(navUp);
+
+    var navDown = document.getElementById("nav_down");
+    CreateNav(navDown);
+    
+
+    
+
+    function CreateNav(nav) {
+        
+        var currentDate = convertStrToDate('20' + currentDateStr + '-01');
+        var topDate = new Date();
+        var firstPage = document.createElement("li");
+        var firstPageClass = document.createAttribute("class");
+        var firstActive = false;
+        if (topDate.getFullYear() == currentDate.getFullYear() && topDate.getMonth() == currentDate.getMonth()) {
+            firstActive = true;
+        }
+        firstPageClass.value = "page-item" + (firstActive? " active" : "");
+        var monthStr = (topDate.getFullYear() - 2000).toString() + '-' + (topDate.getMonth() + 1).toString();
+        firstPage.innerHTML = '<a class="page-link" href="?month=' + monthStr + '" >' + monthStr + '</a>';
+        firstPage.attributes.setNamedItem(firstPageClass);
+        nav.appendChild(firstPage);
+
+        for (var i = 0; i < pageArr.length; i++) {
+            if (pageArr[i].trim() == (topDate.getFullYear() - 2000).toString() + '-' + (topDate.getMonth() + 1).toString()) {
+                continue;
+            }
+            var curMonthStr = pageArr[i];
+            var isActive = (curMonthStr == currentDateStr);
+            var li = document.createElement("li");
+            var classAttr = document.createAttribute("class");
+            classAttr.value = "page-item" + (isActive ? " active" : "");
+            li.attributes.setNamedItem(classAttr);
+            li.innerHTML = '<a class="page-link" href="?month=' + curMonthStr + '" >' + curMonthStr + '</a>';
+            nav.appendChild(li);
+        }
+    }
+
+</script>
