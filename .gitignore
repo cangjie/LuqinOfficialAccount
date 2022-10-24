@@ -403,7 +403,7 @@ ASALocalRun/
 
 # Local History for Visual Studio
 .localhistory/
-
+config.redis
 config.sqlServer
 appsettings.*
 access_token.official_account

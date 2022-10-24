@@ -57,7 +57,27 @@ namespace LuqinOfficialAccount
                 sr.Close();
             }
 
-            RedisClient.Init("127.0.0.1");
+            path = $"{Environment.CurrentDirectory}";
+
+            if (path.StartsWith("/"))
+            {
+                path = path + "/";
+            }
+            else
+            {
+                path = path + "\\";
+            }
+            path = path + "config.redis";
+
+            string redisAddr = "";
+
+            using (StreamReader sr = new StreamReader(path, true))
+            {
+                redisAddr = sr.ReadToEnd();
+                sr.Close();
+            }
+
+            RedisClient.Init(redisAddr);
 
             Util.GetStockList();
 
