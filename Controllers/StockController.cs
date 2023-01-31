@@ -40,7 +40,7 @@ namespace LuqinOfficialAccount.Controllers
                 s = sArr[i];
                 if (s.gid.Trim().Equals(gid) || (s.gid.EndsWith(gid.Trim()) && gid.Length == 6))
                 {
-                    s.RefreshKLineDay();
+                    s.RefreshKLine();
                     find = true;
                     break;
                 }
@@ -48,7 +48,7 @@ namespace LuqinOfficialAccount.Controllers
 
             if (find)
             {
-                return s;
+                return Ok(s);
             }
             else
             {
