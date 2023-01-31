@@ -28,7 +28,7 @@ namespace LuqinOfficialAccount.Controllers
         }
 
         [HttpGet]
-        public ActionResult<Stock> GetStock(string gid)
+        public  ActionResult<Stock> GetStock(string gid)
         {
             bool find = false;
             Stock s = new Stock();
@@ -48,7 +48,7 @@ namespace LuqinOfficialAccount.Controllers
 
             if (find)
             {
-                return Ok(s);
+                return new OkObjectResult(s);
             }
             else
             {
