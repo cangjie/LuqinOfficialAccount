@@ -12,6 +12,7 @@ namespace LuqinOfficialAccount
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<LimitUp>().HasKey(l => new { l.gid, l.alert_date});
+            modelBuilder.Entity<LimitUpTwice>().HasKey(l => new { l.gid, l.alert_date });
             modelBuilder.Entity<ContinuousRise>().HasKey(c => new { c.alert_date, c.gid });
             modelBuilder.Entity<Holiday>().HasNoKey();
         }
@@ -41,6 +42,8 @@ namespace LuqinOfficialAccount
         public DbSet<LuqinOfficialAccount.Models.LimitUp> LimitUp { get; set; }
 
         public DbSet<LuqinOfficialAccount.Models.ContinuousRise> ContinuousRise { get; set; }
+
+        public DbSet<LuqinOfficialAccount.Models.LimitUpTwice> LimitUpTwice { get; set; }
 
 
     }

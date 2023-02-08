@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
@@ -40,10 +40,16 @@
   <ItemGroup>
     <Folder Include="Models\" />
     <Folder Include="images\" />
+    <Folder Include="wwwroot\fonts\" />
+    <Folder Include="wwwroot\images\" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="ThoughtWorks.QRCode">
       <HintPath>ThoughtWorks.QRCode.dll</HintPath>
     </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Remove="wwwroot\fonts\" />
+    <Content Remove="wwwroot\images\" />
   </ItemGroup>
 </Project>

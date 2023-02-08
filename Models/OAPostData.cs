@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace LuqinOfficialAccount.Models
 {
+    
     public class OAPostData
     {
         [FromQuery]

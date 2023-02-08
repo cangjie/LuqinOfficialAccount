@@ -28,6 +28,13 @@ namespace LuqinOfficialAccount.Controllers
             _settings = Settings.GetSettings(_config);
         }
 
+        
+
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<LimitUpTwice>>> GetLimitUpTwiceNew()
+        {
+            return await _db.LimitUpTwice.ToListAsync();
+        }
        
 
         [HttpGet]
