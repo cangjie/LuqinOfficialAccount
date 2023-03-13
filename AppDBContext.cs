@@ -45,6 +45,8 @@ namespace LuqinOfficialAccount
 
         public DbSet<LuqinOfficialAccount.Models.LimitUpTwice> LimitUpTwice { get; set; }
 
+        public DbSet<LuqinOfficialAccount.Models.Chip> Chip { get; set; }
+
 
     }
 }

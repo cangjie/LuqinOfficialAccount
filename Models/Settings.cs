@@ -8,7 +8,7 @@ namespace LuqinOfficialAccount.Models
         public string? appSecret { get; set; }
         public string? originalId { get; set; }
         public string? token { get; set; }
-
+        public string? tushare_token { get; set; }
         public static Settings GetSettings(IConfiguration config)
         {
             IConfiguration settings = config.GetSection("Settings");
@@ -16,12 +16,14 @@ namespace LuqinOfficialAccount.Models
             string appSecret = settings.GetSection("AppSecret").Value.Trim();
             string originalId = settings.GetSection("OriginalId").Value.Trim();
             string token = settings.GetSection("token").Value.Trim();
+            string tushare_token = settings.GetSection("tushare_token").Value.Trim();
             return new Settings()
             {
                 appId = appId,
                 appSecret = appSecret, 
                 originalId = originalId,
-                token = token
+                token = token,
+                tushare_token = tushare_token
             };
         }
     }
