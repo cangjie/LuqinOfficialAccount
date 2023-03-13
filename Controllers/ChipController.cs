@@ -45,6 +45,7 @@ namespace LuqinOfficialAccount.Controllers
             DateTime startDate = currentDate.Date.AddMonths(-2);
 
             var gidList =  _db.LimitUpTwice.Where(l => (l.alert_date >= startDate.Date && !l.gid.StartsWith("kc"))).Select(l => l.gid).Distinct().ToList();
+            //var gidList = await _db.LimitUpTwice.ToListAsync();
 
             for (int i = 0; i < gidList.Count; i++)
             {
@@ -60,7 +61,7 @@ namespace LuqinOfficialAccount.Controllers
                 }
                 if (!exists)
                 {
-                    RequestChipData(gid, startDate);
+                    RequestChipData(gid, currentDate);
                 }
             }
             return Ok(0);
@@ -83,8 +84,10 @@ namespace LuqinOfficialAccount.Controllers
             {
                 return;
             }
-            DateTime startDate = currentDate.Date.AddMonths(2);
+
             DateTime endDate = currentDate.Date;
+            DateTime startDate = currentDate.Date.AddMonths(-2);
+            
             string startDateStr = startDate.Year.ToString() + startDate.Month.ToString().PadLeft(2, '0') + startDate.Day.ToString().PadLeft(2, '0');
             string endDateStr = endDate.Year.ToString() + endDate.Month.ToString().PadLeft(2, '0') + endDate.Day.ToString().PadLeft(2, '0');
             string postData = "{   \"api_name\": \"cyq_perf\","
@@ -111,7 +114,7 @@ namespace LuqinOfficialAccount.Controllers
                         switch (j)
                         {
                             case 1:
-                                DateTime alertDate = DateTime.Parse(v.Substring(0, 4) + "-" + v.Substring(2, 2) + "-" + v.Substring(4, 2));
+                                DateTime alertDate = DateTime.Parse(v.Substring(0, 4) + "-" + v.Substring(4, 2) + "-" + v.Substring(6, 2));
                                 chip.alert_date = alertDate.Date;
                                 break;
                             case 2:
@@ -135,15 +138,22 @@ namespace LuqinOfficialAccount.Controllers
                             case 8:
                                 chip.cost_95pct = double.Parse(v);
                                 break;
+                            case 9:
+                                chip.weight_avg = double.Parse(v);
+                                break;
+                            case 10:
+                                chip.winner_rate = double.Parse(v);
+                                break;
                             default:
                                 break;
                         }
                     }
-                    var chipList = await _db.Chip.Where(c => c.alert_date == chip.alert_date && c.gid.Trim().Equals(chip.gid.Trim())).ToListAsync();
+                    var chipList =  _db.Chip.Where(c => c.alert_date == chip.alert_date && c.gid.Trim().Equals(chip.gid.Trim())).ToList();
                     if (chipList.Count == 0)
                     {
                         chip.id = 0;
-                        await _db.Chip.AddAsync(chip);
+                        _db.Chip.Add(chip);
+                        _db.SaveChanges();
                         
                     }
                 }
@@ -153,7 +163,7 @@ namespace LuqinOfficialAccount.Controllers
             {
                 Console.WriteLine(retJson);
             }
-            await _db.SaveChangesAsync();
+            //await _db.SaveChangesAsync();
 
         }
 

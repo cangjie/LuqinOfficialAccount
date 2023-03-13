@@ -17,6 +17,10 @@ namespace LuqinOfficialAccount.Models
         public double cost_50pct { get; set; }
         public double cost_85pct { get; set; }
         public double cost_95pct { get; set; }
+		public double weight_avg { get; set; }
+		public double winner_rate { get; set; }
+
+
     }
 }
 
