@@ -2,13 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using LuqinOfficialAccount;
 using LuqinOfficialAccount.Models;
 using Microsoft.Extensions.Configuration;
-
 namespace LuqinOfficialAccount.Controllers
 {
     [Route("api/[controller]/[action]")]
@@ -31,9 +28,10 @@ namespace LuqinOfficialAccount.Controllers
         
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<LimitUpTwice>>> GetLimitUpTwiceNew()
+        public async Task<ActionResult<IEnumerable<object>>> GetLimitUpTwiceNew()
         {
-            return await _db.LimitUpTwice.ToListAsync();
+            DateTime start = DateTime.Parse("2023-1-1");
+            return await _db.LimitUpTwice.Where(l => (l.alert_date > start)).OrderByDescending(l => l.alert_date).Take(10).Select(l => l.gid).Distinct().ToListAsync();
         }
        
 
@@ -59,6 +57,20 @@ namespace LuqinOfficialAccount.Controllers
                 }
             }
             return list;
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<CountResult>> CountLimitUpTwiceKDJGoldChipGathered(DateTime startDate, int countDays = 15)
+        {
+            StockController sc = new StockController(_db, _config);
+            var limitUpTwice = await _db.LimitUpTwice.Where(l => (l.alert_date >= startDate && !l.gid.StartsWith("kc"))).ToListAsync();
+            Stock[] stockArr = new Stock[limitUpTwice.Count];
+            for (int i = 0; i < stockArr.Length; i++)
+            {
+                var r = sc.GetStock(limitUpTwice[i].gid);
+                stockArr[i] = (Stock)((OkObjectResult)r.Result).Value;
+            }
+            return NotFound();
         }
 
         /*

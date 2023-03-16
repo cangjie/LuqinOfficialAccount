@@ -40,17 +40,17 @@ namespace LuqinOfficialAccount.Controllers
 
 
         [HttpGet("{currentDate}")]
-        public async Task<ActionResult<int>> GetChips(DateTime currentDate)
+        public async Task GetChips(DateTime currentDate)
         {
             DateTime startDate = currentDate.Date.AddMonths(-2);
 
-            var gidList =  _db.LimitUpTwice.Where(l => (l.alert_date >= startDate.Date && !l.gid.StartsWith("kc"))).Select(l => l.gid).Distinct().ToList();
+            var gidList = await _db.LimitUpTwice.Where(l => (l.alert_date >= startDate.Date && !l.gid.StartsWith("kc"))).Select(l => l.gid).Distinct().ToListAsync();
             //var gidList = await _db.LimitUpTwice.ToListAsync();
 
             for (int i = 0; i < gidList.Count; i++)
             {
                 string gid = gidList[i].ToString().Trim();
-                var chipList =  _db.Chip.Where(c => c.gid.Trim().Equals(gid)).OrderByDescending(c => c.id).ToList();
+                var chipList = await _db.Chip.Where(c => c.gid.Trim().Equals(gid)).OrderByDescending(c => c.id).ToListAsync();
                 bool exists = false;
                 if (chipList.Count > 0)
                 {
@@ -61,14 +61,14 @@ namespace LuqinOfficialAccount.Controllers
                 }
                 if (!exists)
                 {
-                    RequestChipData(gid, currentDate);
+                    await RequestChipData(gid, currentDate);
                 }
             }
-            return Ok(0);
+            //return Ok(0);
         }
 
         [NonAction]
-        public async void RequestChipData(string gid, DateTime currentDate)
+        public async Task RequestChipData(string gid, DateTime currentDate)
         {
             gid = gid.ToLower();
             string newGid = gid;
@@ -148,7 +148,7 @@ namespace LuqinOfficialAccount.Controllers
                                 break;
                         }
                     }
-                    var chipList =  _db.Chip.Where(c => c.alert_date == chip.alert_date && c.gid.Trim().Equals(chip.gid.Trim())).ToList();
+                    var chipList = await _db.Chip.Where(c => c.alert_date == chip.alert_date && c.gid.Trim().Equals(chip.gid.Trim())).ToListAsync();
                     if (chipList.Count == 0)
                     {
                         chip.id = 0;
@@ -168,10 +168,10 @@ namespace LuqinOfficialAccount.Controllers
         }
 
         [HttpGet]
-        public async void GetTodayChips()
+        public async Task GetTodayChips()
         {
             DateTime now = DateTime.Now.Date;
-            this.GetChips(now);
+            await GetChips(now);
         }
 
 
