@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -62,15 +63,153 @@ namespace LuqinOfficialAccount.Controllers
         [HttpGet]
         public async Task<ActionResult<CountResult>> CountLimitUpTwiceKDJGoldChipGathered(DateTime startDate, int countDays = 15)
         {
+            int successCount = 0;
+            int bigSuccessCount = 0;
+            ArrayList arr = new ArrayList();
             StockController sc = new StockController(_db, _config);
-            var limitUpTwice = await _db.LimitUpTwice.Where(l => (l.alert_date >= startDate && !l.gid.StartsWith("kc"))).ToListAsync();
+            var limitUpTwice = await _db.LimitUpTwice.Where(l => (l.alert_date >= startDate && !l.gid.StartsWith("kc")
+            //&& l.gid.Trim().Equals("sz001236")
+            )).ToListAsync();
+            for (int i = 0; i < limitUpTwice.Count; i++)
+            {
+                Stock s = (Stock)((OkObjectResult)sc.GetStock(limitUpTwice[i].gid).Result).Value;
+                int limitUpTwiceIndex = s.GetItemIndex(limitUpTwice[i].alert_date.Date);
+                if (limitUpTwiceIndex < 0)
+                {
+                    continue;
+                }
+                int topIndex = KLine.GetForwardTopKLineItem(s.klineDay, limitUpTwiceIndex);
+                if (topIndex < 0)
+                {
+                    continue;
+                }
+                int buyIndex = -1;
+                bool kdDead = false;
+                for (int j = topIndex + 1; j < s.klineDay.Length; j++)
+                {
+                    if (s.klineDay[j].k < s.klineDay[j].d)
+                    {
+                        kdDead = true;
+                    }
+                    if (kdDead && s.klineDay[j].k > s.klineDay[j].d)
+                    {
+                        buyIndex = j;
+                        break;
+                    }
+                }
+                if (buyIndex <= 0 || buyIndex + countDays >= s.klineDay.Length)
+                {
+                    continue;
+                }
+                var chipTopList = await _db.Chip.Where(c => (c.alert_date.Date == s.klineDay[topIndex].settleTime.Date && c.gid.Trim().Equals(s.gid.Trim()))).ToListAsync();
+                if (chipTopList.Count <= 0)
+                {
+                    continue;
+                }
+                var chipBuyList = await _db.Chip.Where(c => (c.alert_date.Date == s.klineDay[buyIndex].settleTime.Date && c.gid.Trim().Equals(s.gid.Trim()))).ToListAsync();
+                if (chipBuyList.Count <= 0)
+                {
+                    continue;
+                }
+                Chip chipTop = chipTopList[0];
+                Chip chipBuy = chipBuyList[0];
+
+                if (((chipBuy.cost_95pct - chipTop.cost_5pct) / (chipBuy.cost_95pct + chipTop.cost_5pct)) > 0.15)
+                {
+                    continue;
+                }
+
+                if (((chipTop.cost_95pct - chipTop.cost_5pct) / (chipTop.cost_95pct + chipTop.cost_5pct)) <
+                    ((chipBuy.cost_95pct - chipTop.cost_5pct) / (chipBuy.cost_95pct + chipTop.cost_5pct)))
+                {
+                    continue;
+                }
+
+
+
+                CountItem item = new CountItem()
+                {
+                    alert_date = s.klineDay[buyIndex].settleTime.Date,
+                    gid = s.gid,
+                    name = s.name.Trim(),
+                    days = countDays,
+                    riseRate = new double[countDays],
+                    totalRiseRate = 0
+                };
+
+
+
+                bool exists = false;
+                for (int k = 0; k < arr.Count; k++)
+                {
+                    CountItem checkDumpItem = (CountItem)arr[k];
+                    if (item.gid.Trim().Equals(checkDumpItem.gid.Trim()) && item.alert_date.Date == checkDumpItem.alert_date.Date)
+                    {
+                        exists = true;
+                    }
+                }
+                if (exists)
+                {
+                    continue;
+                    //arr.Add(item);
+                }
+
+
+                double buyPrice = s.klineDay[buyIndex].settle;
+                double maxPrice = 0;
+                for (int j = 0; j < countDays && buyIndex + 1 + j < s.klineDay.Length; j++)
+                {
+                    maxPrice = Math.Max(maxPrice, s.klineDay[buyIndex + 1 + j].high);
+                    item.riseRate[j] = (s.klineDay[buyIndex + 1 + j].high - buyPrice) / buyPrice;
+                }
+                item.totalRiseRate = (maxPrice - buyPrice) / buyPrice;
+                if (item.totalRiseRate >= 0.01)
+                {
+                    successCount++;
+                    if (item.totalRiseRate >= 0.05)
+                    {
+                        bigSuccessCount++;
+                    }
+                }
+                
+
+                arr.Add(item);
+            }
+            if (arr.Count == 0)
+            {
+                return NotFound();
+            }
+            CountItem[] itemArr = new CountItem[arr.Count];
+            for (int i = 0; i < arr.Count; i++)
+            {
+                itemArr[i] = (CountItem)arr[i];
+            }
+            
+            CountResult result = new CountResult()
+            {
+                Count = arr.Count,
+                SuccessCount = successCount,
+                BigSuccessCount = bigSuccessCount,
+                SuccessRate = (double)successCount / (double)arr.Count,
+                BigSuccessRate = (double)bigSuccessCount / (double)arr.Count,
+                list = itemArr
+            };
+
+            return Ok(result);
+
+
+
+            /*
+
             Stock[] stockArr = new Stock[limitUpTwice.Count];
             for (int i = 0; i < stockArr.Length; i++)
             {
                 var r = sc.GetStock(limitUpTwice[i].gid);
                 stockArr[i] = (Stock)((OkObjectResult)r.Result).Value;
-            }
-            return NotFound();
+                int limitUpTwiceIndex = 
+            }*/
+            //return NotFound();
+            
         }
 
         /*

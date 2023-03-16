@@ -86,7 +86,7 @@ namespace LuqinOfficialAccount.Controllers
             }
 
             DateTime endDate = currentDate.Date;
-            DateTime startDate = currentDate.Date.AddMonths(-2);
+            DateTime startDate = currentDate.Date.AddMonths(-4);
             
             string startDateStr = startDate.Year.ToString() + startDate.Month.ToString().PadLeft(2, '0') + startDate.Day.ToString().PadLeft(2, '0');
             string endDateStr = endDate.Year.ToString() + endDate.Month.ToString().PadLeft(2, '0') + endDate.Day.ToString().PadLeft(2, '0');

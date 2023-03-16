@@ -21,6 +21,10 @@ namespace LuqinOfficialAccount.Models
         public int SuccessCount { get; set; }
         public int BigSuccessCount { get; set; }
 
+        public double SuccessRate { get; set; }
+
+        public double BigSuccessRate { get; set; }
+
         public CountItem[] list { get; set; }
 
     }
