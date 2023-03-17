@@ -207,19 +207,6 @@ namespace LuqinOfficialAccount.Controllers
             };
 
             return Ok(result);
-
-
-
-            /*
-
-            Stock[] stockArr = new Stock[limitUpTwice.Count];
-            for (int i = 0; i < stockArr.Length; i++)
-            {
-                var r = sc.GetStock(limitUpTwice[i].gid);
-                stockArr[i] = (Stock)((OkObjectResult)r.Result).Value;
-                int limitUpTwiceIndex = 
-            }*/
-            //return NotFound();
             
         }
 

@@ -44,12 +44,12 @@ namespace LuqinOfficialAccount.Controllers
         {
             DateTime startDate = currentDate.Date.AddMonths(-2);
 
-            var gidList = await _db.LimitUpTwice.Where(l => (l.alert_date >= startDate.Date && !l.gid.StartsWith("kc"))).Select(l => l.gid).Distinct().ToListAsync();
+            //var gidList = await _db.LimitUpTwice.Where(l => (l.alert_date >= startDate.Date && !l.gid.StartsWith("kc"))).Select(l => l.gid).Distinct().ToListAsync();
             //var gidList = await _db.LimitUpTwice.ToListAsync();
-
-            for (int i = 0; i < gidList.Count; i++)
+            var gidList = Util.stockList;
+            for (int i = 0; i < gidList.Length; i++)
             {
-                string gid = gidList[i].ToString().Trim();
+                string gid = gidList[i].gid.ToString().Trim();
                 var chipList = await _db.Chip.Where(c => c.gid.Trim().Equals(gid)).OrderByDescending(c => c.id).ToListAsync();
                 bool exists = false;
                 if (chipList.Count > 0)
@@ -86,7 +86,7 @@ namespace LuqinOfficialAccount.Controllers
             }
 
             DateTime endDate = currentDate.Date;
-            DateTime startDate = currentDate.Date.AddMonths(-4);
+            DateTime startDate = currentDate.Date.AddMonths(-6);
             
             string startDateStr = startDate.Year.ToString() + startDate.Month.ToString().PadLeft(2, '0') + startDate.Day.ToString().PadLeft(2, '0');
             string endDateStr = endDate.Year.ToString() + endDate.Month.ToString().PadLeft(2, '0') + endDate.Day.ToString().PadLeft(2, '0');
