@@ -61,7 +61,7 @@ namespace LuqinOfficialAccount.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<CountResult>> CountLimitUpTwiceKDJGoldChipGathered(DateTime startDate, int countDays = 15)
+        public async Task<ActionResult<CountResult>> CountLimitUpTwiceKDJGoldChipGathered(DateTime startDate, int countDays = 15, double chip = 0.15)
         {
             int successCount = 0;
             int bigSuccessCount = 0;
@@ -114,7 +114,7 @@ namespace LuqinOfficialAccount.Controllers
                 Chip chipTop = chipTopList[0];
                 Chip chipBuy = chipBuyList[0];
 
-                if (((chipBuy.cost_95pct - chipTop.cost_5pct) / (chipBuy.cost_95pct + chipTop.cost_5pct)) > 0.15)
+                if (((chipBuy.cost_95pct - chipTop.cost_5pct) / (chipBuy.cost_95pct + chipTop.cost_5pct)) > chip)
                 {
                     continue;
                 }
