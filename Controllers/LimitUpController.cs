@@ -72,108 +72,119 @@ namespace LuqinOfficialAccount.Controllers
             )).ToListAsync();
             for (int i = 0; i < limitUpTwice.Count; i++)
             {
-                Stock s = (Stock)((OkObjectResult)sc.GetStock(limitUpTwice[i].gid).Result).Value;
-                int limitUpTwiceIndex = s.GetItemIndex(limitUpTwice[i].alert_date.Date);
-                if (limitUpTwiceIndex < 0)
+                try
                 {
-                    continue;
-                }
-                int topIndex = KLine.GetForwardTopKLineItem(s.klineDay, limitUpTwiceIndex);
-                if (topIndex < 0)
-                {
-                    continue;
-                }
-                int buyIndex = -1;
-                bool kdDead = false;
-                for (int j = topIndex + 1; j < s.klineDay.Length; j++)
-                {
-                    if (s.klineDay[j].k < s.klineDay[j].d)
+
+                    Stock s = (Stock)((OkObjectResult)sc.GetStock(limitUpTwice[i].gid).Result).Value;
+                    int limitUpTwiceIndex = s.GetItemIndex(limitUpTwice[i].alert_date.Date);
+                    if (limitUpTwiceIndex < 0)
                     {
-                        kdDead = true;
+                        continue;
                     }
-                    if (kdDead && s.klineDay[j].k > s.klineDay[j].d)
+                    int topIndex = KLine.GetForwardTopKLineItem(s.klineDay, limitUpTwiceIndex);
+                    if (topIndex < 0)
                     {
-                        buyIndex = j;
-                        break;
+                        continue;
                     }
-                }
-                if (buyIndex <= 0 || buyIndex + countDays >= s.klineDay.Length)
-                {
-                    continue;
-                }
-                var chipTopList = await _db.Chip.Where(c => (c.alert_date.Date == s.klineDay[topIndex].settleTime.Date && c.gid.Trim().Equals(s.gid.Trim()))).ToListAsync();
-                if (chipTopList.Count <= 0)
-                {
-                    continue;
-                }
-                var chipBuyList = await _db.Chip.Where(c => (c.alert_date.Date == s.klineDay[buyIndex].settleTime.Date && c.gid.Trim().Equals(s.gid.Trim()))).ToListAsync();
-                if (chipBuyList.Count <= 0)
-                {
-                    continue;
-                }
-                Chip chipTop = chipTopList[0];
-                Chip chipBuy = chipBuyList[0];
-
-                if (((chipBuy.cost_95pct - chipTop.cost_5pct) / (chipBuy.cost_95pct + chipTop.cost_5pct)) > chip)
-                {
-                    continue;
-                }
-
-                if (((chipTop.cost_95pct - chipTop.cost_5pct) / (chipTop.cost_95pct + chipTop.cost_5pct)) <
-                    ((chipBuy.cost_95pct - chipTop.cost_5pct) / (chipBuy.cost_95pct + chipTop.cost_5pct)))
-                {
-                    continue;
-                }
-
-
-
-                CountItem item = new CountItem()
-                {
-                    alert_date = s.klineDay[buyIndex].settleTime.Date,
-                    gid = s.gid,
-                    name = s.name.Trim(),
-                    days = countDays,
-                    riseRate = new double[countDays],
-                    totalRiseRate = 0
-                };
-
-
-
-                bool exists = false;
-                for (int k = 0; k < arr.Count; k++)
-                {
-                    CountItem checkDumpItem = (CountItem)arr[k];
-                    if (item.gid.Trim().Equals(checkDumpItem.gid.Trim()) && item.alert_date.Date == checkDumpItem.alert_date.Date)
+                    int buyIndex = -1;
+                    bool kdDead = false;
+                    for (int j = topIndex + 1; j < s.klineDay.Length; j++)
                     {
-                        exists = true;
+                        if (s.klineDay[j].k < s.klineDay[j].d)
+                        {
+                            kdDead = true;
+                        }
+                        if (kdDead && s.klineDay[j].k > s.klineDay[j].d)
+                        {
+                            buyIndex = j;
+                            break;
+                        }
                     }
-                }
-                if (exists)
-                {
-                    continue;
-                    //arr.Add(item);
-                }
-
-
-                double buyPrice = s.klineDay[buyIndex].settle;
-                double maxPrice = 0;
-                for (int j = 0; j < countDays && buyIndex + 1 + j < s.klineDay.Length; j++)
-                {
-                    maxPrice = Math.Max(maxPrice, s.klineDay[buyIndex + 1 + j].high);
-                    item.riseRate[j] = (s.klineDay[buyIndex + 1 + j].high - buyPrice) / buyPrice;
-                }
-                item.totalRiseRate = (maxPrice - buyPrice) / buyPrice;
-                if (item.totalRiseRate >= 0.01)
-                {
-                    successCount++;
-                    if (item.totalRiseRate >= 0.05)
+                    if (buyIndex <= 0 || buyIndex + countDays >= s.klineDay.Length)
                     {
-                        bigSuccessCount++;
+                        continue;
                     }
-                }
-                
+                    var chipTopList = await _db.Chip.Where(c => (c.alert_date.Date == s.klineDay[topIndex].settleTime.Date && c.gid.Trim().Equals(s.gid.Trim()))).ToListAsync();
+                    if (chipTopList.Count <= 0)
+                    {
+                        continue;
+                    }
+                    var chipBuyList = await _db.Chip.Where(c => (c.alert_date.Date == s.klineDay[buyIndex].settleTime.Date && c.gid.Trim().Equals(s.gid.Trim()))).ToListAsync();
+                    if (chipBuyList.Count <= 0)
+                    {
+                        continue;
+                    }
+                    Chip chipTop = chipTopList[0];
+                    Chip chipBuy = chipBuyList[0];
 
-                arr.Add(item);
+                    if (((chipBuy.cost_95pct - chipTop.cost_5pct) / (chipBuy.cost_95pct + chipTop.cost_5pct)) > chip)
+                    {
+                        continue;
+                    }
+
+                    if (((chipTop.cost_95pct - chipTop.cost_5pct) / (chipTop.cost_95pct + chipTop.cost_5pct)) <
+                        ((chipBuy.cost_95pct - chipTop.cost_5pct) / (chipBuy.cost_95pct + chipTop.cost_5pct)))
+                    {
+                        continue;
+                    }
+
+
+
+                    CountItem item = new CountItem()
+                    {
+                        alert_date = s.klineDay[buyIndex].settleTime.Date,
+                        gid = s.gid,
+                        name = s.name.Trim(),
+                        days = countDays,
+                        riseRate = new double[countDays],
+                        totalRiseRate = 0
+                    };
+
+
+
+                    bool exists = false;
+                    for (int k = 0; k < arr.Count; k++)
+                    {
+                        CountItem checkDumpItem = (CountItem)arr[k];
+                        if (item.gid.Trim().Equals(checkDumpItem.gid.Trim()) && item.alert_date.Date == checkDumpItem.alert_date.Date)
+                        {
+                            exists = true;
+                        }
+                    }
+                    if (exists)
+                    {
+                        continue;
+                        //arr.Add(item);
+                    }
+
+
+                    double buyPrice = s.klineDay[buyIndex].settle;
+                    double maxPrice = 0;
+                    for (int j = 0; j < countDays && buyIndex + 1 + j < s.klineDay.Length; j++)
+                    {
+                        maxPrice = Math.Max(maxPrice, s.klineDay[buyIndex + 1 + j].high);
+                        item.riseRate[j] = (s.klineDay[buyIndex + 1 + j].high - buyPrice) / buyPrice;
+                    }
+                    item.totalRiseRate = (maxPrice - buyPrice) / buyPrice;
+                    if (item.totalRiseRate >= 0.01)
+                    {
+                        successCount++;
+                        if (item.totalRiseRate >= 0.05)
+                        {
+                            bigSuccessCount++;
+                        }
+                    }
+
+
+                    arr.Add(item);
+                }
+                catch
+                {
+
+                }
+
+
+
             }
             if (arr.Count == 0)
             {
