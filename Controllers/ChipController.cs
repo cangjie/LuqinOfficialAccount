@@ -152,8 +152,8 @@ namespace LuqinOfficialAccount.Controllers
                     if (chipList.Count == 0)
                     {
                         chip.id = 0;
-                        _db.Chip.Add(chip);
-                        _db.SaveChanges();
+                        await _db.Chip.AddAsync(chip);
+                        
                         
                     }
                 }
@@ -163,7 +163,8 @@ namespace LuqinOfficialAccount.Controllers
             {
                 Console.WriteLine(retJson);
             }
-            //await _db.SaveChangesAsync();
+            //_db.SaveChanges();
+            await _db.SaveChangesAsync();
 
         }
 
