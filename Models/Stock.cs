@@ -109,6 +109,9 @@ namespace LuqinOfficialAccount.Models
             if (klineDay.Length == 0)
             {
                 ForceRefreshKLineDay();
+                ComputeRSV(klineDay);
+                ComputeKDJ(klineDay);
+                ComputeMACD(klineDay);
             }
 
         }
@@ -294,6 +297,22 @@ namespace LuqinOfficialAccount.Models
                 }
             }
             return index;
+        }
+
+        public static Stock GetStock(string gid)
+        {
+            Stock[] stockList = Util.stockList;
+            Stock ret;
+            for (int i = 0; i < stockList.Length; i++)
+            {
+                if (stockList[i].gid.Trim().Equals(gid.Trim()))
+                {
+                    ret = stockList[i];
+                    return ret;
+                    
+                }
+            }
+            return null;
         }
         
 

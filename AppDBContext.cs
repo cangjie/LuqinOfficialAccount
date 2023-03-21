@@ -47,6 +47,8 @@ namespace LuqinOfficialAccount
 
         public DbSet<LuqinOfficialAccount.Models.Chip> Chip { get; set; }
 
+        public DbSet<LuqinOfficialAccount.Models.BigRise> BigRise { get; set; }
+
 
     }
 }

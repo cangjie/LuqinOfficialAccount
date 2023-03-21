@@ -79,11 +79,14 @@ namespace LuqinOfficialAccount.Models
             {
                 up3Line = true;
             }
-            for (int i = startIndex - 1; i >= 0 && (up3Line || kArr[i].low >= GetAverageSettlePrice(kArr, i, 3, 3)); i--)
+            double line3 = GetAverageSettlePrice(kArr, startIndex - 1, 3, 3);
+            for (int i = startIndex - 1;
+                i >= 1 && (up3Line || kArr[i].low < line3);
+                i--)
             {
                 if (up3Line)
                 {
-                    if (kArr[i].low < GetAverageSettlePrice(kArr, i, 3, 3))
+                    if (kArr[i].low < line3)
                     {
                         up3Line = false;
                     }
@@ -93,6 +96,7 @@ namespace LuqinOfficialAccount.Models
                     lowestPrice = kArr[i].low;
                     lowestIndex = i;
                 }
+                line3 = GetAverageSettlePrice(kArr, i - 1, 3, 3);
             }
             return lowestIndex;
         }
@@ -141,6 +145,27 @@ namespace LuqinOfficialAccount.Models
             else
             {
                 return -1 * days;
+            }
+
+        }
+
+        public static bool IsLimitUp(KLine[] kArr, int index)
+        {
+            if (index <= 0 || index >= kArr.Length)
+            {
+                return false;
+            }
+
+            KLine current = kArr[index];
+            KLine prev = kArr[index - 1];
+
+            if ((current.settle - prev.settle) / prev.settle > 0.0975)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
             }
 
         }
