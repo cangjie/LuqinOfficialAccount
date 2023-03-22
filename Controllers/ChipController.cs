@@ -38,7 +38,19 @@ namespace LuqinOfficialAccount.Controllers
             _settings = Settings.GetSettings(_config);
         }
 
+        [HttpGet]
+        public  void GetAllChips()
+        {
+            Stock[] sArr = Util.stockList;
+            for(int i = 0; i < sArr.Length; i++) 
+            {
+                Stock s = sArr[i];
+                //s.RefreshKLine();
+                RequestChipData(s.gid.Trim(), DateTime.Parse("2022-1-1"), DateTime.Parse("2023-3-21"));
+            }
+        }
 
+        /*
         [HttpGet("{currentDate}")]
         public async Task GetChips(DateTime currentDate)
         {
@@ -56,7 +68,7 @@ namespace LuqinOfficialAccount.Controllers
                 {
                     if (chipList[0].alert_date >= currentDate.Date.AddDays(-1).Date)
                     {
-                        exists = true;
+                        //exists = true;
                     }
                 }
                 if (!exists)
@@ -66,9 +78,9 @@ namespace LuqinOfficialAccount.Controllers
             }
             //return Ok(0);
         }
-
+        */
         [NonAction]
-        public async Task RequestChipData(string gid, DateTime currentDate)
+        public async Task RequestChipData(string gid, DateTime startDate, DateTime endDate)
         {
             gid = gid.ToLower();
             string newGid = gid;
@@ -85,9 +97,10 @@ namespace LuqinOfficialAccount.Controllers
                 return;
             }
 
-            DateTime endDate = currentDate.Date;
-            DateTime startDate = endDate;//= currentDate.Date.AddMonths(-6);
-            
+            //DateTime endDate = currentDate.Date;
+            //DateTime startDate = endDate;//= currentDate.Date.AddMonths(-6);
+            //DateTime startDate = endDate.Date.AddMonths(-16);
+
             string startDateStr = startDate.Year.ToString() + startDate.Month.ToString().PadLeft(2, '0') + startDate.Day.ToString().PadLeft(2, '0');
             string endDateStr = endDate.Year.ToString() + endDate.Month.ToString().PadLeft(2, '0') + endDate.Day.ToString().PadLeft(2, '0');
             string postData = "{   \"api_name\": \"cyq_perf\","
@@ -97,6 +110,7 @@ namespace LuqinOfficialAccount.Controllers
                 + "\"end_date\": \"" + endDateStr + "\"    },"
                 + "\"fields\": \"\"}";
             string retJson = "";
+            List<Chip> list = new List<Chip>();
             try
             {
                 retJson = Util.GetWebContent("http://api.tushare.pro", postData);
@@ -148,26 +162,41 @@ namespace LuqinOfficialAccount.Controllers
                                 break;
                         }
                     }
-                    var chipList = await _db.Chip.Where(c => c.alert_date == chip.alert_date && c.gid.Trim().Equals(chip.gid.Trim())).ToListAsync();
+                    var chipList =  _db.Chip.Where(c => c.alert_date == chip.alert_date && c.gid.Trim().Equals(chip.gid.Trim())).ToList();
                     if (chipList.Count == 0)
                     {
                         chip.id = 0;
-                        await _db.Chip.AddAsync(chip);
-                        
+
+                        bool exists = false;
+                        for (int j = 0; j < list.Count; j++)
+                        {
+                            if (list[j].alert_date.Date == chip.alert_date.Date)
+                            {
+                                exists = true;
+                                break;
+                            }
+                        }
+
+                        if (!exists)
+                        {
+                            list.Add(chip);
+                        }
                         
                     }
                 }
+                Chip[] cArr = list.ToArray();
+                _db.AddRange(cArr);
+                _db.SaveChanges();
 
             }
-            catch
+            catch(Exception ex)
             {
-                Console.WriteLine(retJson);
+                Console.WriteLine(ex.ToString()) ;
             }
-            //_db.SaveChanges();
-            await _db.SaveChangesAsync();
+           
 
         }
-
+        /*
         [HttpGet]
         public async Task GetTodayChips()
         {
@@ -175,7 +204,7 @@ namespace LuqinOfficialAccount.Controllers
             await GetChips(now);
         }
 
-
+        */
         /*
         // GET: api/Chip
         [HttpGet]
