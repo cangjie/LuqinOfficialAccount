@@ -19,6 +19,9 @@ namespace LuqinOfficialAccount.Models
         public double dif { get; set; } = 0;
         public double dea { get; set; } = 0;
         public double macd { get; set; } = 0;
+        public double turnOver { get; set; } = 0;
+
+
 
         public static double GetAverageSettlePrice(KLine[] kArr, int index, int itemsCount, int displacement)
         {
@@ -57,7 +60,7 @@ namespace LuqinOfficialAccount.Models
                         below3Line = false;
                     }
                 }
-                if (highPrice <= kArr[highIndex].high)
+                if (highPrice <= kArr[i].high)
                 { 
                     highPrice = kArr[i].high;
                     highIndex = i;

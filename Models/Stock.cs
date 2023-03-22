@@ -71,8 +71,12 @@ namespace LuqinOfficialAccount.Models
                     high = double.Parse(rvItems[4].Trim()),
                     low = double.Parse(rvItems[5].Trim()),
                     volume = long.Parse(rvItems[6].Trim()),
-                    amount = double.Parse(rvItems[7].Trim())
+                    turnOver = 0//double.Parse(rvItems[7].Trim())
                 };
+                if (rvItems.Length == 9)
+                {
+                    k.turnOver = double.Parse(rvItems[8].Trim());
+                }
                 klineDay[i] = k;
             }
             this.klineDay = klineDay;

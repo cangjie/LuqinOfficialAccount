@@ -52,6 +52,17 @@ namespace LuqinOfficialAccount.Controllers
 
         }
 
+        [HttpGet]
+        public ActionResult<KLine> SearchHighKLine()
+        {
+            Stock s = Stock.GetStock("sz001339");
+            s.RefreshKLine();
+            int itemIndex = s.GetItemIndex(DateTime.Parse("2023-2-15"));
+            int i = KLine.GetForwardTopKLineItem(s.klineDay, itemIndex);
+            return Ok(s.klineDay[i]);
+
+        }
+
         [NonAction]
         public  void Search(DateTime date)
         {
@@ -192,6 +203,119 @@ namespace LuqinOfficialAccount.Controllers
 
 
             
+        }
+
+        [HttpGet("{days}")]
+        public async Task<ActionResult<CountResult>> CountKDJ(int days, DateTime startDate)
+        {
+            
+            var bigRiseList = _context.BigRise.Where(b => (b.limit_up_twice_num > 0
+            && b.alert_date <= DateTime.Now.AddDays(-15)
+            && b.alert_date >= startDate.Date))
+                .OrderByDescending(b => b.alert_date).ToList();
+            List<CountItem> list = new List<CountItem>();
+            for (int i = 0; i < bigRiseList.Count; i++)
+            {
+                DateTime alertDate = bigRiseList[i].alert_date.Date;
+                Stock s = Stock.GetStock(bigRiseList[i].gid.Trim());
+                s.RefreshKLine();
+                int alertIndex = s.GetItemIndex(alertDate);
+                if (alertIndex < 0)
+                {
+                    continue;
+                }
+                bool kdGold = true;
+                int buyIndex = -1;
+
+
+
+                
+                if (s.klineDay[alertIndex].turnOver >= 22)
+                {
+                    continue;
+                }
+                
+
+
+
+
+
+
+                for (int j = alertIndex; j < s.klineDay.Length && buyIndex == -1; j++)
+                {
+                    if (kdGold && s.klineDay[j].k < s.klineDay[j].d)
+                    {
+                        kdGold = false;
+                    }
+                    if (!kdGold && s.klineDay[j].k > s.klineDay[j].d)
+                    {
+                        buyIndex = j;
+                        break;
+                    }
+                }
+
+                if (buyIndex >= 0 && buyIndex + days < s.klineDay.Length)
+                {
+                    double ma20Top = KLine.GetAverageSettlePrice(s.klineDay, alertIndex, 20, 0);
+                    double ma20Buy = KLine.GetAverageSettlePrice(s.klineDay, buyIndex, 20, 0);
+
+                    if (s.klineDay[buyIndex].settle <= ma20Buy || ma20Top >= ma20Buy)
+                    {
+                        continue;
+                    }
+
+
+                    double chipTop = 0;
+                    double chipBuy = 0;
+
+                    var chipList = _context.Chip.Where(c => (c.gid.Trim().Equals(s.gid) && c.alert_date.Date == s.klineDay[alertIndex].settleTime.Date)).ToList();
+                    if (chipList.Count > 0)
+                    {
+                        var chip = chipList[0];
+                        chipTop = (chip.cost_95pct - chip.cost_5pct) / (chip.cost_95pct + chip.cost_5pct);
+                    }
+
+                    chipList = _context.Chip.Where(c => (c.gid.Trim().Equals(s.gid) && c.alert_date.Date == s.klineDay[buyIndex].settleTime.Date)).ToList();
+                    if (chipList.Count > 0)
+                    {
+                        var chip = chipList[0];
+                        chipBuy = (chip.cost_95pct - chip.cost_5pct) / (chip.cost_95pct + chip.cost_5pct);
+                    }
+
+                    
+                    /*
+                    DateTime startDateChip = bigRiseList[i].start_date;
+                    int startIndex = s.GetItemIndex(startDateChip);
+                    double chipStart = 0;
+                    if (startIndex >= 0)
+                    {
+                        chipList = _context.Chip.Where(c => (c.gid.Trim().Equals(s.gid) && c.alert_date.Date == s.klineDay[startIndex].settleTime.Date)).ToList();
+                        if (chipList.Count > 0)
+                        {
+                            var chip = chipList[0];
+                            chipStart = (chip.cost_95pct - chip.cost_5pct) / (chip.cost_95pct + chip.cost_5pct);
+                        }
+                    }
+                    */
+                    if (chipTop <=  chipBuy || chipBuy >= 0.15)
+                    {
+                        continue;
+                    }
+
+                    CountItem item = new CountItem()
+                    {
+                        days = days,
+                        gid = s.gid.Trim(),
+                        alert_date = s.klineDay[buyIndex].settleTime.Date,
+                        name = s.name
+                    };
+                    item = CountItem.Count(item, "");
+                    list.Add(item);
+                }
+
+            }
+
+            return Ok(CountResult.GetResult(list));
         }
 
 
