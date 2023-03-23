@@ -46,7 +46,23 @@ namespace LuqinOfficialAccount.Controllers
             {
                 Stock s = sArr[i];
                 //s.RefreshKLine();
-                RequestChipData(s.gid.Trim(), DateTime.Parse("2022-1-1"), DateTime.Parse("2023-3-21"));
+                RequestChipData(s.gid.Trim(), DateTime.Parse("2023-3-22"), DateTime.Parse("2023-3-22"));
+            }
+        }
+
+        [HttpGet]
+        public void GetTodayChips()
+        {
+            if (Util.IsTransacDay(DateTime.Now.Date, _db))
+            {
+                return;
+            }
+            Stock[] sArr = Util.stockList;
+            for (int i = 0; i < sArr.Length; i++)
+            {
+                Stock s = sArr[i];
+                //s.RefreshKLine();
+                RequestChipData(s.gid.Trim(), DateTime.Now.Date, DateTime.Now.Date);
             }
         }
 
