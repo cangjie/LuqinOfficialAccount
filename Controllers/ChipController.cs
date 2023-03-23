@@ -53,7 +53,7 @@ namespace LuqinOfficialAccount.Controllers
         [HttpGet]
         public void GetTodayChips()
         {
-            if (Util.IsTransacDay(DateTime.Now.Date, _db))
+            if (!Util.IsTransacDay(DateTime.Now.Date, _db))
             {
                 return;
             }
