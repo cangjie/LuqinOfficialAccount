@@ -43,6 +43,16 @@ namespace LuqinOfficialAccount.Controllers
         }
 
         [HttpGet]
+        public void SearchTodayBigRise()
+        {
+            DateTime now = DateTime.Now.Date;
+            if (Util.IsTransacDay(now, _context))
+            {
+                Search(now);
+            }
+        }
+
+        [HttpGet]
         public ActionResult<KLine> SearchLowKLine()
         {
             Stock s = Stock.GetStock("sz002803");
