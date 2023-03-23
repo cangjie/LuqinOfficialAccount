@@ -237,19 +237,11 @@ namespace LuqinOfficialAccount.Controllers
                 bool kdGold = true;
                 int buyIndex = -1;
 
-
-
-                
                 if (s.klineDay[alertIndex].turnOver >= 22)
                 {
                     continue;
                 }
                 
-
-
-
-
-
 
                 for (int j = alertIndex; j < s.klineDay.Length && buyIndex == -1; j++)
                 {
@@ -326,6 +318,39 @@ namespace LuqinOfficialAccount.Controllers
             }
 
             return Ok(CountResult.GetResult(list));
+        }
+
+        [HttpGet("{days}")]
+        public async Task<ActionResult<List<CountItem>>> GetKDJ(int days, DateTime currentDate)
+        {
+            List<CountItem> list = new List<CountItem>();
+
+            var bigRiseList = await _context.BigRise.Where(b => b.alert_date >= currentDate.AddDays(60))
+                .OrderByDescending(b => b.alert_date).ToListAsync();
+
+            for (int i = 0; i < bigRiseList.Count; i++)
+            {
+                Stock s = Stock.GetStock(bigRiseList[i].gid.Trim());
+                int currentIndex = s.GetItemIndex(currentDate.Date);
+                
+                if (currentIndex <= 0 || currentIndex >= s.klineDay.Length)
+                {
+                    continue;
+                }
+                if (s.klineDay[currentIndex - 1].k >= s.klineDay[currentIndex - 1].d
+                    || s.klineDay[currentIndex].k <= s.klineDay[currentIndex].d)
+                {
+                    continue;
+                }
+
+                int topIndex = s.GetItemIndex(bigRiseList[i].alert_date.Date);
+                if (topIndex <= 0 || topIndex >= s.klineDay.Length)
+                {
+                    continue;
+                }
+            }
+
+            return NoContent();
         }
 
 
