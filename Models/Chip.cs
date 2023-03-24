@@ -20,6 +20,37 @@ namespace LuqinOfficialAccount.Models
 		public double weight_avg { get; set; }
 		public double winner_rate { get; set; }
 
+		public double chipDistribute90
+		{
+			get
+			{
+				if (cost_5pct + cost_95pct > 0)
+				{
+					return (cost_95pct - cost_5pct) / (cost_5pct + cost_95pct);
+				}
+				else
+				{
+					return 0;
+				}
+			}
+		}
+
+		public double chipDistribute70
+		{
+			get
+			{
+                if (cost_15pct + cost_85pct > 0)
+                {
+                    return (cost_85pct - cost_15pct) / (cost_85pct + cost_15pct);
+                }
+                else
+                {
+                    return 0;
+                }
+            }
+		}
+
+
 
     }
 }

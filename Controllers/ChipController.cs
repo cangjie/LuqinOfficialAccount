@@ -66,6 +66,19 @@ namespace LuqinOfficialAccount.Controllers
             }
         }
 
+        [HttpGet("gid")]
+        public async Task<ActionResult<Chip>> GetChip(string gid, DateTime date) 
+        { 
+            var chipList = await _db.Chip.Where(c => (c.gid.Trim().Equals(gid.Trim()) && c.alert_date.Date == date.Date))
+                .ToListAsync();
+            if (chipList == null || chipList.Count == 0)
+            {
+                return NotFound();
+            }
+            Chip chip = chipList[0];
+            return Ok(chip);
+        }
+
         /*
         [HttpGet("{currentDate}")]
         public async Task GetChips(DateTime currentDate)

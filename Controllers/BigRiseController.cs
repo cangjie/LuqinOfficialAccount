@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using LuqinOfficialAccount;
 using LuqinOfficialAccount.Models;
+using Microsoft.Extensions.Configuration;
+using System.Data;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace LuqinOfficialAccount.Controllers
 {
@@ -15,12 +18,16 @@ namespace LuqinOfficialAccount.Controllers
     public class BigRiseController : ControllerBase
     {
         private readonly AppDBContext _context;
+        private readonly IConfiguration _config;
+        private readonly Settings _settings;
 
         //public static DateTime now = DateTime.Now;
 
-        public BigRiseController(AppDBContext context)
+        public BigRiseController(AppDBContext context, IConfiguration config)
         {
             _context = context;
+            _config = config;
+            _settings = Settings.GetSettings(_config);
         }
 
         [HttpGet]
@@ -321,16 +328,25 @@ namespace LuqinOfficialAccount.Controllers
         }
 
         [HttpGet("{days}")]
-        public async Task<ActionResult<List<CountItem>>> GetKDJ(int days, DateTime currentDate)
+        public async Task<ActionResult<DataTable>> GetKDJ(int days, DateTime currentDate, string sort = "筹码")
         {
-            List<CountItem> list = new List<CountItem>();
-
-            var bigRiseList = await _context.BigRise.Where(b => b.alert_date >= currentDate.AddDays(60))
+            ChipController chipCtrl = new ChipController(_context, _config);
+            DataTable dt = new DataTable();
+            dt.Columns.Add("日期", Type.GetType("System.DateTime"));
+            dt.Columns.Add("代码", Type.GetType("System.String"));
+            dt.Columns.Add("名称", Type.GetType("System.String"));
+            dt.Columns.Add("信号", Type.GetType("System.String"));
+            dt.Columns.Add("MACD", Type.GetType("System.Double"));
+            dt.Columns.Add("筹码", Type.GetType("System.Double"));
+            dt.Columns.Add("买入", Type.GetType("System.Double"));
+            
+            var bigRiseList = await _context.BigRise.Where(b => b.alert_date >= currentDate.AddDays(-60))
                 .OrderByDescending(b => b.alert_date).ToListAsync();
 
             for (int i = 0; i < bigRiseList.Count; i++)
             {
                 Stock s = Stock.GetStock(bigRiseList[i].gid.Trim());
+                s.RefreshKLine();
                 int currentIndex = s.GetItemIndex(currentDate.Date);
                 
                 if (currentIndex <= 0 || currentIndex >= s.klineDay.Length)
@@ -343,14 +359,68 @@ namespace LuqinOfficialAccount.Controllers
                     continue;
                 }
 
+                double ma20Current = KLine.GetAverageSettlePrice(s.klineDay, currentIndex, 20, 0);
+                if (s.klineDay[currentIndex].settle <= ma20Current)
+                {
+                    continue;
+                }
                 int topIndex = s.GetItemIndex(bigRiseList[i].alert_date.Date);
                 if (topIndex <= 0 || topIndex >= s.klineDay.Length)
                 {
                     continue;
                 }
-            }
 
-            return NoContent();
+                double ma20Top = KLine.GetAverageSettlePrice(s.klineDay, topIndex, 20, 0);
+                if (ma20Top >= ma20Current)
+                {
+                    continue;
+                }
+
+                bool kdGold = true;
+                int buyIndex = 0;
+                for (int j = topIndex;  j < currentIndex; j++)
+                {
+                    if (kdGold && s.klineDay[j].k < s.klineDay[j].d)
+                    {
+                        kdGold = false;
+                    }
+                    if (!kdGold && s.klineDay[j].k > s.klineDay[j].d)
+                    {
+                        buyIndex = j;
+                        break;
+                    }
+                }
+                if (buyIndex != currentIndex && buyIndex != 0)
+                {
+                    continue;
+                }
+
+                
+                ActionResult<Chip> chipResult = (await chipCtrl.GetChip(s.gid.Trim(), currentDate));
+                double chipValue = 0;
+                if (chipResult.Result.GetType().Name.Trim().Equals("OkObjectResult"))
+                {
+                    Chip chip = (Chip)((OkObjectResult)chipResult.Result).Value;
+                    chipValue = chip.chipDistribute90;
+                }
+                
+                
+                //Chip chip = (Chip)((OkObjectResult)chipResult.Result).Value;
+                double buyPrice = s.klineDay[currentIndex].settle;
+                DataRow dr = dt.NewRow();
+                dr["日期"] = currentDate;
+                dr["代码"] = s.gid;
+                dr["名称"] = s.name;
+                dr["MACD"] = s.klineDay[currentIndex].macd;
+                dr["筹码"] = chipValue;
+                dr["买入"] = buyPrice;
+                dr["信号"] = "";
+
+
+                dt.Rows.Add(dr);
+            }
+            StockFilter sf = StockFilter.GetResult(dt.Select("", sort ), 15);
+            return Ok(sf);
         }
 
 
