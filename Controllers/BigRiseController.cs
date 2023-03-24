@@ -346,6 +346,10 @@ namespace LuqinOfficialAccount.Controllers
             for (int i = 0; i < bigRiseList.Count; i++)
             {
                 Stock s = Stock.GetStock(bigRiseList[i].gid.Trim());
+                if (s == null)
+                {
+                    continue;
+                }
                 s.RefreshKLine();
                 int currentIndex = s.GetItemIndex(currentDate.Date);
                 
