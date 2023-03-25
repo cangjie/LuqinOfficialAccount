@@ -66,6 +66,30 @@ namespace LuqinOfficialAccount.Controllers
             }
         }
 
+        [HttpGet]
+        public void GetChipForADay(DateTime date)
+        {
+            if (!Util.IsTransacDay(date, _db))
+            {
+                return;
+            }
+            Stock[] sArr = Util.stockList;
+            for (int i = 0; i < sArr.Length; i++)
+            {
+                Stock s = sArr[i];
+                //s.RefreshKLine();
+                RequestChipData(s.gid.Trim(), date.Date, date.Date);
+            }
+        }
+
+        [HttpGet]
+        public void GetOne(string gid, DateTime date)
+        {
+            RequestChipData(gid.Trim(), date, date);
+        }
+
+
+
         [HttpGet("gid")]
         public async Task<ActionResult<Chip>> GetChip(string gid, DateTime date) 
         { 
