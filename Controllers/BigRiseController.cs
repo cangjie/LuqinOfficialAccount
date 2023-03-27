@@ -328,17 +328,17 @@ namespace LuqinOfficialAccount.Controllers
         }
 
         [HttpGet("{days}")]
-        public async Task<ActionResult<DataTable>> GetKDJ(int days, DateTime currentDate, string sort = "³ïÂë")
+        public async Task<ActionResult<DataTable>> GetKDJ(int days, DateTime currentDate, string sort = "ï¿½ï¿½ï¿½ï¿½")
         {
             ChipController chipCtrl = new ChipController(_context, _config);
             DataTable dt = new DataTable();
-            dt.Columns.Add("ÈÕÆÚ", Type.GetType("System.DateTime"));
-            dt.Columns.Add("´úÂë", Type.GetType("System.String"));
-            dt.Columns.Add("Ãû³Æ", Type.GetType("System.String"));
-            dt.Columns.Add("ĞÅºÅ", Type.GetType("System.String"));
+            dt.Columns.Add("æ—¥æœŸ", Type.GetType("System.DateTime"));
+            dt.Columns.Add("ä»£ç ", Type.GetType("System.String"));
+            dt.Columns.Add("åç§°", Type.GetType("System.String"));
+            dt.Columns.Add("ä¿¡å·", Type.GetType("System.String"));
             dt.Columns.Add("MACD", Type.GetType("System.Double"));
-            dt.Columns.Add("³ïÂë", Type.GetType("System.Double"));
-            dt.Columns.Add("ÂòÈë", Type.GetType("System.Double"));
+            dt.Columns.Add("ç­¹ç ", Type.GetType("System.Double"));
+            dt.Columns.Add("ä¹°å…¥", Type.GetType("System.Double"));
             
             var bigRiseList = await _context.BigRise.Where(b => b.alert_date >= currentDate.AddDays(-60))
                 .OrderByDescending(b => b.alert_date).ToListAsync();
@@ -412,13 +412,13 @@ namespace LuqinOfficialAccount.Controllers
                 //Chip chip = (Chip)((OkObjectResult)chipResult.Result).Value;
                 double buyPrice = s.klineDay[currentIndex].settle;
                 DataRow dr = dt.NewRow();
-                dr["ÈÕÆÚ"] = currentDate;
-                dr["´úÂë"] = s.gid;
-                dr["Ãû³Æ"] = s.name;
+                dr["æ—¥æœŸ"] = currentDate;
+                dr["ä»£ç "] = s.gid;
+                dr["åç§°"] = s.name;
                 dr["MACD"] = s.klineDay[currentIndex].macd;
-                dr["³ïÂë"] = chipValue;
-                dr["ÂòÈë"] = buyPrice;
-                dr["ĞÅºÅ"] = "";
+                dr["ç­¹ç "] = chipValue;
+                dr["ä¹°å…¥"] = buyPrice;
+                dr["ä¿¡å·"] = "";
 
 
                 dt.Rows.Add(dr);

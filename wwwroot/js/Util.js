@@ -40,6 +40,32 @@ function formatNumber (n) {
     return n[1] ? n : '0' + n
 }
 
+function formatFloatNumber(num, digit) {
+    var value = num.toString();
+    var valueArr = value.split('.');
+    var ret = valueArr[0];
+
+    var tail = '';
+    for (var i = 0; i < digit; i++) {
+        tail += '0';
+    }
+
+    var pointRight = '';
+    if (valueArr.length >= 2) {
+        pointRight = valueArr[1].trim();
+    }
+
+    if (pointRight.length >= digit) {
+        pointRight = pointRight.substring(0, digit);
+    }
+    else {
+        pointRight = pointRight + tail.substring(0, tail.length - pointRight.length);
+    }
+
+    return ret + '.' + pointRight 
+    
+}
+
 function getUrlParameter(para) {
     var urlArr = window.location.href.split('?');
     if (urlArr.length < 2) {

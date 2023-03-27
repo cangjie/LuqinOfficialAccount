@@ -1,0 +1,344 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title id="title"></title>
+    <link rel="stylesheet" href="css/table.css" />
+    <link rel="stylesheet" href="css/bootstrap.css" />
+    <link rel="stylesheet" href="css/bootstrap-grid.css" />
+    <link rel="stylesheet" href="css/bootstrap-reboot.css" />
+    <script type="text/javascript" src="js/jquery-3.6.1.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="js/Util.js?rnd=ssee"></script>
+    <script type="text/javascript" src="js/api_description.js"></script>
+    <script type="text/javascript">var defaultApi = '/api/BigRise/GetKDJ/';
+        var defaultCountDayts = '15';
+        var defaultSort = '筹码';
+        var defaultStartDate = formatDate((new Date()).toString());
+        var defaultEndDate = formatDate((new Date()).toString());
+        var title = '';
+        var decription = '';
+        var inited = false;
+    </script>
+</head>
+<body>
+    <div>
+        <center id="name" style="font:bolder; font-size: large">二连板</center>
+    </div>
+    <hr />
+    <div id="description"></div>
+    <hr />
+    <div>
+        日期：从 <input  type="date" id="date_from" oninput="setDate()"  /> 到 <input type="date" id="date_to" oninput="setDate()"  /> <button onclick="setDate()" > 刷 新 </button>
+    </div>
+    <hr />
+    <div>
+        <table style="width:100%" >
+            <thead>
+                <tr id="table_head"></tr>
+            </thead>
+            <tbody id="table_body" class="table_body_row" >
+
+            </tbody>
+        </table>
+    </div>
+</body>
+<script type="text/javascript" >
+
+    var startDate = new Date(document.getElementById('date_from').value);
+    if (startDate == 'Invalid Date') {
+        startDate = new Date();
+        startDate.setHours(0);
+        startDate.setMinutes(0);
+        startDate.setSeconds(0);
+        startDate.setMilliseconds(0);
+    }
+    var endDate = new Date(document.getElementById('date_to').value);
+    if (endDate == 'Invalid Date') {
+        endDate = new Date()
+        endDate.setHours(0);
+        endDate.setMinutes(0);
+        endDate.setSeconds(0);
+        endDate.setMilliseconds(0);
+    }
+    var startDateCtl = document.getElementById('date_from');
+    var endDateCtl = document.getElementById('date_to');
+    startDateCtl.value = formatDate(startDate);
+    endDateCtl.value = formatDate(endDate);
+
+    function getData() {
+
+        var tbody = document.getElementById('table_body');
+
+        for (var i = 0; i < tbody.childNodes.length;) {
+            tbody.removeChild(tbody.childNodes[i]);
+        }
+
+        var api = getUrlParameter('api');
+        api = decodeURIComponent(api);
+
+        var apiDescription = apiDescriptionList[0];
+
+        if (api != '') {
+
+            for (var i = 0; i < apiDescriptionList.length; i++) {
+                if (api == apiDescriptionList[i].url) {
+                    apiDescription = apiDescriptionList[i];
+                    break;
+                }
+            }
+            
+        }
+        var countDaysStr = getUrlParameter('days');
+        var countDays = parseInt(countDaysStr);
+        if (isNaN(countDays)) {
+            countDays = apiDescription.defaultCountDays;
+        }
+        var sort = getUrlParameter('sort');
+        if (sort == '') {
+            sort = apiDescription.defaultSort.trim();
+        }
+
+        
+
+
+        //startDate.setDate(1);
+        //endDate.setDate(10);
+
+
+        var title = apiDescription.name;
+        var description = apiDescription.description;
+
+        document.getElementById('title').innerText = title;
+        document.getElementById('name').innerText = title;
+        document.getElementById('description').innerText = description;
+
+        
+
+        //currentDate = new Date('2023-3-23');
+
+        var startDateCtl = document.getElementById('date_from');
+        var endDateCtl = document.getElementById('date_to');
+        
+        for (var currentDate = new Date(formatDate(endDate.toString())); currentDate >= startDate; currentDate.setDate(currentDate.getDate() - 1)) {
+            startDateCtl.disabled = true;
+            endDateCtl.disabled = true;
+            var ajaxUrl = apiDescription.url + '/' + countDays.toString()
+            ajaxUrl = ajaxUrl + '?currentDate=' + formatDate(currentDate) + '&sort=' + encodeURIComponent(sort);
+            $.ajax({
+                url: ajaxUrl,
+                type: 'GET',
+                success: function (msg, status) {
+                    console.log('msg', msg);
+                    console.log('status', status);
+                    startDateCtl.disabled = false;
+                    endDateCtl.disabled = false;
+                    if (!inited) {
+                        InitTable(msg);
+                    }
+                    if (status == 'success') {
+                        for (var i = 0; i < msg.itemList.length; i++) {
+                            AddItemToTable(msg.itemList[i]);
+                        }
+                    }
+                }
+            })
+
+        }
+        
+
+    }
+
+
+    function AddItemToTable(item) {
+        var tbody = document.getElementById('table_body');
+        var tHead = document.getElementById('table_head');
+        var tr = document.createElement('tr');
+        var trClass = document.createAttribute('class');
+        
+        trClass.value = 'table_body_row';
+        tr.attributes.setNamedItem(trClass);
+        var maxPercent = -100;
+        for (var i = 0; i < tHead.childNodes.length; i++) {
+            var color = '';
+            var isPercent = false;
+            var td = document.createElement('td');
+            var txt = '';
+            switch (i) {
+                case 0:
+                    txt = item.alertDate.toString().split('T')[0].trim();
+                    break;
+                case 1:
+                    txt = item.gid;
+                    break;
+                case 2:
+                    txt = item.name;
+                    break;
+                case 3:
+                    txt = item.signal;
+                    break;
+                case (tHead.childNodes.length - 1):
+                    isPercent = true;
+                    txt = maxPercent;
+                    break;
+                default:
+                    if (i < item.referenceValues.length + 4) {
+                        txt = item.referenceValues[i - 4].toString(); 
+                    }
+                    else if (i == item.referenceValues.length + 4) {
+                        txt = item.buyPrice;
+                    }
+                    else if (i >= 4 + item.referenceValues.length + 1) {
+                        maxPercent = Math.max(maxPercent, item.dailyRise[i - 4 - item.referenceValues.length - 1]);
+                        txt = item.dailyRise[i - 4 - item.referenceValues.length - 1].toString();
+                        isPercent = true;
+                    }
+                    break;
+            }
+            var td = document.createElement('td');
+            var tdClass = document.createAttribute('class')
+            
+            var value = parseFloat(txt);
+            if (isNaN(value) || i == 0) {
+                tdClass.value = 'table_body_cell_text'
+            }
+            else {
+                if (isPercent) {
+                    if (value == -1) {
+                        txt = '--';
+                        tdClass.value = 'table_body_cell_text';
+                    }
+                    else {
+                        if (value >= 0 && value <= 0.01) {
+                            color = 'gray';
+                        }
+                        else if (value > 0.05) {
+                            color = 'purple';
+                        }
+                        else if (value > 0.01) {
+                            color = 'red';
+                        }
+                        else {
+                            color = 'green';
+                        }
+                        value = Math.round(value * 10000);
+                        value = formatFloatNumber(value / 100, 2);
+                        txt = value.toString() + '%';
+                        tdClass.value = 'table_body_cell_numeric';
+                    }
+                    
+                }
+                else {
+                    value = Math.round(value * 100);
+                    value = formatFloatNumber(value / 100, 2);
+
+                    txt = value.toString();
+                    tdClass.value = 'table_body_cell_numeric';
+                }
+                
+            }
+            td.attributes.setNamedItem(tdClass);
+
+            if (color != '') {
+                var tdStyle = document.createAttribute('style');
+                tdStyle.value = 'color: ' + color;
+                td.attributes.setNamedItem(tdStyle);
+            }
+
+            td.innerText = txt;
+            tr.appendChild(td);
+        }
+        tbody.appendChild(tr);
+
+    }
+
+    function InitTable(msg) {
+        var tHead = document.getElementById('table_head');
+
+        for (var i = 0; i < 4; i++) {
+            var txt = '';
+            switch (i) {
+                case 0:
+                    txt = '日期';
+                    break;
+                case 1:
+                    txt = "代码";
+                    break;
+                case 2:
+                    txt = '名称';
+                    break;
+                case 3:
+                    txt = '信号';
+                    break;
+                default:
+                    break;
+
+            }
+            var td = document.createElement('td');
+            var tdClass = document.createAttribute('class');
+            tdClass.value = 'table_head';
+            td.attributes.setNamedItem(tdClass);
+            td.innerText = txt;
+            tHead.appendChild(td);
+        }
+
+        for (var i = 0; i < msg.fields.length; i++) {
+            var td = document.createElement('td');
+            var tdClass = document.createAttribute('class');
+            tdClass.value = 'table_head';
+            td.attributes.setNamedItem(tdClass);
+            td.innerText = msg.fields[i].trim();
+            tHead.appendChild(td);
+        }
+
+        var tdBuy = document.createElement('td');
+        var tdBuyClass = document.createAttribute('class');
+        tdBuyClass.value = 'table_head';
+        tdBuy.attributes.setNamedItem(tdBuyClass);
+        tdBuy.innerText = "买入";
+        tHead.appendChild(tdBuy);
+
+        for (var i = 0; i < msg.countDays; i++) {
+            var tDay = document.createElement('td');
+            var tDayClass = document.createAttribute('class');
+            tDayClass.value = 'table_head';
+            tDay.attributes.setNamedItem(tDayClass);
+            tDay.innerText = (i + 1).toString() + '日';
+            tHead.appendChild(tDay);
+        }
+
+        var tdTotal = document.createElement('td');
+        var tdTotalClass = document.createAttribute('class');
+        tdTotalClass.value = 'table_head';
+        tdTotal.attributes.setNamedItem(tdTotalClass);
+        var tdStyle = document.createAttribute('style');
+        tdStyle.value = 'border-right-width: 0px';
+        tdTotal.attributes.setNamedItem(tdStyle);
+        tdTotal.innerText = "总计";
+        tHead.appendChild(tdTotal);
+        inited = true;
+    }
+    getData();
+
+    function setDate() {
+        var startDateCtl = document.getElementById('date_from');
+        var endDateCtl = document.getElementById('date_to');
+
+
+        var newStartDate = new Date(startDateCtl.value);
+        var newEndDate = new Date(endDateCtl.value);
+        if (formatDate(newStartDate) != formatDate(startDate)) {
+            newEndDate = new Date(formatDate(newStartDate));
+        }
+        startDateCtl.value = formatDate(newStartDate);
+        endDateCtl.value = formatDate(newEndDate);
+
+        startDate = newStartDate;
+        endDate = newEndDate;
+        getData();
+
+
+    }
+
+</script>
+</html>

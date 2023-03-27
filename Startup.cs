@@ -111,6 +111,7 @@ namespace LuqinOfficialAccount
 
             app.UseEndpoints(endpoints =>
             {
+                //endpoints.MapDynamicPageRoute("h5_cal.html");
                 endpoints.MapControllers();
             });
         }

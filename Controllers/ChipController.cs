@@ -39,23 +39,25 @@ namespace LuqinOfficialAccount.Controllers
         }
 
         [HttpGet]
-        public  void GetAllChips()
+        public  ActionResult GetAllChips()
         {
             Stock[] sArr = Util.stockList;
             for(int i = 0; i < sArr.Length; i++) 
             {
                 Stock s = sArr[i];
                 //s.RefreshKLine();
-                RequestChipData(s.gid.Trim(), DateTime.Parse("2023-3-22"), DateTime.Parse("2023-3-22"));
+                RequestChipData(s.gid.Trim(), DateTime.Parse("2022-6-22"), DateTime.Parse("2023-3-22"));
             }
+            return Ok();
         }
 
         [HttpGet]
-        public void GetTodayChips()
+        public ActionResult<int> GetTodayChips()
         {
+            int j = 0;
             if (!Util.IsTransacDay(DateTime.Now.Date, _db))
             {
-                return;
+                return NotFound();
             }
             Stock[] sArr = Util.stockList;
             for (int i = 0; i < sArr.Length; i++)
@@ -63,23 +65,23 @@ namespace LuqinOfficialAccount.Controllers
                 Stock s = sArr[i];
                 //s.RefreshKLine();
                 RequestChipData(s.gid.Trim(), DateTime.Now.Date, DateTime.Now.Date);
+                j++;
             }
+            return Ok(j);
         }
 
         [HttpGet]
-        public void GetChipForADay(DateTime date)
+        public ActionResult<int> GetChipForDays(DateTime start, DateTime end)
         {
-            if (!Util.IsTransacDay(date, _db))
-            {
-                return;
-            }
+            int j = 0;
             Stock[] sArr = Util.stockList;
             for (int i = 0; i < sArr.Length; i++)
             {
                 Stock s = sArr[i];
-                //s.RefreshKLine();
-                RequestChipData(s.gid.Trim(), date.Date, date.Date);
+                RequestChipData(s.gid.Trim(), start.Date, end.Date);
+                j++;
             }
+            return Ok(j);
         }
 
         [HttpGet]

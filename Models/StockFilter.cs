@@ -50,6 +50,7 @@ namespace LuqinOfficialAccount.Models
                         break;
                     default:
                         fieldsArr[fieldIndex] = dt.Columns[i].Caption.Trim();
+                        fieldIndex++;
                         break;
                 }
             }
