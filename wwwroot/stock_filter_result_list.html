@@ -253,6 +253,9 @@
     }
 
     function InitTable(msg) {
+        if (msg == undefined) {
+            return;
+        }
         var tHead = document.getElementById('table_head');
 
         for (var i = 0; i < 4; i++) {
