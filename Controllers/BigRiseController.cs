@@ -9,7 +9,7 @@ using LuqinOfficialAccount;
 using LuqinOfficialAccount.Models;
 using Microsoft.Extensions.Configuration;
 using System.Data;
-using Microsoft.AspNetCore.Http.HttpResults;
+//using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace LuqinOfficialAccount.Controllers
 {
