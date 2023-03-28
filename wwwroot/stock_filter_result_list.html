@@ -10,7 +10,7 @@
     <script type="text/javascript" src="js/jquery-3.6.1.min.js"></script>
     <script type="text/javascript" src="js/bootstrap.min.js"></script>
     <script type="text/javascript" src="js/Util.js?rnd=ssee"></script>
-    <script type="text/javascript" src="js/api_description.js"></script>
+    <script type="text/javascript" src="js/api_description.js?ss=bb"></script>
     <script type="text/javascript">var defaultApi = '/api/BigRise/GetKDJ/';
         var defaultCountDayts = '15';
         var defaultSort = '筹码';
@@ -119,7 +119,34 @@
 
         var startDateCtl = document.getElementById('date_from');
         var endDateCtl = document.getElementById('date_to');
-        
+
+
+        var ajaxUrl = apiDescription.url + '/' + countDays.toString() 
+            + '?startDate=' + encodeURIComponent(formatDate(startDate))
+            + '&endDate=' + encodeURIComponent(formatDate(endDate)) + '&sort=' + encodeURIComponent(sort);
+
+
+        $.ajax({
+            url: ajaxUrl,
+            type: 'GET',
+            success: function (msg, status) {
+                console.log('msg', msg);
+                console.log('status', status);
+                startDateCtl.disabled = false;
+                endDateCtl.disabled = false;
+                if (!inited) {
+                    InitTable(msg);
+                }
+                if (status == 'success') {
+                    for (var i = 0; i < msg.itemList.length; i++) {
+                        AddItemToTable(msg.itemList[i]);
+                    }
+                }
+            }
+        })
+
+
+        /*
         for (var currentDate = new Date(formatDate(endDate.toString())); currentDate >= startDate; currentDate.setDate(currentDate.getDate() - 1)) {
             startDateCtl.disabled = true;
             endDateCtl.disabled = true;
@@ -146,7 +173,7 @@
 
         }
         
-
+        */
     }
 
 
