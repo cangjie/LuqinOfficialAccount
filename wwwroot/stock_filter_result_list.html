@@ -125,7 +125,8 @@
             + '?startDate=' + encodeURIComponent(formatDate(startDate))
             + '&endDate=' + encodeURIComponent(formatDate(endDate)) + '&sort=' + encodeURIComponent(sort);
 
-
+        startDateCtl.disabled = true;
+        endDateCtl.disabled = true;
         $.ajax({
             url: ajaxUrl,
             type: 'GET',
