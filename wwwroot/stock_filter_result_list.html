@@ -140,6 +140,7 @@
             url: ajaxUrl,
             type: 'GET',
             success: function (msg, status) {
+                countTable = [{ signal: '总计', countNum: 0, down: 0, notRise: 0, rise: 0, bigRise: 0 }];
                 console.log('msg', msg);
                 console.log('status', status);
                 startDateCtl.disabled = false;
@@ -265,24 +266,7 @@
                 case (tHead.childNodes.length - 1):
                     isPercent = true;
                     txt = maxPercent;
-                    if (maxPercent > -1) {
-
-                        countTable[0].countNum++;
-
-                        if (maxPercent < 0) {
-                            countTable[0].down++;
-                        }
-                        else if (maxPercent < 0.01) {
-                            countTable[0].notRise++;
-                        }
-                        else if (maxPercent < 0.05) {
-                            countTable[0].rise++;
-                        }
-                        else {
-                            countTable[0].bigRise++;
-                        }
-
-                    }
+                    
                     break;
                 default:
                     if (i < item.referenceValues.length + 4) {
@@ -352,7 +336,24 @@
             tr.appendChild(td);
         }
         tbody.appendChild(tr);
+        if (maxPercent > -100) {
 
+            countTable[0].countNum++;
+
+            if (maxPercent < 0) {
+                countTable[0].down++;
+            }
+            else if (maxPercent < 0.01) {
+                countTable[0].notRise++;
+            }
+            else if (maxPercent < 0.05) {
+                countTable[0].rise++;
+            }
+            else {
+                countTable[0].bigRise++;
+            }
+
+        }
     }
 
     function InitTable(msg) {
