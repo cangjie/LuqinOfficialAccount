@@ -30,15 +30,10 @@ namespace LuqinOfficialAccount.Controllers
             _settings = Settings.GetSettings(_config);
         }
 
-        [HttpGet]
-        public  void SearchToday()
-        {
-            //Search(DateTime.Now.AddDays(-1).Date);
-            Search(DateTime.Now.Date);
-        }
+        
 
         [HttpGet]
-        public  void SearchDays(DateTime start, DateTime end)
+        public  ActionResult<int> SearchDays(DateTime start, DateTime end)
         {
             for (DateTime i = start; i.Date <= end.Date; i = i.AddDays(1))
             {
@@ -47,16 +42,18 @@ namespace LuqinOfficialAccount.Controllers
                     Search(i);
                 }
             }
+            return Ok(0);
         }
 
         [HttpGet]
-        public void SearchTodayBigRise()
+        public ActionResult<int> SearchTodayBigRise()
         {
             DateTime now = DateTime.Now.Date;
             if (Util.IsTransacDay(now, _context))
             {
                 Search(now);
             }
+            return Ok(0);
         }
 
         [HttpGet]
