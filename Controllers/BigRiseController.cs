@@ -494,12 +494,27 @@ namespace LuqinOfficialAccount.Controllers
                 {
                     continue;
                 }
-                ActionResult<Chip> chipResult = (await chipCtrl.GetChip(s.gid.Trim(), s.klineDay[buyIndex].settleTime.Date));
+
                 double chipValue = 0;
+
+                ActionResult<Chip> chipResult = (await chipCtrl.GetChip(s.gid.Trim(), s.klineDay[buyIndex - 1].settleTime.Date));
+                
                 if (chipResult.Result.GetType().Name.Trim().Equals("OkObjectResult"))
                 {
                     Chip chip = (Chip)((OkObjectResult)chipResult.Result).Value;
                     chipValue = chip.chipDistribute90;
+                }
+                else
+                {
+                    if (!s.gid.StartsWith("kc"))
+                    {
+                        chipResult = (await chipCtrl.GetOne(s.gid.Trim(), s.klineDay[buyIndex - 1].settleTime.Date));
+                        if (chipResult.Result.GetType().Name.Trim().Equals("OkObjectResult"))
+                        {
+                            Chip chip = (Chip)((OkObjectResult)chipResult.Result).Value;
+                            chipValue = chip.chipDistribute90;
+                        }
+                    }
                 }
                 double buyPrice = s.klineDay[buyIndex].settle;
                 DataRow dr = dt.NewRow();
