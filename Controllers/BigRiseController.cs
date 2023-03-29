@@ -444,7 +444,7 @@ namespace LuqinOfficialAccount.Controllers
             dt.Columns.Add("买入", Type.GetType("System.Double"));
 
             var bigRiseList = await _context.BigRise.Where(b => b.alert_date >= startDate.AddDays(-60)
-                && b.alert_date.Date <= endDate
+                && b.alert_date.Date < endDate
                 //&& b.gid.Equals("sz300785")
                 ).OrderByDescending(b => b.alert_date).ToListAsync();
             for (int i = 0; i < bigRiseList.Count; i++)
