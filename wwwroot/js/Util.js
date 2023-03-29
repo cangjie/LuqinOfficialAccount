@@ -15,6 +15,12 @@ function getCookie(cname) {
     return "";
 }
 
+function getPercent(rate, digit) {
+    rate = rate * 100;
+    var rateStr = formatFloatNumber(rate, digit);
+    return rateStr + '%';
+}
+
 function formatDate(dateStr) {
     var date = new Date(dateStr);
     var monthStr = (date.getMonth() + 1).toString();

@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="css/bootstrap-reboot.css" />
     <script type="text/javascript" src="js/jquery-3.6.1.min.js"></script>
     <script type="text/javascript" src="js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="js/Util.js?rnd=ssee"></script>
+    <script type="text/javascript" src="js/Util.js?rnd=ss4555ee"></script>
     <script type="text/javascript" src="js/api_description.js?ss=bb"></script>
     <script type="text/javascript">var defaultApi = '/api/BigRise/GetKDJ/';
         var defaultCountDayts = '15';
@@ -19,6 +19,7 @@
         var title = '';
         var decription = '';
         var inited = false;
+        var countTable = [{ signal: '总计', countNum: 0, down: 0, notRise: 0, rise: 0, bigRise: 0 }];
     </script>
 </head>
 <body>
@@ -29,20 +30,37 @@
     <div id="description"></div>
     <hr />
     <div>
-        日期：从 <input  type="date" id="date_from" oninput="setDate()"  /> 到 <input type="date" id="date_to" oninput="setDate()"  />
+        日期：从 <input type="date" id="date_from" oninput="setDate()" /> 到 <input type="date" id="date_to" oninput="setDate()" />
     </div>
     <hr />
     <div>
-        <table style="width:100%" >
+        <table style="width:100%">
             <thead>
-                <tr id="table_head"></tr>
+                <tr>
+                    <td class="table_head" >信号</td>
+                    <td class="table_head" >下跌</td>
+                    <td class="table_head" >横盘</td>
+                    <td class="table_head" >上涨</td>
+                    <td class="table_head" >涨5%</td>
+                </tr>
             </thead>
-            <tbody id="table_body" class="table_body_row" >
+            <tbody id="count_table" >
 
             </tbody>
         </table>
     </div>
+    <hr />
+    <div>
+        <table style="width:100%">
+            <thead>
+                <tr id="table_head"></tr>
+            </thead>
+            <tbody id="table_body" class="table_body_row">
+            </tbody>
+        </table>
+    </div>
 </body>
+</html>
 <script type="text/javascript" >
 
     var startDate = new Date(document.getElementById('date_from').value);
@@ -74,6 +92,11 @@
             tbody.removeChild(tbody.childNodes[i]);
         }
 
+        var tBody = document.getElementById('count_table');
+        for (var i = 0; i < tBody.childNodes.length;) {
+            tBody.removeChild(tBody.childNodes[i]);
+        }
+
         var api = getUrlParameter('api');
         api = decodeURIComponent(api);
 
@@ -98,25 +121,11 @@
         if (sort == '') {
             sort = apiDescription.defaultSort.trim();
         }
-
-        
-
-
-        //startDate.setDate(1);
-        //endDate.setDate(10);
-
-
         var title = apiDescription.name;
         var description = apiDescription.description;
-
         document.getElementById('title').innerText = title;
         document.getElementById('name').innerText = title;
         document.getElementById('description').innerText = description;
-
-        
-
-        //currentDate = new Date('2023-3-23');
-
         var startDateCtl = document.getElementById('date_from');
         var endDateCtl = document.getElementById('date_to');
 
@@ -135,48 +144,96 @@
                 console.log('status', status);
                 startDateCtl.disabled = false;
                 endDateCtl.disabled = false;
-                if (!inited) {
-                    InitTable(msg);
-                }
+                
                 if (status == 'success') {
-                    for (var i = 0; i < msg.itemList.length; i++) {
-                        AddItemToTable(msg.itemList[i]);
-                    }
-                }
-            }
-        })
-
-
-        /*
-        for (var currentDate = new Date(formatDate(endDate.toString())); currentDate >= startDate; currentDate.setDate(currentDate.getDate() - 1)) {
-            startDateCtl.disabled = true;
-            endDateCtl.disabled = true;
-            var ajaxUrl = apiDescription.url + '/' + countDays.toString()
-            ajaxUrl = ajaxUrl + '?currentDate=' + formatDate(currentDate) + '&sort=' + encodeURIComponent(sort);
-            $.ajax({
-                url: ajaxUrl,
-                type: 'GET',
-                success: function (msg, status) {
-                    console.log('msg', msg);
-                    console.log('status', status);
-                    startDateCtl.disabled = false;
-                    endDateCtl.disabled = false;
                     if (!inited) {
                         InitTable(msg);
                     }
-                    if (status == 'success') {
-                        for (var i = 0; i < msg.itemList.length; i++) {
-                            AddItemToTable(msg.itemList[i]);
-                        }
+                    for (var i = 0; i < msg.itemList.length; i++) {
+                        AddItemToTable(msg.itemList[i]);
                     }
+                    FillCount();
                 }
-            })
-
-        }
-        
-        */
+            }
+        })
     }
 
+    function FillCount() {
+        var tBody = document.getElementById('count_table');
+        for (var i = 0; i < countTable.length; i++) {
+            var countTr = document.createElement('tr');
+            var countTdSig = document.createElement('td');
+            var txtClass = document.createAttribute('class');
+            txtClass.value = 'table_body_cell_text';
+            countTdSig.attributes.setNamedItem(txtClass);
+            countTdSig.innerText = countTable[0].signal;
+            countTr.appendChild(countTdSig);
+            var tdDown = document.createElement('td');
+            var tdNoRise = document.createElement('td');
+            var tdRise = document.createElement('td');
+            var tdBigRise = document.createElement('td');
+            if (countTable[i].countNum == 0) {
+                
+                txtClass = document.createAttribute('class');
+                txtClass.value = 'table_body_cell_text';
+                tdDown.attributes.setNamedItem(txtClass);
+                tdDown.innerText = '--';
+                countTr.appendChild(tdDown);
+
+                
+                txtClass = document.createAttribute('class');
+                txtClass.value = 'table_body_cell_text';
+                tdNoRise.attributes.setNamedItem(txtClass);
+                tdNoRise.innerText = '--';
+                countTr.appendChild(tdNoRise);
+
+                
+                txtClass = document.createAttribute('class');
+                txtClass.value = 'table_body_cell_text';
+                tdRise.attributes.setNamedItem(txtClass);
+                tdRise.innerText = '--';
+                countTr.appendChild(tdRise);
+
+                
+                txtClass = document.createAttribute('class');
+                txtClass.value = 'table_body_cell_text';
+                tdBigRise.attributes.setNamedItem(txtClass);
+                tdBigRise.innerText = '--';
+                countTr.appendChild(tdBigRise);
+            }
+            else {
+                
+                txtClass = document.createAttribute('class');
+                txtClass.value = 'table_body_cell_numeric';
+                tdDown.attributes.setNamedItem(txtClass);
+                tdDown.innerText = getPercent(countTable[i].down / countTable[i].countNum, 2);
+                countTr.appendChild(tdDown);
+
+
+                txtClass = document.createAttribute('class');
+                txtClass.value = 'table_body_cell_numeric';
+                tdNoRise.attributes.setNamedItem(txtClass);
+                tdNoRise.innerText = getPercent(countTable[i].notRise / countTable[i].countNum, 2);
+                countTr.appendChild(tdNoRise);
+
+
+                txtClass = document.createAttribute('class');
+                txtClass.value = 'table_body_cell_numeric';
+                tdRise.attributes.setNamedItem(txtClass);
+                tdRise.innerText = getPercent(countTable[i].rise / countTable[i].countNum, 2);
+                countTr.appendChild(tdRise);
+
+
+                txtClass = document.createAttribute('class');
+                txtClass.value = 'table_body_cell_numeric';
+                tdBigRise.attributes.setNamedItem(txtClass);
+                tdBigRise.innerText = getPercent(countTable[i].bigRise / countTable[i].countNum, 2);
+                countTr.appendChild(tdBigRise);
+            }
+            tBody.appendChild(countTr);
+            
+        }
+    }
 
     function AddItemToTable(item) {
         var tbody = document.getElementById('table_body');
@@ -208,6 +265,24 @@
                 case (tHead.childNodes.length - 1):
                     isPercent = true;
                     txt = maxPercent;
+                    if (maxPercent > -1) {
+
+                        countTable[0].countNum++;
+
+                        if (maxPercent < 0) {
+                            countTable[0].down++;
+                        }
+                        else if (maxPercent < 0.01) {
+                            countTable[0].notRise++;
+                        }
+                        else if (maxPercent < 0.05) {
+                            countTable[0].rise++;
+                        }
+                        else {
+                            countTable[0].bigRise++;
+                        }
+
+                    }
                     break;
                 default:
                     if (i < item.referenceValues.length + 4) {
@@ -372,4 +447,4 @@
     }
 
 </script>
-</html>
+
