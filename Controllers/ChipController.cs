@@ -85,10 +85,10 @@ namespace LuqinOfficialAccount.Controllers
         }
 
         [HttpGet]
-        public ActionResult<int> GetOne(string gid, DateTime date)
+        public async Task<ActionResult<Chip>> GetOne(string gid, DateTime date)
         {
             RequestChipData(gid.Trim(), date, date);
-            return Ok(1);
+            return await GetChip(gid, date);
         }
 
 
