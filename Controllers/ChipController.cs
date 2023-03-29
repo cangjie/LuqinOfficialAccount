@@ -85,9 +85,10 @@ namespace LuqinOfficialAccount.Controllers
         }
 
         [HttpGet]
-        public void GetOne(string gid, DateTime date)
+        public ActionResult<int> GetOne(string gid, DateTime date)
         {
             RequestChipData(gid.Trim(), date, date);
+            return Ok(1);
         }
 
 
