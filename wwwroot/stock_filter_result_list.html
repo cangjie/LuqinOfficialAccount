@@ -156,6 +156,26 @@
                         InitTable(msg);
                     }
                     for (var i = 0; i < msg.itemList.length; i++) {
+                        var sigArr = msg.itemList[i].signal.toString().split(' ');
+
+                        for (var j = 0; j < sigArr.length; j++) {
+                            if (sigArr[j].trim() != '') {
+                                var sigExsitsInTable = false;
+                                for (var k = 0; k < countTable.length; k++) {
+                                    if (countTable[k].signal == sigArr[j]) {
+                                        sigExsitsInTable = true;
+                                    }
+                                }
+                                if (!sigExsitsInTable) {
+                                    var newCountItem = { signal: sigArr[j].trim(), countNum: 0, down: 0, notRise: 0, rise: 0, bigRise: 0 };
+                                    countTable.push(newCountItem);
+                                }
+                            }
+                            
+                        }
+                        
+                        
+
                         AddItemToTable(msg.itemList[i]);
                     }
                     FillCount();
@@ -172,7 +192,7 @@
             var txtClass = document.createAttribute('class');
             txtClass.value = 'table_body_cell_text';
             countTdSig.attributes.setNamedItem(txtClass);
-            countTdSig.innerText = countTable[0].signal;
+            countTdSig.innerText = countTable[i].signal;
             countTr.appendChild(countTdSig);
             var tdDown = document.createElement('td');
             var tdNoRise = document.createElement('td');
@@ -343,20 +363,29 @@
         tbody.appendChild(tr);
         if (maxPercent > -100) {
 
-            countTable[0].countNum++;
+            
+            
 
-            if (maxPercent < 0) {
-                countTable[0].down++;
+            for (var i = 0; i < countTable.length; i++) {
+                var currentSig = countTable[i].signal;
+                if (item.signal.toString().indexOf(currentSig) >= 0 || i == 0) {
+                    countTable[i].countNum++;
+
+                    if (maxPercent < 0) {
+                        countTable[i].down++;
+                    }
+                    else if (maxPercent < 0.01) {
+                        countTable[i].notRise++;
+                    }
+                    else if (maxPercent < 0.05) {
+                        countTable[i].rise++;
+                    }
+                    else {
+                        countTable[i].bigRise++;
+                    }
+                }
             }
-            else if (maxPercent < 0.01) {
-                countTable[0].notRise++;
-            }
-            else if (maxPercent < 0.05) {
-                countTable[0].rise++;
-            }
-            else {
-                countTable[0].bigRise++;
-            }
+
 
         }
     }
