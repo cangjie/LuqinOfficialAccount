@@ -524,7 +524,17 @@ namespace LuqinOfficialAccount.Controllers
                 dr["MACD"] = s.klineDay[buyIndex].macd;
                 dr["筹码"] = chipValue;
                 dr["买入"] = buyPrice;
-                dr["信号"] = "";
+
+                if (chipValue > 0 && chipValue < 0.15 && Math.Abs(s.klineDay[buyIndex].macd) < 0.5)
+                {
+                    dr["信号"] = "📈 ";
+                }
+                else
+                {
+                    dr["信号"] = "";
+                }
+
+                
 
 
                 dt.Rows.Add(dr);
