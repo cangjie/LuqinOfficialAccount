@@ -425,7 +425,7 @@ namespace LuqinOfficialAccount.Controllers
         }
 
         [HttpGet("{days}")]
-        public async Task<ActionResult<DataTable>> GetKDJForDays(int days, DateTime startDate, DateTime endDate, string sort = "筹码")
+        public async Task<ActionResult<StockFilter>> GetKDJForDays(int days, DateTime startDate, DateTime endDate, string sort = "筹码")
         {
             startDate = startDate.Date;
             endDate = endDate.Date;

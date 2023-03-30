@@ -13,4 +13,11 @@
         'defaultCountDays': 15,
         'defaultSort': ''
     },
+    {
+        'name': '二连板',
+        'description': '筹码集中，MACD低',
+        'url': '/api/LimitUp/GetLimitUpTwice',
+        'defaultCountDays': 15,
+        'defaultSort': '筹码'
+    },
 ];

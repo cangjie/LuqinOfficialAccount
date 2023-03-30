@@ -30,7 +30,7 @@
     <div id="description"></div>
     <hr />
     <div>
-        日期：从 <input type="date" id="date_from" oninput="setDate()" /> 到 <input type="date" id="date_to" oninput="setDate()" />
+        日期：从 <input type="date" id="date_from" oninput="setDate()" /> 到 <input type="date" id="date_to" oninput="setDate()" /> <button id="btn" onclick="getData()"> 查 询 </button>
     </div>
     <hr />
     <div>
@@ -62,6 +62,27 @@
 </body>
 </html>
 <script type="text/javascript" >
+    var api = getUrlParameter('api');
+    api = decodeURIComponent(api);
+
+    var apiDescription = apiDescriptionList[0];
+
+    if (api != '') {
+
+        for (var i = 0; i < apiDescriptionList.length; i++) {
+            if (api == apiDescriptionList[i].url) {
+                apiDescription = apiDescriptionList[i];
+                break;
+            }
+        }
+
+    }
+
+    var title = apiDescription.name;
+    var description = apiDescription.description;
+    document.getElementById('title').innerText = title;
+    document.getElementById('name').innerText = title;
+    document.getElementById('description').innerText = description;
 
     var startDate = new Date(document.getElementById('date_from').value);
     if (startDate == 'Invalid Date') {
@@ -81,6 +102,7 @@
     }
     var startDateCtl = document.getElementById('date_from');
     var endDateCtl = document.getElementById('date_to');
+    var btn = document.getElementById('btn');
     startDateCtl.value = formatDate(startDate);
     endDateCtl.value = formatDate(endDate);
 
@@ -97,21 +119,7 @@
             tBody.removeChild(tBody.childNodes[i]);
         }
 
-        var api = getUrlParameter('api');
-        api = decodeURIComponent(api);
-
-        var apiDescription = apiDescriptionList[0];
-
-        if (api != '') {
-
-            for (var i = 0; i < apiDescriptionList.length; i++) {
-                if (api == apiDescriptionList[i].url) {
-                    apiDescription = apiDescriptionList[i];
-                    break;
-                }
-            }
-            
-        }
+        
         var countDaysStr = getUrlParameter('days');
         var countDays = parseInt(countDaysStr);
         if (isNaN(countDays)) {
@@ -121,11 +129,7 @@
         if (sort == '') {
             sort = apiDescription.defaultSort.trim();
         }
-        var title = apiDescription.name;
-        var description = apiDescription.description;
-        document.getElementById('title').innerText = title;
-        document.getElementById('name').innerText = title;
-        document.getElementById('description').innerText = description;
+        
         var startDateCtl = document.getElementById('date_from');
         var endDateCtl = document.getElementById('date_to');
 
@@ -136,6 +140,7 @@
 
         startDateCtl.disabled = true;
         endDateCtl.disabled = true;
+        btn.disabled = true;
         $.ajax({
             url: ajaxUrl,
             type: 'GET',
@@ -145,7 +150,7 @@
                 console.log('status', status);
                 startDateCtl.disabled = false;
                 endDateCtl.disabled = false;
-                
+                btn.disabled = false;
                 if (status == 'success') {
                     if (!inited) {
                         InitTable(msg);
@@ -425,7 +430,7 @@
         tHead.appendChild(tdTotal);
         inited = true;
     }
-    getData();
+    //getData();
 
     function setDate() {
         var startDateCtl = document.getElementById('date_from');
@@ -442,7 +447,7 @@
 
         startDate = newStartDate;
         endDate = newEndDate;
-        getData();
+        //getData();
 
 
     }
