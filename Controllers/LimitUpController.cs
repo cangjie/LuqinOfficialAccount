@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using LuqinOfficialAccount.Models;
 using Microsoft.Extensions.Configuration;
+
+
+
 namespace LuqinOfficialAccount.Controllers
 {
     [Route("api/[controller]/[action]")]
@@ -180,7 +183,7 @@ namespace LuqinOfficialAccount.Controllers
                 }
                 catch
                 {
-
+                    
                 }
 
 
