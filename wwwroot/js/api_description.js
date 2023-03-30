@@ -5,5 +5,12 @@
         'url': '/api/BigRise/GetKDJForDays',
         'defaultCountDays': 15,
         'defaultSort': '筹码'
-    }
+    },
+    {
+        'name': '突破50 100关口',
+        'description': '',
+        'url': '/api/Stock/BreakGate',
+        'defaultCountDays': 15,
+        'defaultSort': ''
+    },
 ];
