@@ -236,7 +236,14 @@ namespace LuqinOfficialAccount.Controllers
             for (int i = 0; i < limitupTwiceList.Count; i++)
             {
                 Stock s = Stock.GetStock(limitupTwiceList[i].gid.Trim());
-                s.RefreshKLine();
+                try
+                {
+                    s.RefreshKLine();
+                }
+                catch
+                {
+                    continue;
+                }
                 DateTime alertDate = limitupTwiceList[i].alert_date.Date;
                 int alertIndex = s.GetItemIndex(alertDate);
                 DataRow dr = dt.NewRow();
