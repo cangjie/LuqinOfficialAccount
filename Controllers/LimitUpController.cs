@@ -275,7 +275,15 @@ namespace LuqinOfficialAccount.Controllers
                 dt.Rows.Add(dr);
             }
             StockFilter sf = StockFilter.GetResult(dt.Select("", "日期 desc, " + sort), 15);
-            return Ok(sf);
+            try
+            {
+                return Ok(sf);
+            }
+            catch
+            {
+                return NotFound();
+
+            }
         }
 
         /*
