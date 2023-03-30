@@ -15,7 +15,7 @@
     },
     {
         'name': '二连板',
-        'description': '筹码集中，MACD低',
+        'description': '筹码集中，MACD低  📈 表示筹码分布小于15%，并且MACD绝对值小于1.',
         'url': '/api/LimitUp/GetLimitUpTwice',
         'defaultCountDays': 15,
         'defaultSort': '筹码'
