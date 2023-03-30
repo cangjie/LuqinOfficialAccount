@@ -83,8 +83,22 @@ namespace LuqinOfficialAccount.Controllers
                 for (int j = startIndex; j <= endIndex && j < s.klineDay.Length; j++)
                 {
                     KLine k = s.klineDay[j];
-                    if (((k.high > 50 && k.low < 50) || (k.high > 100 && k.low < 100)) && k.open < k.settle)
+                    if ((k.high > 100 && k.low < 100) && k.open < k.settle)
                     {
+                        bool isTop = true;
+
+                        for (int m = j - 1; m >= 0; m--)
+                        {
+                            if (s.klineDay[m].high >= 100)
+                            {
+                                isTop = false;
+                                break;
+                            }
+                        }
+                        if (!isTop)
+                        {
+                            continue;
+                        }
                         DataRow dr = dt.NewRow();
                         dr["日期"] = k.settleTime.Date;
                         dr["代码"] = s.gid;

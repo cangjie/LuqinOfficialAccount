@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using LuqinOfficialAccount.Models;
 using Microsoft.Extensions.Configuration;
 
-
+using System.Data;
 
 namespace LuqinOfficialAccount.Controllers
 {
@@ -211,6 +211,71 @@ namespace LuqinOfficialAccount.Controllers
 
             return Ok(result);
             
+        }
+
+
+        [HttpGet("{days}")]
+        public async Task<ActionResult<StockFilter>> GetLimitUpTwice(int days, DateTime startDate, DateTime endDate, string sort = "筹码")
+        {
+            ChipController chipCtrl = new ChipController(_db, _config);
+            var limitupTwiceList = await _db.LimitUpTwice.Where(l => (l.alert_date >= startDate.Date && l.alert_date <= endDate.Date))
+                .OrderByDescending(l => l.alert_date).ToListAsync();
+            if (limitupTwiceList == null)
+            {
+                return BadRequest();
+            }
+            DataTable dt = new DataTable();
+            dt.Columns.Add("日期", Type.GetType("System.DateTime"));
+            dt.Columns.Add("代码", Type.GetType("System.String"));
+            dt.Columns.Add("名称", Type.GetType("System.String"));
+            dt.Columns.Add("信号", Type.GetType("System.String"));
+            dt.Columns.Add("MACD", Type.GetType("System.Double"));
+            dt.Columns.Add("筹码", Type.GetType("System.Double"));
+            dt.Columns.Add("买入", Type.GetType("System.Double"));
+
+            for (int i = 0; i < limitupTwiceList.Count; i++)
+            {
+                Stock s = Stock.GetStock(limitupTwiceList[i].gid.Trim());
+                s.RefreshKLine();
+                DateTime alertDate = limitupTwiceList[i].alert_date.Date;
+                int alertIndex = s.GetItemIndex(alertDate);
+                DataRow dr = dt.NewRow();
+                dr["日期"] = alertDate.Date;
+                dr["代码"] = s.gid;
+                dr["名称"] = s.name;
+                dr["信号"] = "";
+                dr["买入"] = s.klineDay[alertIndex].settle;
+                dr["MACD"] = s.klineDay[alertIndex].macd;
+                double chipValue = 0;
+
+                ActionResult<Chip> chipResult = (await chipCtrl.GetChip(s.gid.Trim(), s.klineDay[alertIndex - 1].settleTime.Date));
+
+                if (chipResult.Result.GetType().Name.Trim().Equals("OkObjectResult"))
+                {
+                    Chip chip = (Chip)((OkObjectResult)chipResult.Result).Value;
+                    chipValue = chip.chipDistribute90;
+                }
+                else
+                {
+                    if (!s.gid.StartsWith("kc"))
+                    {
+                        chipResult = (await chipCtrl.GetOne(s.gid.Trim(), s.klineDay[alertIndex - 1].settleTime.Date));
+                        if (chipResult.Result.GetType().Name.Trim().Equals("OkObjectResult"))
+                        {
+                            Chip chip = (Chip)((OkObjectResult)chipResult.Result).Value;
+                            chipValue = chip.chipDistribute90;
+                        }
+                    }
+                }
+                dr["筹码"] = chipValue;
+                if (chipValue < 0.15 && s.klineDay[alertIndex].macd < 1)
+                {
+                    dr["信号"] = "📈";
+                }
+                dt.Rows.Add(dr);
+            }
+            StockFilter sf = StockFilter.GetResult(dt.Select("", "日期 desc, " + sort), 15);
+            return Ok(sf);
         }
 
         /*
