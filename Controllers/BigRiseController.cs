@@ -544,7 +544,7 @@ namespace LuqinOfficialAccount.Controllers
                 {
                     dr["信号"] = "";
                 }
-                if (minJ <= 10)
+                if (minJ <= 0)
                 {
                     string sig = dr["信号"].ToString().Trim();
                     dr["信号"] = sig + (sig.Trim().Equals("") ? "" : " ") + "🛍";
