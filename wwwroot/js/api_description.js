@@ -15,7 +15,7 @@
     },
     {
         'name': '二连板',
-        'description': '筹码集中，MACD低  📈 表示筹码分布小于15%，并且MACD值小于1.',
+        'description': '筹码集中，MACD低  📈 表示筹码分布小于15%，并且MACD值小于1.🛍️表示KDJ出现超买，同时具有📈和🛍️则标记为🔥。',
         'url': '/api/LimitUp/GetLimitUpTwice',
         'defaultCountDays': 15,
         'defaultSort': '筹码'
