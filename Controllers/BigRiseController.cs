@@ -441,7 +441,9 @@ namespace LuqinOfficialAccount.Controllers
             dt.Columns.Add("信号", Type.GetType("System.String"));
             dt.Columns.Add("MACD", Type.GetType("System.Double"));
             dt.Columns.Add("筹码", Type.GetType("System.Double"));
+            dt.Columns.Add("放量", Type.GetType("System.Double"));
             dt.Columns.Add("买入", Type.GetType("System.Double"));
+            
 
             var bigRiseList = await _context.BigRise.Where(b => b.alert_date >= startDate.AddDays(-60)
                 && b.alert_date.Date < endDate
@@ -471,6 +473,7 @@ namespace LuqinOfficialAccount.Controllers
                     continue;
                 }
                 bool kdGold = true;
+                double minJ = 100;
                 for (int j = topIndex; j <= endIndex && j < s.klineDay.Length; j++)
                 {
                     KLine k = s.klineDay[j];
@@ -478,10 +481,17 @@ namespace LuqinOfficialAccount.Controllers
                     {
                         kdGold = false;
                     }
-                    if (!kdGold && k.k > k.d)
+                    
+
+                    if (!kdGold)
                     {
-                        buyIndex = j;
-                        break;
+                        minJ = Math.Min(k.j, minJ);
+                        if (k.k > k.d && (k.j >= 50 || minJ <= 0))
+                        {
+                            buyIndex = j;
+                            break;
+                        }
+                        
                     }
                 }
                 if (buyIndex == -1 || buyIndex < startIndex || buyIndex > endIndex)
@@ -524,6 +534,7 @@ namespace LuqinOfficialAccount.Controllers
                 dr["MACD"] = s.klineDay[buyIndex].macd;
                 dr["筹码"] = chipValue;
                 dr["买入"] = buyPrice;
+                dr["放量"] = (double)(s.klineDay[buyIndex].volume - s.klineDay[buyIndex - 1].volume) / (double)s.klineDay[buyIndex - 1].volume;
 
                 if (chipValue > 0 && chipValue < 0.15 && Math.Abs(s.klineDay[buyIndex].macd) < 0.5)
                 {
@@ -533,9 +544,16 @@ namespace LuqinOfficialAccount.Controllers
                 {
                     dr["信号"] = "";
                 }
+                if (minJ <= 10)
+                {
+                    string sig = dr["信号"].ToString().Trim();
+                    dr["信号"] = sig + (sig.Trim().Equals("") ? "" : " ") + "🛍";
+                }
 
-                
-
+                if (dr["信号"].ToString().IndexOf("🛍") >= 0 && dr["信号"].ToString().IndexOf("📈") >= 0)
+                {
+                    dr["信号"] = "🔥";
+                }
 
                 dt.Rows.Add(dr);
             }
