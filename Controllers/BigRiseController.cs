@@ -486,7 +486,7 @@ namespace LuqinOfficialAccount.Controllers
                     if (!kdGold)
                     {
                         minJ = Math.Min(k.j, minJ);
-                        if (k.k > k.d && (k.j >= 50 || minJ <= 0))
+                        if (k.k > k.d && k.j >= 50)
                         {
                             buyIndex = j;
                             break;
