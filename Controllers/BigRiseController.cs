@@ -457,7 +457,7 @@ namespace LuqinOfficialAccount.Controllers
                     continue;
                 }
                 s.RefreshKLine();
-
+                int lastKDGoldIndex = -5;
                 int startIndex = s.GetItemIndex(startDate);
                 int endIndex = s.GetItemIndex(endDate);
                 if (endIndex == -1)
@@ -473,26 +473,40 @@ namespace LuqinOfficialAccount.Controllers
                     continue;
                 }
                 bool kdGold = true;
-                double minJ = 100;
+                double minJ = double.MaxValue;
                 for (int j = topIndex; j <= endIndex && j < s.klineDay.Length; j++)
                 {
+                    
                     KLine k = s.klineDay[j];
                     if (k.k < k.d)
                     {
                         kdGold = false;
+                        minJ = Math.Min(minJ, k.j);
+                    }
+                    if (k.k > k.d)
+                    {
+                        if (!kdGold)
+                        {
+                            if (minJ <= 0)
+                            {
+                                buyIndex = j;
+                                break;
+                            }
+                            else
+                            {
+                                if (k.macd > 0)
+                                {
+                                    buyIndex = j;
+                                    break;
+                                }
+                            }
+                        }
+                        lastKDGoldIndex = j;
+                        kdGold = true;
                     }
                     
 
-                    if (!kdGold)
-                    {
-                        minJ = Math.Min(k.j, minJ);
-                        if (k.k > k.d && k.j >= 50)
-                        {
-                            buyIndex = j;
-                            break;
-                        }
-                        
-                    }
+                    
                 }
                 if (buyIndex == -1 || buyIndex < startIndex || buyIndex > endIndex)
                 {
@@ -534,8 +548,9 @@ namespace LuqinOfficialAccount.Controllers
                 dr["MACD"] = s.klineDay[buyIndex].macd;
                 dr["筹码"] = chipValue;
                 dr["买入"] = buyPrice;
-                dr["放量"] = (double)(s.klineDay[buyIndex].volume - s.klineDay[buyIndex - 1].volume) / (double)s.klineDay[buyIndex - 1].volume;
-
+                double volumeDiff = (double)(s.klineDay[buyIndex].volume - s.klineDay[buyIndex - 1].volume) / (double)s.klineDay[buyIndex - 1].volume;
+                dr["放量"] = volumeDiff;
+               
                 if (chipValue > 0 && chipValue < 0.15 && Math.Abs(s.klineDay[buyIndex].macd) < 0.5)
                 {
                     dr["信号"] = "📈 ";
@@ -544,18 +559,19 @@ namespace LuqinOfficialAccount.Controllers
                 {
                     dr["信号"] = "";
                 }
+                
                 if (minJ <= 0)
                 {
                     string sig = dr["信号"].ToString().Trim();
                     dr["信号"] = sig + (sig.Trim().Equals("") ? "" : " ") + "🛍";
                 }
-
-                if (dr["信号"].ToString().IndexOf("🛍") >= 0 && dr["信号"].ToString().IndexOf("📈") >= 0)
+                
+                if (dr["信号"].ToString().IndexOf("🛍") >= 0 && dr["信号"].ToString().IndexOf("📈") >= 0 && volumeDiff > 0)
                 {
                     dr["信号"] = "🔥";
                 }
-
                 dt.Rows.Add(dr);
+
             }
             StockFilter sf = StockFilter.GetResult(dt.Select("", "日期 desc, " + sort), 15);
             return Ok(sf);
