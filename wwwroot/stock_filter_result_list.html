@@ -9,9 +9,10 @@
     <link rel="stylesheet" href="css/bootstrap-reboot.css" />
     <script type="text/javascript" src="js/jquery-3.6.1.min.js"></script>
     <script type="text/javascript" src="js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="js/Util.js?rnd=ss45e55ddddee"></script>
-    <script type="text/javascript" src="js/api_description.js?ss=beeddddb"></script>
-    <script type="text/javascript">var defaultApi = '/api/BigRise/GetKDJ/';
+    <script type="text/javascript" src="js/Util.js"></script>
+    <script type="text/javascript" src="js/api_description.js"></script>
+    <script type="text/javascript">
+        var defaultApi = '/api/BigRise/GetKDJ/';
         var defaultCountDayts = '15';
         var defaultSort = '筹码';
         var defaultStartDate = formatDate((new Date()).toString());
@@ -20,6 +21,36 @@
         var decription = '';
         var inited = false;
         var countTable = [{ signal: '总计', countNum: 0, down: 0, notRise: 0, rise: 0, bigRise: 0 }];
+
+        var rnd = (new Date()).valueOf();
+
+        var scriptList = document.getElementsByTagName('script');
+        for (var i = 0; i < scriptList.length; i++) {
+            var e = scriptList[i];
+            if (e.src != undefined && e.src != null && e.src != '') {
+                if (e.src.indexOf('?') >= 0) {
+                    e.src = e.src + '&rndcache=' + rnd;
+                }
+                else {
+                    e.src = e.src + '?rndcache=' + rnd;
+                }
+            }
+        }
+
+        scriptList = document.getElementsByTagName('link');
+        for (var i = 0; i < scriptList.length; i++) {
+            var e = scriptList[i];
+            if (e.href != undefined && e.href != null && e.href != '') {
+                if (e.href.indexOf('?') >= 0) {
+                    e.href = e.href + '&rndcache=' + rnd;
+                }
+                else {
+                    e.href = e.href + '?rndcache=' + rnd;
+                }
+            }
+        }
+
+
     </script>
 </head>
 <body>
