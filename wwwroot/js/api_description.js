@@ -20,4 +20,11 @@
         'defaultCountDays': 15,
         'defaultSort': '筹码'
     },
+    {
+        'name': '等待红绿灯',
+        'description': '',
+        'url': '/api/LimitUp/GetLimitUpAdjust',
+        'defaultCountDays': 15,
+        'defaultSort': '筹码'
+    },
 ];

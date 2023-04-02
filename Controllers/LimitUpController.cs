@@ -293,103 +293,234 @@ namespace LuqinOfficialAccount.Controllers
             }
         }
 
-        /*
-        // GET: api/LimitUp
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<LimitUp>>> GetLimitUp()
+        [HttpGet("{days}")]
+        public async Task<ActionResult<StockFilter>> GetLimitUpAdjust(int days, DateTime startDate, DateTime endDate, string sort = "MACD")
         {
-            return await _context.LimitUp.ToListAsync();
-        }
-
-        // GET: api/LimitUp/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<LimitUp>> GetLimitUp(string id)
-        {
-            var limitUp = await _context.LimitUp.FindAsync(id);
-
-            if (limitUp == null)
-            {
-                return NotFound();
-            }
-
-            return limitUp;
-        }
-
-        // PUT: api/LimitUp/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutLimitUp(string id, LimitUp limitUp)
-        {
-            if (id != limitUp.gid)
+            ChipController chipCtrl = new ChipController(_db, _config);
+            var limitupTwiceList = await _db.LimitUp.Where(l => (l.alert_date >= Util.GetLastTransactDate(startDate.Date, -1, _db).Date
+                && l.alert_date <= Util.GetLastTransactDate(endDate.Date, -1, _db)
+                //&& l.gid.Trim().Equals("sz002406")
+                ))
+                .OrderByDescending(l => l.alert_date).ToListAsync();
+            if (limitupTwiceList == null)
             {
                 return BadRequest();
             }
+            DataTable dt = new DataTable();
+            dt.Columns.Add("日期", Type.GetType("System.DateTime"));
+            dt.Columns.Add("代码", Type.GetType("System.String"));
+            dt.Columns.Add("名称", Type.GetType("System.String"));
+            dt.Columns.Add("信号", Type.GetType("System.String"));
+            dt.Columns.Add("MACD", Type.GetType("System.Double"));
+            dt.Columns.Add("筹码", Type.GetType("System.Double"));
+            dt.Columns.Add("买入", Type.GetType("System.Double"));
 
-            _context.Entry(limitUp).State = EntityState.Modified;
+            for (int i = 0; i < limitupTwiceList.Count; i++)
+            {
+                Stock s = Stock.GetStock(limitupTwiceList[i].gid.Trim());
+                try
+                {
+                    s.RefreshKLine();
+                }
+                catch
+                {
+                    continue;
+                }
+                int lowIndex = -1;
+                
+                DateTime alertDate = limitupTwiceList[i].alert_date.Date;
+                int alertIndex = s.GetItemIndex(alertDate);
+                int buyIndex = alertIndex + 1;
+                if (buyIndex >= 1 && buyIndex < s.klineDay.Length)
+                {
+                    lowIndex = KLine.GetBackwardBottomKLineItem(s.klineDay, alertIndex - 1);
+                    bool existsLimit = false;
+                    for (int j = lowIndex; j < alertIndex; j++)
+                    {
+                        if (KLine.IsLimitUp(s.klineDay, j))
+                        {
+                            existsLimit = true;
+                            break;
+                        }
+                    }
+                    if (existsLimit)
+                    {
+                        continue;
+                    }
+                    if (s.klineDay[buyIndex].j >= 100 || s.klineDay[buyIndex].j <= s.klineDay[alertIndex].j
+                        || s.klineDay[buyIndex].j < 50 || s.klineDay[buyIndex].j >= 100)
+                    {
+                        continue;
+                    }
+                    if (s.klineDay[buyIndex].open <= s.klineDay[buyIndex].settle
+                        || s.klineDay[buyIndex].volume > s.klineDay[alertIndex].volume
+                        )
+                    {
+                        continue;
+                    }
+                    DataRow dr = dt.NewRow();
+                    dr["日期"] = s.klineDay[buyIndex].settleTime.Date;
+                    dr["代码"] = s.gid;
+                    dr["名称"] = s.name;
+                    dr["信号"] = "";
+                    dr["买入"] = s.klineDay[buyIndex].settle;
+                    dr["MACD"] = s.klineDay[buyIndex].macd;
+                    double chipValue = 0;
 
+                    ActionResult<Chip> chipResult = (await chipCtrl.GetChip(s.gid.Trim(), s.klineDay[alertIndex - 1].settleTime.Date));
+
+                    if (chipResult.Result.GetType().Name.Trim().Equals("OkObjectResult"))
+                    {
+                        Chip chip = (Chip)((OkObjectResult)chipResult.Result).Value;
+                        chipValue = chip.chipDistribute90;
+                    }
+                    else
+                    {
+                        if (!s.gid.StartsWith("kc"))
+                        {
+                            chipResult = (await chipCtrl.GetOne(s.gid.Trim(), s.klineDay[alertIndex - 1].settleTime.Date));
+                            if (chipResult.Result.GetType().Name.Trim().Equals("OkObjectResult"))
+                            {
+                                Chip chip = (Chip)((OkObjectResult)chipResult.Result).Value;
+                                chipValue = chip.chipDistribute90;
+                            }
+                        }
+                    }
+
+
+
+                    if (chipValue == 0 || chipValue > 0.15)
+                    {
+                        continue;
+
+                    }
+                    //if (s.klineDay[buyIndex].macd < s.klineDay[alertIndex].macd)
+                    if (s.klineDay[buyIndex].macd>1)
+                    {
+                        continue;
+                    }
+                    
+
+
+
+                    dr["筹码"] = chipValue;
+                    if (chipValue < 0.1)
+                    {
+                        dr["信号"] = "📈";
+                    }
+                    dt.Rows.Add(dr);
+                }
+
+            }
+            StockFilter sf = StockFilter.GetResult(dt.Select("", "日期 desc, " + sort), 15);
             try
             {
-                await _context.SaveChangesAsync();
+                return Ok(sf);
             }
-            catch (DbUpdateConcurrencyException)
+            catch
             {
-                if (!LimitUpExists(id))
+                return NotFound();
+
+            }
+        }
+
+            /*
+            // GET: api/LimitUp
+            [HttpGet]
+            public async Task<ActionResult<IEnumerable<LimitUp>>> GetLimitUp()
+            {
+                return await _context.LimitUp.ToListAsync();
+            }
+
+            // GET: api/LimitUp/5
+            [HttpGet("{id}")]
+            public async Task<ActionResult<LimitUp>> GetLimitUp(string id)
+            {
+                var limitUp = await _context.LimitUp.FindAsync(id);
+
+                if (limitUp == null)
                 {
                     return NotFound();
                 }
-                else
-                {
-                    throw;
-                }
+
+                return limitUp;
             }
 
-            return NoContent();
-        }
-
-        // POST: api/LimitUp
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<LimitUp>> PostLimitUp(LimitUp limitUp)
-        {
-            _context.LimitUp.Add(limitUp);
-            try
+            // PUT: api/LimitUp/5
+            // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+            [HttpPut("{id}")]
+            public async Task<IActionResult> PutLimitUp(string id, LimitUp limitUp)
             {
+                if (id != limitUp.gid)
+                {
+                    return BadRequest();
+                }
+
+                _context.Entry(limitUp).State = EntityState.Modified;
+
+                try
+                {
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!LimitUpExists(id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+
+                return NoContent();
+            }
+
+            // POST: api/LimitUp
+            // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+            [HttpPost]
+            public async Task<ActionResult<LimitUp>> PostLimitUp(LimitUp limitUp)
+            {
+                _context.LimitUp.Add(limitUp);
+                try
+                {
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateException)
+                {
+                    if (LimitUpExists(limitUp.gid))
+                    {
+                        return Conflict();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+
+                return CreatedAtAction("GetLimitUp", new { id = limitUp.gid }, limitUp);
+            }
+
+            // DELETE: api/LimitUp/5
+            [HttpDelete("{id}")]
+            public async Task<IActionResult> DeleteLimitUp(string id)
+            {
+                var limitUp = await _context.LimitUp.FindAsync(id);
+                if (limitUp == null)
+                {
+                    return NotFound();
+                }
+
+                _context.LimitUp.Remove(limitUp);
                 await _context.SaveChangesAsync();
+
+                return NoContent();
             }
-            catch (DbUpdateException)
-            {
-                if (LimitUpExists(limitUp.gid))
-                {
-                    return Conflict();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return CreatedAtAction("GetLimitUp", new { id = limitUp.gid }, limitUp);
-        }
-
-        // DELETE: api/LimitUp/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteLimitUp(string id)
-        {
-            var limitUp = await _context.LimitUp.FindAsync(id);
-            if (limitUp == null)
-            {
-                return NotFound();
-            }
-
-            _context.LimitUp.Remove(limitUp);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-        */
+            */
 
 
-        private bool LimitUpExists(string id)
+            private bool LimitUpExists(string id)
         {
             return _db.LimitUp.Any(e => e.gid == id);
         }
