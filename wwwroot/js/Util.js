@@ -41,7 +41,7 @@ function formatTime(dateStr) {
 
 }
 
-function formatNumber (n) {
+function formatNumber(n) {
     n = n.toString()
     return n[1] ? n : '0' + n
 }
@@ -68,8 +68,8 @@ function formatFloatNumber(num, digit) {
         pointRight = pointRight + tail.substring(0, tail.length - pointRight.length);
     }
 
-    return ret + '.' + pointRight 
-    
+    return ret + '.' + pointRight
+
 }
 
 function getUrlParameter(para) {
