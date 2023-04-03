@@ -211,6 +211,12 @@
                     }
                     FillCount();
                 }
+            },
+            fail: function () {
+                startDateCtl.disabled = false;
+                endDateCtl.disabled = false;
+                btn.disabled = false;
+                alert('系统报错');
             }
         })
     }
