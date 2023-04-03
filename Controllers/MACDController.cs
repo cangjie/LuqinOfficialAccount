@@ -116,7 +116,7 @@ namespace LuqinOfficialAccount.Controllers
                         }
                     }
                 }
-                if (chipValue == 0 || chipValue > 0.1)
+                if (chipValue == 0 || chipValue > 0.15)
                 {
                     continue;
                 }
