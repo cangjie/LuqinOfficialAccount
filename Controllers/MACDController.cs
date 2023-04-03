@@ -121,6 +121,11 @@ namespace LuqinOfficialAccount.Controllers
 
                 dr["筹码"] = chipValue;
 
+                if (ma5 > ma10)
+                {
+                    dr["信号"] = "📈";
+                }
+
                 dt.Rows.Add(dr);
 
             }
