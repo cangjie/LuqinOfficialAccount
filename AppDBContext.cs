@@ -15,6 +15,7 @@ namespace LuqinOfficialAccount
             modelBuilder.Entity<LimitUpTwice>().HasKey(l => new { l.gid, l.alert_date });
             modelBuilder.Entity<ContinuousRise>().HasKey(c => new { c.alert_date, c.gid });
             modelBuilder.Entity<Holiday>().HasNoKey();
+            modelBuilder.Entity<MACD>().HasKey(m => new { m.gid, m.alert_type, m.alert_time});
         }
 
         
@@ -48,6 +49,8 @@ namespace LuqinOfficialAccount
         public DbSet<LuqinOfficialAccount.Models.Chip> Chip { get; set; }
 
         public DbSet<LuqinOfficialAccount.Models.BigRise> BigRise { get; set; }
+
+        public DbSet<LuqinOfficialAccount.Models.MACD> MACD { get; set; }
 
 
     }
