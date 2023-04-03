@@ -296,8 +296,8 @@ namespace LuqinOfficialAccount.Controllers
         [HttpGet("{days}")]
         public async Task<ActionResult<StockFilter>> GetLimitUpAdjust(int days, DateTime startDate, DateTime endDate, string sort = "MACD")
         {
-            startDate = Util.GetLastTransactDate(startDate, -1, _db);
-            endDate = Util.GetLastTransactDate(endDate, -1, _db);
+            startDate = Util.GetLastTransactDate(startDate, 1, _db);
+            endDate = Util.GetLastTransactDate(endDate, 1, _db);
             ChipController chipCtrl = new ChipController(_db, _config);
             var limitupTwiceList = await _db.LimitUp.Where(l => (l.alert_date >= Util.GetLastTransactDate(startDate.Date, -1, _db).Date
                 && l.alert_date <= Util.GetLastTransactDate(endDate.Date, -1, _db)
