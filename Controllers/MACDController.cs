@@ -44,6 +44,7 @@ namespace LuqinOfficialAccount.Controllers
             dt.Columns.Add("买入", Type.GetType("System.Double"));
             dt.Columns.Add("放量", Type.GetType("System.Double"));
             var macdList = await _db.MACD.Where(m => (m.alert_type.Trim().Equals("day")
+                //&& m.gid.Trim().Equals("sh600833")
                 && m.alert_time.Date >= startDate.Date && m.alert_time.Date <= endDate.Date
                 && m.dea <= 0 && m.dif <= 0)).ToListAsync();
             if (macdList == null)
@@ -75,10 +76,7 @@ namespace LuqinOfficialAccount.Controllers
                     continue;
                 }
 
-                if (ma5 <= ma10)
-                {
-                    continue;
-                }
+                
                 
                 //double buyPrice = s.klineDay[alertIndex].settle;
                 DataRow dr = dt.NewRow();
