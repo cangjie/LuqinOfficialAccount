@@ -55,7 +55,14 @@ namespace LuqinOfficialAccount.Controllers
             {
                 DateTime alertDate = macdList[i].alert_time.Date;
                 Stock s = Stock.GetStock(macdList[i].gid.Trim());
-                s.RefreshKLine();
+                try
+                {
+                    s.RefreshKLine();
+                }
+                catch
+                {
+                    continue;
+                }
                 int alertIndex = s.GetItemIndex(alertDate);
                 if (alertIndex < 1 || alertIndex > s.klineDay.Length)
                 {
