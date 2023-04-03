@@ -27,4 +27,11 @@
         'defaultCountDays': 15,
         'defaultSort': '筹码'
     },
+    {
+        'name': 'MACD低位金叉，且均线多头排列，收20日均线上。',
+        'description': '',
+        'url': '/api/MACD/MACDGoldForkLow',
+        'defaultCountDays': 15,
+        'defaultSort': '筹码'
+    },
 ];
