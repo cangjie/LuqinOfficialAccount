@@ -38,6 +38,13 @@ namespace LuqinOfficialAccount.Models
         public void RefreshKLine()
         { 
             DateTime now = DateTime.Now;
+            if (now.Hour >= 9 && now.Hour <= 15)
+            {
+                ForceRefreshKLineDay();
+                ComputeRSV(klineDay);
+                ComputeKDJ(klineDay);
+                ComputeMACD(klineDay);
+            }
             if (now - klineDayLastUpdateTime > new TimeSpan(0, 2, 0))
             {
                 ForceRefreshKLineDay();
