@@ -16,6 +16,8 @@ namespace LuqinOfficialAccount
             modelBuilder.Entity<ContinuousRise>().HasKey(c => new { c.alert_date, c.gid });
             modelBuilder.Entity<Holiday>().HasNoKey();
             modelBuilder.Entity<MACD>().HasKey(m => new { m.gid, m.alert_type, m.alert_time});
+            modelBuilder.Entity<KDJ>().HasKey(m => new { m.gid, m.alert_type, m.alert_time });
+            modelBuilder.Entity<Above3Line>().HasKey(m => new { m.gid, m.alert_date });
         }
 
         
@@ -51,6 +53,10 @@ namespace LuqinOfficialAccount
         public DbSet<LuqinOfficialAccount.Models.BigRise> BigRise { get; set; }
 
         public DbSet<LuqinOfficialAccount.Models.MACD> MACD { get; set; }
+
+        public DbSet<LuqinOfficialAccount.Models.KDJ> KDJ { get; set; }
+
+        public DbSet<LuqinOfficialAccount.Models.Above3Line> Above3Line { get; set; }
 
 
     }

@@ -34,4 +34,26 @@
         'defaultCountDays': 15,
         'defaultSort': '筹码'
     },
+    {
+        'name': 'KDJ超卖金叉，20日均线趋势向上。',
+        'description': '',
+        'url': '/api/KDJ/GetOverSell',
+        'defaultCountDays': 15,
+        'defaultSort': '筹码'
+    },
+    {
+        'name': 'KDJ超卖金叉，之前数日在3线上',
+        'description': '',
+        'url': '/api/KDJ/GetAbove3Line',
+        'defaultCountDays': 15,
+        'defaultSort': 'MACD日'
+    },
+    {
+        'name': 'KDJ周线金叉后，小时线找买点',
+        'description': '',
+        'url': '/api/KDJ/HourAfterWeek',
+        'defaultCountDays': 15,
+        'defaultSort': '筹码'
+    }
+    ///api/KDJ/HourAfterWeek
 ];

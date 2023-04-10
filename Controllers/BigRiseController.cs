@@ -28,6 +28,7 @@ namespace LuqinOfficialAccount.Controllers
             _context = context;
             _config = config;
             _settings = Settings.GetSettings(_config);
+            Util._db = context;
         }
 
         
