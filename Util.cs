@@ -5,8 +5,9 @@ using System.IO;
 //using Microsoft.EntityFrameworkCore;
 //using StackExchange.Redis;
 using System.Linq;
-
 using LuqinOfficialAccount.Models;
+using System.Collections.Generic;
+
 namespace LuqinOfficialAccount
 {
     public class Util
@@ -16,6 +17,10 @@ namespace LuqinOfficialAccount
         public static string workingPath = $"{Environment.CurrentDirectory}";
 
         public static Stock[] stockList;
+
+        public static AppDBContext _db;
+
+        public static List<Holiday> holidays = new List<Holiday>();
 
         public static void GetStockList()
         {
@@ -124,52 +129,27 @@ namespace LuqinOfficialAccount
             return str;
         }
 
-        public static  bool IsTransacDay(DateTime date, AppDBContext db)
+        public static   bool IsTransacDay(DateTime date, AppDBContext db)
         {
             bool ret = true;
             if ((date.DayOfWeek == DayOfWeek.Saturday) || (date.DayOfWeek == DayOfWeek.Sunday))
             {
                 ret = false;
             }
-            if ((date.Date >= DateTime.Parse("2017-10-1") && date.Date <= DateTime.Parse("2017-10-8")) || date.Date == DateTime.Parse("2018-1-1")
-                || (date.Date >= DateTime.Parse("2018-2-15") && date.Date <= DateTime.Parse("2018-2-21"))
-                || (date.Date >= DateTime.Parse("2018-4-5") && date.Date <= DateTime.Parse("2018-4-8")) || date.Date == DateTime.Parse("2018-4-30") || (date.Date.Month == 5 && date.Date.Day == 1)
-                || date.Date == DateTime.Parse("2018-6-18") || date.Date == DateTime.Parse("2018-9-24") || (date.Date >= DateTime.Parse("2018-10-1") && date.Date <= DateTime.Parse("2018-10-7"))
-                || (date.Date >= DateTime.Parse("2019-2-4") && (date.Date <= DateTime.Parse("2019-2-10")))
-                || (date.Date >= DateTime.Parse("2019-4-5") && (date.Date <= DateTime.Parse("2019-4-7")))
-                || (date.Date >= DateTime.Parse("2019-5-1") && (date.Date <= DateTime.Parse("2019-5-4")))
-                || (date.Date >= DateTime.Parse("2019-10-1") && (date.Date <= DateTime.Parse("2019-10-7")))
-                || (date.Date == DateTime.Parse("2020-1-1") || (date.Date >= DateTime.Parse("2020-1-24") && (date.Date <= DateTime.Parse("2020-2-2"))))
-                || date.Date == DateTime.Parse("2020-4-6")
-                || (date.Date >= DateTime.Parse("2020-5-1") && date.Date <= DateTime.Parse("2020-5-5")
-                || (date.Date >= DateTime.Parse("2020-6-25") && date.Date <= DateTime.Parse("2020-6-28")))
-                || (date.Date >= DateTime.Parse("2020-10-1") && date.Date <= DateTime.Parse("2020-10-8"))
-                || (date.Date >= DateTime.Parse("2021-1-1") && date.Date <= DateTime.Parse("2021-1-3"))
-                || (date.Date >= DateTime.Parse("2021-2-11") && date.Date <= DateTime.Parse("2021-2-17"))
-                || (date.Date >= DateTime.Parse("2021-4-4") && date.Date <= DateTime.Parse("2021-4-5"))
-                || (date.Date >= DateTime.Parse("2021-5-1") && date.Date <= DateTime.Parse("2021-5-5"))
-                || (date.Date >= DateTime.Parse("2021-6-12") && date.Date <= DateTime.Parse("2021-6-14"))
-                || (date.Date >= DateTime.Parse("2021-9-20") && date.Date <= DateTime.Parse("2021-9-21"))
-                || (date.Date >= DateTime.Parse("2021-10-1") && date.Date <= DateTime.Parse("2021-10-7"))
-                || date.Date == DateTime.Parse("2022-1-3")
-                || (date.Date >= DateTime.Parse("2022-1-31") && date.Date <= DateTime.Parse("2022-2-4"))
-                || (date.Date >= DateTime.Parse("2022-4-4") && date.Date <= DateTime.Parse("2022-4-5"))
-                || (date.Date >= DateTime.Parse("2022-5-1") && date.Date <= DateTime.Parse("2022-5-4"))
-                || date.Date == DateTime.Parse("2022-6-3") || date.Date == DateTime.Parse("2022-9-12")
-                || date.Date == DateTime.Parse("2022-10-1") || date.Date == DateTime.Parse("2022-10-7")
-                )
+            if (holidays.Count == 0)
             {
-                ret = false;
+                holidays =  db.holiday.ToList();
             }
 
-            var holdayList = db.holiday.Where(h => (h.start_date <= date.Date && h.end_date >= date.Date)).ToList();
-
-            if (holdayList != null && holdayList.Count > 0)
+            for (int i = 0; i < holidays.Count; i++)
             {
-                ret = false;
+                if (holidays[i].start_date.Date <= date.Date
+                    && holidays[i].end_date >= date.Date)
+                {
+                    ret = false;
+                    break;
+                }
             }
-            
-
             return ret;
         }
 

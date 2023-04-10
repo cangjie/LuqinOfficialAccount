@@ -1,4 +1,7 @@
-﻿using System; 
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 namespace LuqinOfficialAccount.Models
 {
     public class Stock
@@ -65,14 +68,20 @@ namespace LuqinOfficialAccount.Models
         {
             string key = gid + "_kline_day";
             StackExchange.Redis.RedisValue[] rvArr = RedisClient.redisDb.SortedSetRangeByScore((StackExchange.Redis.RedisKey)key);
-            KLine[] klineDay = new KLine[rvArr.Length];
+            //KLine[] klineDay = new KLine[rvArr.Length];
+            List<KLine> klineList = new List<KLine>();
             for (int i = 0; i < rvArr.Length; i++)
             {
                 string[] rvItems = rvArr[i].ToString().Trim().Split(',');
+                DateTime settleTime = DateTime.Parse(rvItems[1].Trim()).Date;
+                if (!Util.IsTransacDay(settleTime, Util._db))
+                {
+                    continue;
+                }
                 KLine k = new KLine()
                 {
                     type = "day",
-                    settleTime = DateTime.Parse(rvItems[1].Trim()).Date,
+                    settleTime = settleTime,
                     open = double.Parse(rvItems[2].Trim()),
                     settle = double.Parse(rvItems[3].Trim()),
                     high = double.Parse(rvItems[4].Trim()),
@@ -84,9 +93,10 @@ namespace LuqinOfficialAccount.Models
                 {
                     k.turnOver = double.Parse(rvItems[8].Trim());
                 }
-                klineDay[i] = k;
+
+                klineList.Add(k);
             }
-            this.klineDay = klineDay;
+            this.klineDay = klineList.ToArray<KLine>();
             
         }
 
@@ -112,6 +122,31 @@ namespace LuqinOfficialAccount.Models
                 klineWeek[i] = k;
             }
             this.klineWeek = klineWeek;
+
+        }
+
+        public void ForceRefreshKLineHour()
+        {
+            string key = gid + "_kline_hour";
+            StackExchange.Redis.RedisValue[] rvArr = RedisClient.redisDb.SortedSetRangeByScore((StackExchange.Redis.RedisKey)key);
+            KLine[] klineHour = new KLine[rvArr.Length];
+            for (int i = 0; i < rvArr.Length; i++)
+            {
+                string[] rvItems = rvArr[i].ToString().Trim().Split(',');
+                KLine k = new KLine()
+                {
+                    type = "hour",
+                    settleTime = DateTime.Parse(rvItems[1].Trim()),
+                    open = double.Parse(rvItems[2].Trim()),
+                    settle = double.Parse(rvItems[3].Trim()),
+                    high = double.Parse(rvItems[4].Trim()),
+                    low = double.Parse(rvItems[5].Trim()),
+                    volume = long.Parse(rvItems[6].Trim()),
+                    amount = double.Parse(rvItems[7].Trim())
+                };
+                klineHour[i] = k;
+            }
+            this.klineHour = klineHour;
 
         }
 

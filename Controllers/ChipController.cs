@@ -36,6 +36,7 @@ namespace LuqinOfficialAccount.Controllers
             _db = context;
             _config = config;
             _settings = Settings.GetSettings(_config);
+            Util._db = context;
         }
 
         [HttpGet]
@@ -93,7 +94,7 @@ namespace LuqinOfficialAccount.Controllers
 
 
 
-        [HttpGet("gid")]
+        [HttpGet("{gid}")]
         public async Task<ActionResult<Chip>> GetChip(string gid, DateTime date) 
         { 
             var chipList = await _db.Chip.Where(c => (c.gid.Trim().Equals(gid.Trim()) && c.alert_date.Date == date.Date))
@@ -104,6 +105,33 @@ namespace LuqinOfficialAccount.Controllers
             }
             Chip chip = chipList[0];
             return Ok(chip);
+        }
+
+        [HttpGet("{gid}")]
+        public async Task<ActionResult<double>> GetChipAll(string gid, DateTime date)
+        {
+            double chipValue = 0;
+
+            ActionResult<Chip> chipResult = (await GetChip(gid.Trim(), date.Date));
+
+            if (chipResult.Result.GetType().Name.Trim().Equals("OkObjectResult"))
+            {
+                Chip chip = (Chip)((OkObjectResult)chipResult.Result).Value;
+                chipValue = chip.chipDistribute90;
+            }
+            else
+            {
+                if (!gid.StartsWith("kc"))
+                {
+                    chipResult = (await GetOne(gid.Trim(), date.Date));
+                    if (chipResult.Result.GetType().Name.Trim().Equals("OkObjectResult"))
+                    {
+                        Chip chip = (Chip)((OkObjectResult)chipResult.Result).Value;
+                        chipValue = chip.chipDistribute90;
+                    }
+                }
+            }
+            return Ok(chipValue);
         }
 
         /*

@@ -31,6 +31,7 @@ namespace LuqinOfficialAccount.Controllers
             _config = config;
             _settings = Settings.GetSettings(_config);
             chipCtrl = new ChipController(_db, _config);
+            Util._db = context;
         }
         [HttpGet("{days}")]
         public async Task<ActionResult<StockFilter>> MACDGoldForkLow(int days, DateTime startDate, DateTime endDate, string sort = "筹码")
@@ -44,6 +45,8 @@ namespace LuqinOfficialAccount.Controllers
             dt.Columns.Add("筹码", Type.GetType("System.Double"));
             dt.Columns.Add("买入", Type.GetType("System.Double"));
             dt.Columns.Add("放量", Type.GetType("System.Double"));
+
+
             var macdList = await _db.MACD.Where(m => (m.alert_type.Trim().Equals("day")
                 //&& m.gid.Trim().Equals("sh600833")
                 && m.alert_time.Date >= startDate.Date && m.alert_time.Date <= endDate.Date
@@ -84,6 +87,21 @@ namespace LuqinOfficialAccount.Controllers
                     continue;
                 }
 
+                bool ma20Rise = true;
+
+                for (int k = alertIndex; k > alertIndex - 5 && k > 0; k--)
+                {
+                    if (KLine.GetAverageSettlePrice(s.klineDay, k, 20, 0) < KLine.GetAverageSettlePrice(s.klineDay, k - 1, 20, 0))
+                    {
+                        ma20Rise = false;
+                        break;
+                    }
+                }
+
+                if (!ma20Rise)
+                {
+                    continue;
+                }
                 
                 
                 //double buyPrice = s.klineDay[alertIndex].settle;
