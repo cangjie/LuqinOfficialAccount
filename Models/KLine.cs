@@ -173,6 +173,33 @@ namespace LuqinOfficialAccount.Models
 
         }
 
+        public static double? GetKdjOverSell(KLine[] kArr, int index)
+        {
+            double ret = double.MaxValue;
+            bool kdGold = true;
+            if (index >= kArr.Length)
+            {
+                return null;
+            }
+            for (int i = index; i >= 0; i--)
+            {
+                if (kdGold && kArr[i].k < kArr[i].d)
+                {
+                    kdGold = false;
+                    
+                }
+                if (!kdGold)
+                {
+                    ret = Math.Min(kArr[i].j, ret);
+                }
+                if (!kdGold && ret != double.MaxValue && kArr[i].k > kArr[i].d)
+                {
+                    break;
+                }
+            }
+            return ret;
+        }
+
     }
 }
 
