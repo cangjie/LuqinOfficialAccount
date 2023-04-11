@@ -405,15 +405,28 @@ namespace LuqinOfficialAccount.Controllers
                     {
                         continue;
                     }
-                    
 
+                    if (KLine.GetKdjOverSell(s.klineDay, buyIndex) < 0)
+                    {
+                        dr["信号"] = "🛍";
+                    }
 
 
                     dr["筹码"] = chipValue;
-                    if (chipValue < 0.1)
+                    
+                    if (s.klineDay[buyIndex].macd < 0.2)
                     {
-                        dr["信号"] = "📈";
+                        if (dr["信号"].ToString().IndexOf("🛍") >= 0)
+                        {
+                            dr["信号"] = "🔥";
+                        }
+                        else
+                        {
+                            dr["信号"] = "📈";
+                        }
+                        
                     }
+                    
                     dt.Rows.Add(dr);
                 }
 
