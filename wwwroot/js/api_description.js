@@ -54,6 +54,13 @@
         'url': '/api/KDJ/HourAfterWeek',
         'defaultCountDays': 15,
         'defaultSort': '筹码'
+    },
+    {
+        'name': '二连板，双剑鞘。',
+        'description': '',
+        'url': '/api/LimitUp/LimitUpTwiceSwordTwice',
+        'defaultCountDays': 5,
+        'defaultSort': 'MACD'
     }
     ///api/KDJ/HourAfterWeek
 ];
