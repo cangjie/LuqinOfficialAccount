@@ -461,6 +461,10 @@ namespace LuqinOfficialAccount.Controllers
                 {
                     continue;
                 }
+                if (KLine.IsLimitUp(s.klineDay, alertIndex + 1))
+                {
+                    continue;
+                }
                 double alertPrice = s.klineDay[alertIndex].settle;
                 if (Math.Min(s.klineDay[alertIndex + 1].settle, s.klineDay[alertIndex + 1].open) <= alertPrice
                     || Math.Min(s.klineDay[alertIndex + 2].settle, s.klineDay[alertIndex + 2].open) <= alertPrice)
