@@ -448,7 +448,14 @@ namespace LuqinOfficialAccount.Controllers
             {
                 DateTime alertDate = limitUpTwiceList[i].alert_date;
                 Stock s = Stock.GetStock(limitUpTwiceList[i].gid.Trim());
-                s.RefreshKLine();
+                try
+                {
+                    s.RefreshKLine();
+                }
+                catch
+                {
+                    continue;
+                }
                 int alertIndex = s.GetItemIndex(alertDate);
                 if (alertIndex <= 0 || alertIndex + 2 >= s.klineDay.Length)
                 {
