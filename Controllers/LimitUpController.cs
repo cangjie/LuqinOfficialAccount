@@ -406,7 +406,7 @@ namespace LuqinOfficialAccount.Controllers
                         continue;
                     }
 
-                    if (KLine.GetKdjOverSell(s.klineDay, buyIndex) < 0)
+                    if (KLine.GetKdjOverSell(s.klineDay, buyIndex) < 10 && s.klineDay[buyIndex].high > s.klineDay[buyIndex - 1].high)
                     {
                         dr["信号"] = "🛍";
                     }
