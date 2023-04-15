@@ -574,7 +574,7 @@ namespace LuqinOfficialAccount.Controllers
                 dt.Rows.Add(dr);
 
             }
-            StockFilter sf = StockFilter.GetResult(dt.Select("", "日期 desc, " + sort), 15);
+            StockFilter sf = StockFilter.GetResult(dt.Select("", "日期 desc, " + sort), days);
             return Ok(sf);
            
         }
@@ -788,7 +788,7 @@ namespace LuqinOfficialAccount.Controllers
                 dt.Rows.Add(dr);
 
             }
-            StockFilter sf = StockFilter.GetResult(dt.Select("", "日期 desc, " + sort), 15);
+            StockFilter sf = StockFilter.GetResult(dt.Select("", "日期 desc, " + sort), days);
             return Ok(sf);
 
         }
