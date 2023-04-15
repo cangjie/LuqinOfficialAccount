@@ -71,7 +71,7 @@
     },
     {
         'name': '大涨幅回落后，小时KDJ超卖且MACD共振',
-        'description': '📈 表示上涨过程是二连板；🛍表示顶线双剑鞘。',
+        'description': '📈 表示上涨过程是二连板；🛍表示顶线双剑鞘；🔥表示日线KDJ和MACD双金叉。',
         'url': '/api/BigRise/GetKDJMACDForHours',
         'defaultCountDays': 15,
         'defaultSort': 'MACD'
