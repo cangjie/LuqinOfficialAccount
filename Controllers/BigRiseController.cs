@@ -767,6 +767,12 @@ namespace LuqinOfficialAccount.Controllers
                         }
                     }
                 }
+
+                if (s.klineDay[buyIndex].macd > 0 && s.klineDay[buyIndex].k > s.klineDay[buyIndex].j)
+                {
+                    dr["信号"] = ((!dr["信号"].ToString().Equals(""))? " " : "") + "🔥";
+                }
+
                 /*
                 if (minJ <= 0)
                 {
