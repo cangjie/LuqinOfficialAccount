@@ -47,6 +47,10 @@ namespace LuqinOfficialAccount.Models
                 ComputeRSV(klineDay);
                 ComputeKDJ(klineDay);
                 ComputeMACD(klineDay);
+                ForceRefreshKLineWeek();
+                ComputeRSV(klineWeek);
+                ComputeKDJ(klineWeek);
+                ComputeMACD(klineWeek);
             }
             if (now - klineDayLastUpdateTime > new TimeSpan(0, 2, 0))
             {
@@ -55,7 +59,7 @@ namespace LuqinOfficialAccount.Models
                 ComputeKDJ(klineDay);
                 ComputeMACD(klineDay);
             }
-            if (now - klineWeekLastUpdateTime > new TimeSpan(0, 30, 0))
+            if (now - klineWeekLastUpdateTime > new TimeSpan(0, 10, 0))
             {
                 ForceRefreshKLineWeek();
                 ComputeRSV(klineWeek);

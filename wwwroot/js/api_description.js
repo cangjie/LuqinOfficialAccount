@@ -61,6 +61,20 @@
         'url': '/api/LimitUp/LimitUpTwiceSwordTwice',
         'defaultCountDays': 5,
         'defaultSort': 'MACD'
+    },
+    {
+        'name': '二连板，KDJ超卖。',
+        'description': '',
+        'url': '/api/LimitUp/LimitUpTwiceOverSell',
+        'defaultCountDays': 15,
+        'defaultSort': 'MACD'
+    },
+    {
+        'name': '大涨幅回落后，小时KDJ超卖且MACD共振',
+        'description': '📈 表示上涨过程是二连板；🛍表示顶线双剑鞘。',
+        'url': '/api/BigRise/GetKDJMACDForHours',
+        'defaultCountDays': 15,
+        'defaultSort': 'MACD'
     }
     ///api/KDJ/HourAfterWeek
 ];

@@ -580,6 +580,213 @@ namespace LuqinOfficialAccount.Controllers
         }
 
 
+        [HttpGet("{days}")]
+        public async Task<ActionResult<StockFilter>> GetKDJMACDForHours(int days, DateTime startDate, DateTime endDate, string sort = "筹码")
+        {
+            startDate = startDate.Date;
+            endDate = endDate.Date;
+            if (endDate < startDate)
+            {
+                return BadRequest();
+            }
+            ChipController chipCtrl = new ChipController(_context, _config);
+            DataTable dt = new DataTable();
+            dt.Columns.Add("日期", Type.GetType("System.DateTime"));
+            dt.Columns.Add("代码", Type.GetType("System.String"));
+            dt.Columns.Add("名称", Type.GetType("System.String"));
+            dt.Columns.Add("信号", Type.GetType("System.String"));
+            dt.Columns.Add("MACD", Type.GetType("System.Double"));
+            dt.Columns.Add("筹码", Type.GetType("System.Double"));
+            dt.Columns.Add("放量", Type.GetType("System.Double"));
+            dt.Columns.Add("买入", Type.GetType("System.Double"));
+
+
+            var bigRiseList = await _context.BigRise.Where(b => b.alert_date >= startDate.AddDays(-20)
+                && b.alert_date.Date < endDate
+                //&& b.gid.Equals("sz301297")
+                ).OrderByDescending(b => b.alert_date).ToListAsync();
+            for (int i = 0; i < bigRiseList.Count; i++)
+            {
+                Stock s = Stock.GetStock(bigRiseList[i].gid.Trim());
+                if (s == null || s.gid.StartsWith("kc"))
+                {
+                    continue;
+                }
+
+                
+
+                try
+                {
+                    s.ForceRefreshKLineDay();
+                    s.ForceRefreshKLineHour();
+                    s.ForceRefreshKLineWeek();
+                    Stock.ComputeRSV(s.klineHour);
+                    Stock.ComputeKDJ(s.klineHour);
+                    Stock.ComputeMACD(s.klineHour);
+                    Stock.ComputeRSV(s.klineDay);
+                    Stock.ComputeKDJ(s.klineDay);
+                    Stock.ComputeMACD(s.klineDay);
+                }
+                catch
+                {
+
+                }
+                
+                //int lastKDGoldIndex = -5;
+                int startIndex = s.GetItemIndex(startDate);
+                int endIndex = s.GetItemIndex(endDate);
+                if (endIndex == -1)
+                {
+                    endIndex = s.klineDay.Length - 1;
+                }
+                int topIndex = s.GetItemIndex(bigRiseList[i].alert_date.Date);
+                int buyIndex = -1;
+
+                if (startIndex <= 0 || startIndex >= s.klineDay.Length || topIndex >= endIndex
+                    || endIndex < startIndex || endIndex >= s.klineDay.Length)
+                {
+                    continue;
+                }
+
+
+                int alertIndexHour = Stock.GetItemIndex(s.klineDay[topIndex].settleTime.AddHours(15), s.klineHour);
+
+                if (alertIndexHour <= 0)
+                {
+                    continue;
+                }
+
+                double minJ = double.MaxValue;
+                double macd = double.MaxValue;
+                double buyPrice = double.MaxValue;
+                for (int j = alertIndexHour; j < s.klineHour.Length; j++)
+                {
+                    minJ = Math.Min(s.klineHour[j].j, minJ);
+                    if (minJ < 20 && s.klineHour[j - 1].k < s.klineHour[j - 1].d && s.klineHour[j].k > s.klineHour[j].d && s.klineHour[j].d <= 50)
+                    {
+                        
+                        for (int m = j - 2; m >= 1 && m <= j + 2 && m < s.klineHour.Length; m++)
+                        {
+                            if (s.klineHour[m].macd > -0.1 && s.klineHour[m].macd > s.klineHour[m - 1].macd && s.klineHour[m].macd < 0.1)
+                            {
+                                
+                                buyIndex = s.GetItemIndex(s.klineHour[Math.Max(m, j)].settleTime.Date);
+                                //buyPrice = s.klineHour[Math.Max(m, j)].settle;
+                                buyPrice = s.klineDay[buyIndex].settle;
+                                macd = s.klineHour[Math.Max(m, j)].macd;
+                                break;
+                            }
+                        }
+                       
+                    }
+                    if (s.klineHour[j - 1].k > s.klineHour[j - 1].d && s.klineHour[j].k < s.klineHour[j].d)
+                    {
+                        minJ = double.MaxValue;
+                    }
+
+                }
+
+                if (buyIndex <= 0)
+                {
+                    continue;
+                }
+
+
+                if (s.klineDay[buyIndex].settleTime.Date < startDate.Date || s.klineDay[buyIndex].settleTime.Date > endDate.Date)
+                {
+                    continue;
+                }
+
+
+
+                double ma20Current = KLine.GetAverageSettlePrice(s.klineDay, buyIndex, 20, 0);
+                double ma20Top = KLine.GetAverageSettlePrice(s.klineDay, topIndex, 20, 0);
+                if (ma20Top >= ma20Current || s.klineDay[buyIndex].settle <= ma20Current)
+                {
+                    continue;
+                }
+
+                double chipValue = 0;
+
+                ActionResult<Chip> chipResult = (await chipCtrl.GetChip(s.gid.Trim(), s.klineDay[buyIndex - 1].settleTime.Date));
+
+                if (chipResult.Result.GetType().Name.Trim().Equals("OkObjectResult"))
+                {
+                    Chip chip = (Chip)((OkObjectResult)chipResult.Result).Value;
+                    chipValue = chip.chipDistribute90;
+                }
+                else
+                {
+                    if (!s.gid.StartsWith("kc"))
+                    {
+                        chipResult = (await chipCtrl.GetOne(s.gid.Trim(), s.klineDay[buyIndex - 1].settleTime.Date));
+                        if (chipResult.Result.GetType().Name.Trim().Equals("OkObjectResult"))
+                        {
+                            Chip chip = (Chip)((OkObjectResult)chipResult.Result).Value;
+                            chipValue = chip.chipDistribute90;
+                        }
+                    }
+                }
+
+
+                if (dt.Select(" 代码 = '" + s.gid + "' and 日期 = '" + s.klineDay[buyIndex].settleTime.ToShortDateString() + "' ").Length > 0)
+                {
+                    continue;
+                }
+
+                //double buyPrice = s.klineDay[buyIndex].settle;
+                DataRow dr = dt.NewRow();
+                dr["日期"] = s.klineDay[buyIndex].settleTime.Date;
+                dr["代码"] = s.gid;
+                dr["名称"] = s.name;
+                dr["MACD"] = macd;
+                dr["筹码"] = chipValue;
+                dr["买入"] = buyPrice;
+                double volumeDiff = (double)(s.klineDay[buyIndex].volume - s.klineDay[buyIndex - 1].volume) / (double)s.klineDay[buyIndex - 1].volume;
+                dr["放量"] = volumeDiff;
+
+                int bottomIndex = s.GetItemIndex(bigRiseList[i].start_date.Date);
+
+                if (bottomIndex > 1)
+                {
+                    for (int j = bottomIndex; j <= topIndex; j++)
+                    {
+                        if (KLine.IsLimitUp(s.klineDay, j) && KLine.IsLimitUp(s.klineDay, j - 1))
+                        {
+                            double highPrice = s.klineDay[j].settle;
+                            if (j + 2 < s.klineDay.Length && highPrice < Math.Min(s.klineDay[j + 1].open, s.klineDay[j + 1].settle)
+                                && highPrice < Math.Min(s.klineDay[j + 2].open, s.klineDay[j + 2].settle) && (j + 1 == topIndex || j + 2 == topIndex))
+                            {
+                                dr["信号"] = "🛍";
+                            }
+                            else
+                            {
+                                dr["信号"] = "📈";
+                            }
+                            break;
+                        }
+                    }
+                }
+                /*
+                if (minJ <= 0)
+                {
+                    string sig = dr["信号"].ToString().Trim();
+                    dr["信号"] = sig + (sig.Trim().Equals("") ? "" : " ") + "🛍";
+                }
+
+                if (dr["信号"].ToString().IndexOf("🛍") >= 0 && dr["信号"].ToString().IndexOf("📈") >= 0 && volumeDiff > 0)
+                {
+                    dr["信号"] = "🔥";
+                }
+                */
+                dt.Rows.Add(dr);
+
+            }
+            StockFilter sf = StockFilter.GetResult(dt.Select("", "日期 desc, " + sort), 15);
+            return Ok(sf);
+
+        }
+
 
         /*
         // GET: api/BigRise
