@@ -474,6 +474,10 @@ namespace LuqinOfficialAccount.Controllers
                 {
                     continue;
                 }
+                if (!KLine.IsLimitUp(s.klineDay, alertIndex) || !KLine.IsLimitUp(s.klineDay, alertIndex - 1))
+                {
+                    continue;
+                }
                 if (KLine.IsLimitUp(s.klineDay, alertIndex + 1) || KLine.IsLimitUp(s.klineDay, alertIndex + 2))
                 {
                     continue;
