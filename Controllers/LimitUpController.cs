@@ -442,6 +442,7 @@ namespace LuqinOfficialAccount.Controllers
 
             }
         }
+
         [HttpGet("{days}")]
         public async Task<ActionResult<StockFilter>> LimitUpTwiceSwordTwice(int days, DateTime startDate, DateTime endDate, string sort = "MACD")
         {
@@ -527,6 +528,94 @@ namespace LuqinOfficialAccount.Controllers
 
             }
         }
+
+
+
+        [HttpGet("{days}")]
+        public async Task<ActionResult<StockFilter>> LimitUpTwiceOverHighTwice(int days, DateTime startDate, DateTime endDate, string sort = "MACD")
+        {
+            DataTable dt = new DataTable();
+            dt.Columns.Add("日期", Type.GetType("System.DateTime"));
+            dt.Columns.Add("代码", Type.GetType("System.String"));
+            dt.Columns.Add("名称", Type.GetType("System.String"));
+            dt.Columns.Add("信号", Type.GetType("System.String"));
+            dt.Columns.Add("MACD", Type.GetType("System.Double"));
+            dt.Columns.Add("筹码", Type.GetType("System.Double"));
+            dt.Columns.Add("买入", Type.GetType("System.Double"));
+
+            var limitUpTwiceList = await _db.LimitUpTwice
+                .Where(l => (l.alert_date >= Util.GetLastTransactDate(startDate, 2, _db)
+                && l.alert_date <= Util.GetLastTransactDate(endDate, 2, _db))).ToListAsync();
+            for (int i = 0; i < limitUpTwiceList.Count; i++)
+            {
+                DateTime alertDate = limitUpTwiceList[i].alert_date;
+                Stock s = Stock.GetStock(limitUpTwiceList[i].gid.Trim());
+                try
+                {
+                    s.RefreshKLine();
+                }
+                catch
+                {
+                    continue;
+                }
+                int alertIndex = s.GetItemIndex(alertDate);
+                if (alertIndex <= 0 || alertIndex + 2 >= s.klineDay.Length)
+                {
+                    continue;
+                }
+                if (!KLine.IsLimitUp(s.klineDay, alertIndex) || !KLine.IsLimitUp(s.klineDay, alertIndex - 1))
+                {
+                    continue;
+                }
+                if (KLine.IsLimitUp(s.klineDay, alertIndex + 1) || KLine.IsLimitUp(s.klineDay, alertIndex + 2))
+                {
+                    continue;
+                }
+                double alertPrice = s.klineDay[alertIndex].settle;
+                if (s.klineDay[alertIndex + 1].settle <= alertPrice   || s.klineDay[alertIndex + 2].settle <= alertPrice)
+                {
+                    continue;
+                }
+
+                double chip = 0;
+                try
+                {
+                    ActionResult<double> chipResult = await chipCtrl.GetChipAll(s.gid, s.klineDay[alertIndex - 1].settleTime.Date);
+                    if (chipResult != null && chipResult.Result.GetType().Name.Trim().Equals("OkObjectResult"))
+                    {
+                        chip = (double)((OkObjectResult)chipResult.Result).Value;
+                    }
+                }
+                catch
+                {
+
+                }
+
+                DataRow dr = dt.NewRow();
+                dr["日期"] = s.klineDay[alertIndex + 2].settleTime.Date;
+                dr["代码"] = s.gid.Trim();
+                dr["名称"] = s.name.Trim();
+                dr["信号"] = "";
+                dr["MACD"] = s.klineDay[alertIndex + 2].macd;
+                dr["筹码"] = chip;
+                dr["买入"] = s.klineDay[alertIndex + 2].settle;
+                dt.Rows.Add(dr);
+
+
+
+            }
+            StockFilter sf = StockFilter.GetResult(dt.Select("", "日期 desc, " + sort), days);
+            try
+            {
+                return Ok(sf);
+            }
+            catch
+            {
+                return NotFound();
+
+            }
+        }
+
 
         [HttpGet("{days}")]
         public async Task<ActionResult<StockFilter>> LimitUpTwiceOverSell(int days, DateTime startDate, DateTime endDate, string sort = "MACD")

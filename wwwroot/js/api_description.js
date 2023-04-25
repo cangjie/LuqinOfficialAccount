@@ -75,6 +75,13 @@
         'url': '/api/BigRise/GetKDJMACDForHours',
         'defaultCountDays': 15,
         'defaultSort': 'MACD'
+    },
+    ///LimitUpTwiceOverHighTwice
+    {
+        'name': '二连板后两天收于涨停之上',
+        'description': '',
+        'url': '/api/LimitUp/LimitUpTwiceOverHighTwice',
+        'defaultCountDays': 5,
+        'defaultSort': 'MACD'
     }
-    ///api/KDJ/HourAfterWeek
 ];
