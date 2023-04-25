@@ -83,5 +83,12 @@
         'url': '/api/LimitUp/LimitUpTwiceOverHighTwice',
         'defaultCountDays': 5,
         'defaultSort': 'MACD'
+    },
+    {
+        'name': '涨停后两天收于涨停之上',
+        'description': '',
+        'url': '/api/LimitUp/LimitUpOverHighTwice',
+        'defaultCountDays': 5,
+        'defaultSort': 'MACD'
     }
 ];
