@@ -775,15 +775,15 @@ namespace LuqinOfficialAccount.Controllers
 
                 int kdjHighIndex = buyIndex;
                 int priceHighIndex = buyIndex;
-                double highPrice = s.klineDay[buyIndex].high;
+                double highPriceShit = s.klineDay[buyIndex].high;
                 double highJ = s.klineDay[buyIndex].j;
 
                 for (int m = buyIndex - 1; m >= bottomIndex; m--)
                 {
-                    if (s.klineDay[m].high >= highPrice)
+                    if (s.klineDay[m].high >= highPriceShit)
                     {
                         priceHighIndex = m;
-                        highPrice = s.klineDay[m].high;
+                        highPriceShit = s.klineDay[m].high;
                     }
                     if (s.klineDay[m].j >= highJ)
                     {
