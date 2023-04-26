@@ -603,7 +603,7 @@ namespace LuqinOfficialAccount.Controllers
 
             var bigRiseList = await _context.BigRise.Where(b => b.alert_date >= startDate.AddDays(-20)
                 && b.alert_date.Date < endDate
-                //&& b.gid.Equals("sz301297")
+                //&& b.gid.Equals("sh600248")
                 ).OrderByDescending(b => b.alert_date).ToListAsync();
             for (int i = 0; i < bigRiseList.Count; i++)
             {
@@ -771,6 +771,30 @@ namespace LuqinOfficialAccount.Controllers
                 if (s.klineDay[buyIndex].macd > 0 && s.klineDay[buyIndex].k > s.klineDay[buyIndex].j)
                 {
                     dr["信号"] = ((!dr["信号"].ToString().Equals(""))? " " : "") + "🔥";
+                }
+
+                int kdjHighIndex = buyIndex;
+                int priceHighIndex = buyIndex;
+                double highPrice = s.klineDay[buyIndex].high;
+                double highJ = s.klineDay[buyIndex].j;
+
+                for (int m = buyIndex - 1; m >= bottomIndex; m--)
+                {
+                    if (s.klineDay[m].high >= highPrice)
+                    {
+                        priceHighIndex = m;
+                        highPrice = s.klineDay[m].high;
+                    }
+                    if (s.klineDay[m].j >= highJ)
+                    {
+                        kdjHighIndex = m;
+                        highJ = s.klineDay[m].j;
+                    }
+                }
+
+                if (kdjHighIndex < priceHighIndex)
+                {
+                    dr["信号"] = ((!dr["信号"].ToString().Equals("")) ? " " : "") + "💩";
                 }
 
                 /*
