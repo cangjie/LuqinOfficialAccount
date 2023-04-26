@@ -672,6 +672,10 @@ namespace LuqinOfficialAccount.Controllers
                                 
                                 buyIndex = s.GetItemIndex(s.klineHour[Math.Max(m, j)].settleTime.Date);
                                 //buyPrice = s.klineHour[Math.Max(m, j)].settle;
+                                if (buyIndex < 0)
+                                {
+                                    break;
+                                }
                                 buyPrice = s.klineDay[buyIndex].settle;
                                 macd = s.klineHour[Math.Max(m, j)].macd;
                                 break;
