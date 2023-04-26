@@ -797,6 +797,11 @@ namespace LuqinOfficialAccount.Controllers
                     dr["信号"] = dr["信号"].ToString() + ((!dr["信号"].ToString().Equals("")) ? " " : "") + "💩";
                 }
 
+                if (dr["信号"].ToString().Trim().Equals(""))
+                {
+                    dr["信号"] = "👍";
+                }
+
                 /*
                 if (minJ <= 0)
                 {
