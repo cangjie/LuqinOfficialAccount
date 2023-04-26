@@ -794,7 +794,7 @@ namespace LuqinOfficialAccount.Controllers
 
                 if (kdjHighIndex < priceHighIndex)
                 {
-                    dr["信号"] = ((!dr["信号"].ToString().Equals("")) ? " " : "") + "💩";
+                    dr["信号"] = dr["信号"].ToString() + ((!dr["信号"].ToString().Equals("")) ? " " : "") + "💩";
                 }
 
                 /*
