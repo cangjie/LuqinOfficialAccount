@@ -806,18 +806,17 @@ namespace LuqinOfficialAccount.Controllers
                     dr["信号"] = "👍";
                 }
 
-                /*
-                if (minJ <= 0)
+                if (buyIndex + 1 < s.klineDay.Length)
                 {
-                    string sig = dr["信号"].ToString().Trim();
-                    dr["信号"] = sig + (sig.Trim().Equals("") ? "" : " ") + "🛍";
+                    if ((s.klineDay[buyIndex + 1].settle - s.klineDay[buyIndex].settle) / s.klineDay[buyIndex].settle < -0.01
+                        && ((s.klineDay[buyIndex].settle > KLine.GetAverageSettlePrice(s.klineDay, buyIndex, 10, 0) && s.klineDay[buyIndex + 1].settle < KLine.GetAverageSettlePrice(s.klineDay, buyIndex + 1, 10, 0))
+                        || (s.klineDay[buyIndex].settle > KLine.GetAverageSettlePrice(s.klineDay, buyIndex, 20, 0) && s.klineDay[buyIndex + 1].settle < KLine.GetAverageSettlePrice(s.klineDay, buyIndex + 1, 20, 0))
+                        || (s.klineDay[buyIndex].settle > KLine.GetAverageSettlePrice(s.klineDay, buyIndex, 60, 0) && s.klineDay[buyIndex + 1].settle < KLine.GetAverageSettlePrice(s.klineDay, buyIndex + 1, 60, 0))))
+                    {
+                        dr["信号"] = dr["信号"].ToString() + ((!dr["信号"].ToString().Equals("")) ? " " : "") + "🔪";
+                    }
                 }
 
-                if (dr["信号"].ToString().IndexOf("🛍") >= 0 && dr["信号"].ToString().IndexOf("📈") >= 0 && volumeDiff > 0)
-                {
-                    dr["信号"] = "🔥";
-                }
-                */
                 dt.Rows.Add(dr);
 
             }
