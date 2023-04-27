@@ -90,5 +90,13 @@
         'url': '/api/LimitUp/LimitUpOverHighTwice',
         'defaultCountDays': 5,
         'defaultSort': 'MACD'
+    },
+    //LimitUpTwiceSettleHighTwice
+    {
+        'name': '二连板后，第一天收于涨停之上，第二天收盘高于之前三天最高。',
+        'description': '',
+        'url': '/api/LimitUp/LimitUpTwiceSettleHighTwice',
+        'defaultCountDays': 5,
+        'defaultSort': 'MACD'
     }
 ];
