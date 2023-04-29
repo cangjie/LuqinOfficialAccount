@@ -649,7 +649,7 @@ namespace LuqinOfficialAccount.Controllers
                 }
 
 
-                int alertIndexHour = Stock.GetItemIndex(s.klineDay[topIndex].settleTime.AddHours(15), s.klineHour);
+                int alertIndexHour = Stock.GetItemIndex(s.klineDay[topIndex].settleTime.Date.AddHours(15), s.klineHour);
 
                 if (alertIndexHour <= 0)
                 {
@@ -659,6 +659,7 @@ namespace LuqinOfficialAccount.Controllers
                 double minJ = double.MaxValue;
                 double macd = double.MaxValue;
                 double buyPrice = double.MaxValue;
+                
                 for (int j = alertIndexHour; j < s.klineHour.Length; j++)
                 {
                     minJ = Math.Min(s.klineHour[j].j, minJ);
@@ -683,11 +684,15 @@ namespace LuqinOfficialAccount.Controllers
                         }
                        
                     }
+                    
                     if (s.klineHour[j - 1].k > s.klineHour[j - 1].d && s.klineHour[j].k < s.klineHour[j].d)
                     {
                         minJ = double.MaxValue;
                     }
-
+                    if (buyIndex >= 0)
+                    {
+                        break;
+                    }
                 }
 
                 if (buyIndex <= 0)
