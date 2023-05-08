@@ -98,5 +98,12 @@
         'url': '/api/LimitUp/LimitUpTwiceSettleHighTwice',
         'defaultCountDays': 5,
         'defaultSort': 'MACD'
+    },
+    {
+        'name': '二连板吸筹',
+        'description': '',
+        'url': '/api/LimitUp/AfterChipsIn',
+        'defaultCountDays': 5,
+        'defaultSort': ''
     }
 ];

@@ -603,7 +603,7 @@ namespace LuqinOfficialAccount.Controllers
 
             var bigRiseList = await _context.BigRise.Where(b => b.alert_date >= startDate.AddDays(-20)
                 && b.alert_date.Date < endDate
-                //&& b.gid.Equals("sh600248")
+                //&& b.gid.Equals("sz000911")
                 ).OrderByDescending(b => b.alert_date).ToListAsync();
             for (int i = 0; i < bigRiseList.Count; i++)
             {
