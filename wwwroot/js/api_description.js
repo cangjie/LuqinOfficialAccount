@@ -105,5 +105,12 @@
         'url': '/api/LimitUp/AfterChipsIn',
         'defaultCountDays': 5,
         'defaultSort': ''
+    },
+    {
+        'name': '二连板吸筹2',
+        'description': '',
+        'url': '/api/BigRise/AfterChipsIn',
+        'defaultCountDays': 5,
+        'defaultSort': '筹码'
     }
 ];
