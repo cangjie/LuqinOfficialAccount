@@ -874,6 +874,10 @@ namespace LuqinOfficialAccount.Controllers
                 {
                     continue;
                 }
+                if (!KLine.IsLimitUp(s.klineDay, alertIndex) || !KLine.IsLimitUp(s.klineDay, alertIndex - 1))
+                {
+                    continue;
+                }
                 double high = s.klineDay[prevAlertIndex].high;
                 double low = s.klineDay[prevStartIndex].low;
                 double f5 = high - (high - low) * 0.618;
