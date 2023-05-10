@@ -874,6 +874,7 @@ namespace LuqinOfficialAccount.Controllers
             dt.Columns.Add("代码", Type.GetType("System.String"));
             dt.Columns.Add("名称", Type.GetType("System.String"));
             dt.Columns.Add("信号", Type.GetType("System.String"));
+            dt.Columns.Add("筹码", Type.GetType("System.Double"));
             dt.Columns.Add("买入", Type.GetType("System.Double"));
 
             var limitUpTwiceList = await _db.LimitUpTwice
@@ -895,7 +896,15 @@ namespace LuqinOfficialAccount.Controllers
 
                 int prevAlertIndex = s.GetItemIndex(prevAlertDate);
                 int alertIndex = s.GetItemIndex(alertDate);
+                if (!KLine.IsLimitUp(s.klineDay, alertIndex) || !KLine.IsLimitUp(s.klineDay, alertIndex - 1))
+                {
+                    continue;
+                }
                 if (prevAlertIndex <= 0 || alertIndex <= 0 || prevAlertIndex >= alertIndex)
+                {
+                    continue;
+                }
+                if (!KLine.IsLimitUp(s.klineDay, prevAlertIndex) || !KLine.IsLimitUp(s.klineDay, prevAlertIndex - 1))
                 {
                     continue;
                 }
@@ -926,7 +935,20 @@ namespace LuqinOfficialAccount.Controllers
                     buyIndex++;
                 }
 
-                
+                double chip = 0;
+                try
+                {
+                    ActionResult<double> chipResult = await chipCtrl.GetChipAll(s.gid, s.klineDay[alertIndex - 1].settleTime.Date);
+                    if (chipResult != null && chipResult.Result.GetType().Name.Trim().Equals("OkObjectResult"))
+                    {
+                        chip = (double)((OkObjectResult)chipResult.Result).Value;
+                    }
+                }
+                catch
+                {
+
+                }
+
 
                 DataRow dr = dt.NewRow();
                 dr["日期"] =  s.klineDay[buyIndex].settleTime.Date;
@@ -944,7 +966,14 @@ namespace LuqinOfficialAccount.Controllers
                     dr["信号"] = dr["信号"].ToString() + (dr["信号"].ToString().Equals("")? "" : " ") + "🔥";
                 }
 
+                if (s.klineDay[alertIndex - 2].settle < KLine.GetAverageSettlePrice(s.klineDay, alertIndex - 2, 5, 0)
+                    && s.klineDay[alertIndex].settle > KLine.GetAverageSettlePrice(s.klineDay, alertIndex, 5, 0))
+                {
+                    dr["信号"] = dr["信号"].ToString() + (dr["信号"].ToString().Equals("") ? "" : " ") + "🛍";
+                }
+
                 dr["买入"] = (buyIndex == alertIndex)?  s.klineDay[alertIndex].settle : s.klineDay[buyIndex].open;
+                dr["筹码"] = chip;
                 dt.Rows.Add(dr);
             }
             StockFilter sf = StockFilter.GetResult(dt.Select("", "日期 desc, " + sort), days);
