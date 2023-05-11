@@ -7,10 +7,12 @@ namespace LuqinOfficialAccount.Models
     public class Concept
     {
         [Key]
-        public int Id { get; set; }
+        public int id { get; set; }
         public string code { get; set; }
         public string name { get; set; }
         public DateTime list_date { get; set; }
+
+        public int count { get; set; }
         public string type { get; set; }
         public DateTime update_date { get; set; } = DateTime.Now;
 

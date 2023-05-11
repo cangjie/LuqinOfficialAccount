@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using LuqinOfficialAccount.Models;
 namespace LuqinOfficialAccount
 {
-    public class AppDBContext:DbContext
+    public class AppDBContext : DbContext
     {
         public AppDBContext(DbContextOptions<AppDBContext> options) : base(options)
         {
@@ -11,16 +11,16 @@ namespace LuqinOfficialAccount
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<LimitUp>().HasKey(l => new { l.gid, l.alert_date});
+            modelBuilder.Entity<LimitUp>().HasKey(l => new { l.gid, l.alert_date });
             modelBuilder.Entity<LimitUpTwice>().HasKey(l => new { l.gid, l.alert_date });
             modelBuilder.Entity<ContinuousRise>().HasKey(c => new { c.alert_date, c.gid });
             modelBuilder.Entity<Holiday>().HasNoKey();
-            modelBuilder.Entity<MACD>().HasKey(m => new { m.gid, m.alert_type, m.alert_time});
+            modelBuilder.Entity<MACD>().HasKey(m => new { m.gid, m.alert_type, m.alert_time });
             modelBuilder.Entity<KDJ>().HasKey(m => new { m.gid, m.alert_type, m.alert_time });
             modelBuilder.Entity<Above3Line>().HasKey(m => new { m.gid, m.alert_date });
         }
 
-        
+
 
         public DbSet<LuqinOfficialAccount.Models.EfTest> EfTest { get; set; }
 
@@ -58,6 +58,9 @@ namespace LuqinOfficialAccount
 
         public DbSet<LuqinOfficialAccount.Models.Above3Line> Above3Line { get; set; }
 
+        public DbSet<LuqinOfficialAccount.Models.Concept> Concept { get; set; }
+
+        public DbSet<LuqinOfficialAccount.Models.ConceptMember> ConceptMember { get; set; }
 
     }
 }
