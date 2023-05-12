@@ -101,3 +101,19 @@ function convertStrToDate(dateStr) {
     }
     return new Date(dateStrArr[0] + '-' + dateStrArr[1] + '-' + dateStrArr[2]);
 }
+
+function sortBy(arr, rules) {
+    return arr.sort((a, b) => {
+        for (let i = 0; i < rules.length; i++) {
+            const [key, direction] = rules[i];
+            const order = direction === 'desc' ? -1 : 1;
+            if (a[key] < b[key]) {
+                return -1 * order;
+            }
+            if (a[key] > b[key]) {
+                return 1 * order;
+            }
+        }
+        return 0;
+    });
+}

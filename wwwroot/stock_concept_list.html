@@ -1,0 +1,593 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title id="title"></title>
+    <link rel="stylesheet" href="css/table.css" />
+    <link rel="stylesheet" href="css/bootstrap.css" />
+    <link rel="stylesheet" href="css/bootstrap-grid.css" />
+    <link rel="stylesheet" href="css/bootstrap-reboot.css" />
+    <script type="text/javascript" src="js/jquery-3.6.1.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="js/Util.js"></script>
+    <script type="text/javascript" src="js/api_description.js"></script>
+    <script type="text/javascript">var defaultApi = '/api/BigRise/GetKDJ/';
+        var defaultCountDayts = '15';
+        var defaultSort = '筹码';
+        var defaultStartDate = formatDate((new Date()).toString());
+        var defaultEndDate = formatDate((new Date()).toString());
+        var title = '';
+        var decription = '';
+        var inited = false;
+        var countTable = [{ signal: '总计', countNum: 0, down: 0, notRise: 0, rise: 0, bigRise: 0 }];
+
+        var rnd = (new Date()).valueOf();
+
+        var scriptList = document.getElementsByTagName('script');
+        for (var i = 0; i < scriptList.length; i++) {
+            var e = scriptList[i];
+            if (e.src != undefined && e.src != null && e.src != '') {
+                if (e.src.indexOf('?') >= 0) {
+                    e.src = e.src + '&rndcache=' + rnd;
+                }
+                else {
+                    e.src = e.src + '?rndcache=' + rnd;
+                }
+            }
+        }
+
+        scriptList = document.getElementsByTagName('link');
+        for (var i = 0; i < scriptList.length; i++) {
+            var e = scriptList[i];
+            if (e.href != undefined && e.href != null && e.href != '') {
+                if (e.href.indexOf('?') >= 0) {
+                    e.href = e.href + '&rndcache=' + rnd;
+                }
+                else {
+                    e.href = e.href + '?rndcache=' + rnd;
+                }
+            }
+        }</script>
+</head>
+<body>
+    <div>
+        <center id="name" style="font:bolder; font-size: large">二连板</center>
+    </div>
+    <hr />
+    <div id="description"></div>
+    <hr />
+    <div>
+        日期：从 <input type="date" id="date_from" oninput="setDate()" /> 到 <input type="date" id="date_to" oninput="setDate()" /> <button id="btn" onclick="getData()"> 查 询 </button>
+    </div>
+    <hr />
+    <div>
+        <table style="width:100%">
+            <thead>
+                <tr>
+                    <td class="table_head">信号</td>
+                    <td class="table_head">下跌</td>
+                    <td class="table_head">横盘</td>
+                    <td class="table_head">上涨</td>
+                    <td class="table_head">涨5%</td>
+                </tr>
+            </thead>
+            <tbody id="count_table">
+            </tbody>
+        </table>
+    </div>
+    <hr />
+    <div>
+        <table style="width:100%">
+            <thead>
+                <tr id="table_head"></tr>
+            </thead>
+            <tbody id="table_body" class="table_body_row">
+            </tbody>
+        </table>
+    </div>
+    <div><br/></div>
+    <div>所涉及概念</div>
+    <div>
+        <table style="width:100%">
+            <thead>
+                <tr>
+                    <td>名称</td>
+                    <td>数量</td>
+                </tr>
+            </thead>
+            <tbody id="concept_body"  class="table_body_row">
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
+<script type="text/javascript">var api = getUrlParameter('api');
+    api = decodeURIComponent(api);
+
+    var apiDescription = apiDescriptionList[0];
+
+    if (api != '') {
+
+        for (var i = 0; i < apiDescriptionList.length; i++) {
+            if (api == apiDescriptionList[i].url) {
+                apiDescription = apiDescriptionList[i];
+                break;
+            }
+        }
+
+    }
+
+    var title = apiDescription.name;
+    var description = apiDescription.description;
+    document.getElementById('title').innerText = title;
+    document.getElementById('name').innerText = title;
+    document.getElementById('description').innerText = description;
+
+    var startDate = new Date(document.getElementById('date_from').value);
+    if (startDate == 'Invalid Date') {
+        startDate = new Date();
+        startDate.setHours(0);
+        startDate.setMinutes(0);
+        startDate.setSeconds(0);
+        startDate.setMilliseconds(0);
+    }
+    var endDate = new Date(document.getElementById('date_to').value);
+    if (endDate == 'Invalid Date') {
+        endDate = new Date()
+        endDate.setHours(0);
+        endDate.setMinutes(0);
+        endDate.setSeconds(0);
+        endDate.setMilliseconds(0);
+    }
+    var startDateCtl = document.getElementById('date_from');
+    var endDateCtl = document.getElementById('date_to');
+    var btn = document.getElementById('btn');
+    startDateCtl.value = formatDate(startDate);
+    endDateCtl.value = formatDate(endDate);
+
+    var conceptFieldIndex = -1;
+    var conceptList = [];
+
+    function getData() {
+
+        var tbody = document.getElementById('table_body');
+
+        for (var i = 0; i < tbody.childNodes.length;) {
+            tbody.removeChild(tbody.childNodes[i]);
+        }
+
+        var tBody = document.getElementById('count_table');
+        for (var i = 0; i < tBody.childNodes.length;) {
+            tBody.removeChild(tBody.childNodes[i]);
+        }
+
+
+        var countDaysStr = getUrlParameter('days');
+        var countDays = parseInt(countDaysStr);
+        if (isNaN(countDays)) {
+            countDays = apiDescription.defaultCountDays;
+        }
+        var sort = getUrlParameter('sort');
+        if (sort == '') {
+            sort = apiDescription.defaultSort.trim();
+        }
+
+        var startDateCtl = document.getElementById('date_from');
+        var endDateCtl = document.getElementById('date_to');
+
+
+        var ajaxUrl = apiDescription.url + '/' + countDays.toString()
+            + '?startDate=' + encodeURIComponent(formatDate(startDate))
+            + '&endDate=' + encodeURIComponent(formatDate(endDate)) + '&sort=' + sort;
+
+        startDateCtl.disabled = true;
+        endDateCtl.disabled = true;
+        btn.disabled = true;
+        $.ajax({
+            url: ajaxUrl,
+            type: 'GET',
+            success: function (msg, status) {
+                countTable = [{signal: '总计', countNum: 0, down: 0, notRise: 0, rise: 0, bigRise: 0 }];
+                console.log('msg', msg);
+                console.log('status', status);
+                startDateCtl.disabled = false;
+                endDateCtl.disabled = false;
+                btn.disabled = false;
+                if (status == 'success') {
+                    if (!inited) {
+                        InitTable(msg);
+                    }
+                    for (var i = 0; i < msg.itemList.length; i++) {
+                        var sigArr = msg.itemList[i].signal.toString().split(' ');
+
+                        for (var j = 0; j < sigArr.length; j++) {
+                            if (sigArr[j].trim() != '') {
+                                var sigExsitsInTable = false;
+                                for (var k = 0; k < countTable.length; k++) {
+                                    if (countTable[k].signal == sigArr[j]) {
+                                        sigExsitsInTable = true;
+                                    }
+                                }
+                                if (!sigExsitsInTable) {
+                                    var newCountItem = { signal: sigArr[j].trim(), countNum: 0, down: 0, notRise: 0, rise: 0, bigRise: 0 };
+                                    countTable.push(newCountItem);
+                                }
+                            }
+
+                        }
+
+
+
+                        AddItemToTable(msg.itemList[i]);
+
+                        if (conceptFieldIndex >= 0) {
+                            DealConcept(msg.itemList[i]);
+                        }
+                    }
+
+                    //console.log('concept', conceptList);
+                    if (conceptFieldIndex >= 0) {
+                        DisplayConcept();
+                    }
+                    FillCount();
+                }
+            },
+            complete: function (msg, status) {
+                startDateCtl.disabled = false;
+                endDateCtl.disabled = false;
+                btn.disabled = false;
+                if (status == 'error') {
+                    alert('系统报错');
+                }
+                //alert('系统报错');
+            }
+        })
+    }
+
+    function DisplayConcept() {
+        var conceptResult = sortBy(conceptList, [['count', 'desc']]);
+        //console.log('result', conceptResult);
+        var tbody = document.getElementById('concept_body');
+        for (var i = 0; i < tbody.childNodes.length;) {
+            tbody.removeChild(tbody.childNodes[i]);
+        }
+
+        for (var i = 0; i < conceptList.length; i++) {
+            var tr = document.createElement('tr');
+            var trClass = document.createAttribute('class');
+
+            trClass.value = 'table_body_row';
+            tr.attributes.setNamedItem(trClass);
+
+            var td = document.createElement('td');
+            td.innerText = conceptList[i].name;
+            tr.appendChild(td);
+            td = document.createElement('td');
+            td.innerText = conceptList[i].count;
+            tr.appendChild(td);
+
+            tbody.appendChild(tr);
+        }
+
+        
+
+    }
+
+    function DealConcept(item) {
+        var conceptArr = item.referenceValues[conceptFieldIndex].split(',');
+        for (var i = 0; i < conceptArr.length; i++) {
+            var find = false;
+            for (var j = 0; j < conceptList.length; j++) {
+                if (conceptList[j].name == conceptArr[i]) {
+                    conceptList[j].count++;
+                    find = true;
+                    break;
+                }
+            }
+            if (!find) {
+                var conceptItem = { name: conceptArr[i].trim(), count: 1 }
+                conceptList.push(conceptItem);
+            }
+        }
+    }
+
+    function FillCount() {
+        var tBody = document.getElementById('count_table');
+        for (var i = 0; i < countTable.length; i++) {
+            var countTr = document.createElement('tr');
+            var countTdSig = document.createElement('td');
+            var txtClass = document.createAttribute('class');
+            txtClass.value = 'table_body_cell_text';
+            countTdSig.attributes.setNamedItem(txtClass);
+            countTdSig.innerText = countTable[i].signal;
+            countTr.appendChild(countTdSig);
+            var tdDown = document.createElement('td');
+            var tdNoRise = document.createElement('td');
+            var tdRise = document.createElement('td');
+            var tdBigRise = document.createElement('td');
+            if (countTable[i].countNum == 0) {
+
+                txtClass = document.createAttribute('class');
+                txtClass.value = 'table_body_cell_text';
+                tdDown.attributes.setNamedItem(txtClass);
+                tdDown.innerText = '--';
+                countTr.appendChild(tdDown);
+
+
+                txtClass = document.createAttribute('class');
+                txtClass.value = 'table_body_cell_text';
+                tdNoRise.attributes.setNamedItem(txtClass);
+                tdNoRise.innerText = '--';
+                countTr.appendChild(tdNoRise);
+
+
+                txtClass = document.createAttribute('class');
+                txtClass.value = 'table_body_cell_text';
+                tdRise.attributes.setNamedItem(txtClass);
+                tdRise.innerText = '--';
+                countTr.appendChild(tdRise);
+
+
+                txtClass = document.createAttribute('class');
+                txtClass.value = 'table_body_cell_text';
+                tdBigRise.attributes.setNamedItem(txtClass);
+                tdBigRise.innerText = '--';
+                countTr.appendChild(tdBigRise);
+            }
+            else {
+
+                txtClass = document.createAttribute('class');
+                txtClass.value = 'table_body_cell_numeric';
+                tdDown.attributes.setNamedItem(txtClass);
+                tdDown.innerText = getPercent(countTable[i].down / countTable[i].countNum, 2);
+                countTr.appendChild(tdDown);
+
+
+                txtClass = document.createAttribute('class');
+                txtClass.value = 'table_body_cell_numeric';
+                tdNoRise.attributes.setNamedItem(txtClass);
+                tdNoRise.innerText = getPercent(countTable[i].notRise / countTable[i].countNum, 2);
+                countTr.appendChild(tdNoRise);
+
+
+                txtClass = document.createAttribute('class');
+                txtClass.value = 'table_body_cell_numeric';
+                tdRise.attributes.setNamedItem(txtClass);
+                tdRise.innerText = getPercent(countTable[i].rise / countTable[i].countNum, 2);
+                countTr.appendChild(tdRise);
+
+
+                txtClass = document.createAttribute('class');
+                txtClass.value = 'table_body_cell_numeric';
+                tdBigRise.attributes.setNamedItem(txtClass);
+                tdBigRise.innerText = getPercent(countTable[i].bigRise / countTable[i].countNum, 2);
+                countTr.appendChild(tdBigRise);
+            }
+            tBody.appendChild(countTr);
+
+        }
+    }
+
+    function AddItemToTable(item) {
+        var tbody = document.getElementById('table_body');
+        var tHead = document.getElementById('table_head');
+        var tr = document.createElement('tr');
+        var trClass = document.createAttribute('class');
+
+        trClass.value = 'table_body_row';
+        tr.attributes.setNamedItem(trClass);
+        var maxPercent = -100;
+        for (var i = 0; i < tHead.childNodes.length; i++) {
+            var color = '';
+            var isPercent = false;
+            var td = document.createElement('td');
+            var txt = '';
+            switch (i) {
+                case 0:
+                    txt = item.alertDate.toString().split('T')[0].trim();
+                    break;
+                case 1:
+                    txt = item.gid;
+                    break;
+                case 2:
+                    txt = item.name;
+                    break;
+                case 3:
+                    txt = item.signal;
+                    break;
+                case (tHead.childNodes.length - 1):
+                    isPercent = true;
+                    txt = maxPercent;
+
+                    break;
+                default:
+                    if (i < item.referenceValues.length + 4) {
+                        txt = item.referenceValues[i - 4].toString();
+                    }
+                    else if (i == item.referenceValues.length + 4) {
+                        txt = item.buyPrice;
+                    }
+                    else if (i >= 4 + item.referenceValues.length + 1) {
+                        maxPercent = Math.max(maxPercent, item.dailyRise[i - 4 - item.referenceValues.length - 1]);
+                        txt = item.dailyRise[i - 4 - item.referenceValues.length - 1].toString();
+                        isPercent = true;
+                    }
+                    break;
+            }
+            var td = document.createElement('td');
+            var tdClass = document.createAttribute('class')
+
+            var value = parseFloat(txt);
+            if (isNaN(value) || i == 0) {
+                tdClass.value = 'table_body_cell_text'
+            }
+            else {
+                if (isPercent) {
+                    if (value == -1) {
+                        txt = '--';
+                        tdClass.value = 'table_body_cell_text';
+                    }
+                    else {
+                        if (value >= 0 && value <= 0.01) {
+                            color = 'gray';
+                        }
+                        else if (value > 0.05) {
+                            color = 'purple';
+                        }
+                        else if (value > 0.01) {
+                            color = 'red';
+                        }
+                        else {
+                            color = 'green';
+                        }
+                        value = Math.round(value * 10000);
+                        value = formatFloatNumber(value / 100, 2);
+                        txt = value.toString() + '%';
+                        tdClass.value = 'table_body_cell_numeric';
+                    }
+
+                }
+                else {
+                    value = Math.round(value * 100);
+                    value = formatFloatNumber(value / 100, 2);
+
+                    txt = value.toString();
+                    tdClass.value = 'table_body_cell_numeric';
+                }
+
+            }
+            td.attributes.setNamedItem(tdClass);
+
+            if (color != '') {
+                var tdStyle = document.createAttribute('style');
+                tdStyle.value = 'color: ' + color;
+                td.attributes.setNamedItem(tdStyle);
+            }
+
+            td.innerText = txt;
+            tr.appendChild(td);
+        }
+        tbody.appendChild(tr);
+        if (maxPercent > -100) {
+
+
+
+
+            for (var i = 0; i < countTable.length; i++) {
+                var currentSig = countTable[i].signal;
+                if (item.signal.toString().indexOf(currentSig) >= 0 || i == 0) {
+                    countTable[i].countNum++;
+
+                    if (maxPercent < 0) {
+                        countTable[i].down++;
+                    }
+                    else if (maxPercent < 0.01) {
+                        countTable[i].notRise++;
+                    }
+                    else if (maxPercent < 0.05) {
+                        countTable[i].rise++;
+                    }
+                    else {
+                        countTable[i].bigRise++;
+                    }
+                }
+            }
+
+
+        }
+    }
+
+    function InitTable(msg) {
+        if (msg == undefined) {
+            return;
+        }
+        var tHead = document.getElementById('table_head');
+
+        for (var i = 0; i < 4; i++) {
+            var txt = '';
+            switch (i) {
+                case 0:
+                    txt = '日期';
+                    break;
+                case 1:
+                    txt = "代码";
+                    break;
+                case 2:
+                    txt = '名称';
+                    break;
+                case 3:
+                    txt = '信号';
+                    break;
+                default:
+                    break;
+
+            }
+            var td = document.createElement('td');
+            var tdClass = document.createAttribute('class');
+            tdClass.value = 'table_head';
+            td.attributes.setNamedItem(tdClass);
+            td.innerText = txt;
+            tHead.appendChild(td);
+        }
+
+        for (var i = 0; i < msg.fields.length; i++) {
+            var td = document.createElement('td');
+            var tdClass = document.createAttribute('class');
+            tdClass.value = 'table_head';
+            td.attributes.setNamedItem(tdClass);
+            td.innerText = msg.fields[i].trim();
+            if (td.innerText == '概念') {
+                conceptFieldIndex = i;
+            }
+            tHead.appendChild(td);
+        }
+
+        var tdBuy = document.createElement('td');
+        var tdBuyClass = document.createAttribute('class');
+        tdBuyClass.value = 'table_head';
+        tdBuy.attributes.setNamedItem(tdBuyClass);
+        tdBuy.innerText = "买入";
+        tHead.appendChild(tdBuy);
+
+        for (var i = 0; i < msg.countDays; i++) {
+            var tDay = document.createElement('td');
+            var tDayClass = document.createAttribute('class');
+            tDayClass.value = 'table_head';
+            tDay.attributes.setNamedItem(tDayClass);
+            tDay.innerText = (i + 1).toString() + '日';
+            tHead.appendChild(tDay);
+        }
+
+        var tdTotal = document.createElement('td');
+        var tdTotalClass = document.createAttribute('class');
+        tdTotalClass.value = 'table_head';
+        tdTotal.attributes.setNamedItem(tdTotalClass);
+        var tdStyle = document.createAttribute('style');
+        tdStyle.value = 'border-right-width: 0px';
+        tdTotal.attributes.setNamedItem(tdStyle);
+        tdTotal.innerText = "总计";
+        tHead.appendChild(tdTotal);
+        inited = true;
+    }
+    //getData();
+
+    function setDate() {
+        var startDateCtl = document.getElementById('date_from');
+        var endDateCtl = document.getElementById('date_to');
+
+
+        var newStartDate = new Date(startDateCtl.value);
+        var newEndDate = new Date(endDateCtl.value);
+        if (formatDate(newStartDate) != formatDate(startDate)) {
+            newEndDate = new Date(formatDate(newStartDate));
+        }
+        startDateCtl.value = formatDate(newStartDate);
+        endDateCtl.value = formatDate(newEndDate);
+
+        startDate = newStartDate;
+        endDate = newEndDate;
+        //getData();
+
+
+    }</script>
+
