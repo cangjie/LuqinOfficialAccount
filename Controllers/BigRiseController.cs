@@ -944,7 +944,120 @@ namespace LuqinOfficialAccount.Controllers
         
         }
 
-     
+        [HttpGet("{days}")]
+        public async Task<ActionResult<StockFilter>> AfterChipsInLimitUpOnce(int days, DateTime startDate, DateTime endDate, string sort = "筹码")
+        {
+            DataTable dt = new DataTable();
+            dt.Columns.Add("日期", Type.GetType("System.DateTime"));
+            dt.Columns.Add("代码", Type.GetType("System.String"));
+            dt.Columns.Add("名称", Type.GetType("System.String"));
+            dt.Columns.Add("信号", Type.GetType("System.String"));
+            dt.Columns.Add("筹码", Type.GetType("System.Double"));
+            dt.Columns.Add("买入", Type.GetType("System.Double"));
+
+            var limitUpTwiceList = await _context.LimitUp
+                .Where(l => (l.alert_date.Date >= startDate.Date && l.alert_date.Date <= endDate.Date)).ToListAsync();
+            for (int i = 0; i < limitUpTwiceList.Count; i++)
+            {
+                string gid = limitUpTwiceList[i].gid.Trim();
+                DateTime alertDate = limitUpTwiceList[i].alert_date.Date;
+                var bigList = await _context.BigRise
+                    .Where(l => (l.gid.Trim().Equals(gid) && l.alert_date < Util.GetLastTransactDate(alertDate, 10, _context).Date))
+                    .OrderByDescending(l => l.alert_date).ToListAsync();
+                if (bigList.Count <= 0)
+                {
+                    continue;
+                }
+                DateTime prevAlertDate = bigList[0].alert_date.Date;
+                DateTime prevStartDate = bigList[0].start_date.Date;
+                Stock s = Stock.GetStock(gid);
+                try
+                {
+                    s.ForceRefreshKLineDay();
+                }
+                catch
+                {
+                    continue;
+                }
+
+                int alertIndex = s.GetItemIndex(alertDate);
+                int prevAlertIndex = s.GetItemIndex(prevAlertDate);
+                int prevStartIndex = s.GetItemIndex(prevStartDate);
+                if (prevAlertIndex <= 0 || alertIndex <= 0 || prevAlertIndex >= alertIndex || prevStartIndex <= 0)
+                {
+                    continue;
+                }
+                if (!KLine.IsLimitUp(s.klineDay, alertIndex))
+                {
+                    continue;
+                }
+                double high = s.klineDay[prevAlertIndex].high;
+                double low = s.klineDay[prevStartIndex].low;
+                double f5 = high - (high - low) * 0.618;
+                bool overF5 = false;
+
+                for (int j = prevAlertIndex; j <= alertIndex; j++)
+                {
+                    if (s.klineDay[j].low <= f5)
+                    {
+                        overF5 = true;
+                        break;
+                    }
+                }
+                if (overF5)
+                {
+                    continue;
+                }
+
+                int buyIndex = alertIndex;
+                if (buyIndex < s.klineDay.Length - 1)
+                {
+                    buyIndex++;
+                }
+                double chip = 0;
+                try
+                {
+                    ActionResult<double> chipResult = await chipCtrl.GetChipAll(s.gid, s.klineDay[alertIndex - 1].settleTime.Date);
+                    if (chipResult != null && chipResult.Result.GetType().Name.Trim().Equals("OkObjectResult"))
+                    {
+                        chip = (double)((OkObjectResult)chipResult.Result).Value;
+                    }
+                }
+                catch
+                {
+
+                }
+
+                DataRow dr = dt.NewRow();
+                dr["日期"] = s.klineDay[buyIndex].settleTime.Date;
+                dr["代码"] = s.gid.Trim();
+                dr["名称"] = s.name.Trim();
+                dr["信号"] = "";
+                dr["筹码"] = chip;
+
+                if (buyIndex > alertIndex
+                    && (s.klineDay[buyIndex].open - s.klineDay[alertIndex].settle) / s.klineDay[alertIndex].settle > 0.07)
+                {
+                    dr["信号"] = dr["信号"].ToString() + (dr["信号"].ToString().Equals("") ? "" : " ") + "🔥";
+                }
+
+                dr["买入"] = (buyIndex == alertIndex) ? s.klineDay[alertIndex].settle : s.klineDay[buyIndex].open;
+                dt.Rows.Add(dr);
+            }
+            StockFilter sf = StockFilter.GetResult(dt.Select("", "日期 desc, " + sort), days);
+            try
+            {
+                return Ok(sf);
+            }
+            catch
+            {
+                return NotFound();
+
+            }
+
+        }
+
+
         private bool BigRiseExists(int id)
         {
             return _context.BigRise.Any(e => e.id == id);

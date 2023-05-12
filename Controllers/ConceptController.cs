@@ -163,6 +163,26 @@ namespace LuqinOfficialAccount.Controllers
             return Ok(j);
         }
 
+        [HttpGet("gid")]
+        public async Task<ActionResult<string[]>> GetConcept(string gid)
+        {
+            string code = gid.Substring(2, 6) + "." + gid.Substring(0, 2).ToUpper();
+            if (code.EndsWith(".KC"))
+            {
+                code = code.Replace(".KC", ".SH");
+            }
+            var list = await _db.ConceptMember
+                .Where(m => m.member_code.Trim().Equals(code))
+                .Join(_db.Concept, m => m.concept_code, c => c.code, (m, c) => new { c.name })
+                .OrderBy(o => o.name).ToListAsync();
+            string[] retArr = new string[list.Count];
+            for (int i = 0; i < list.Count; i++)
+            {
+                retArr[i] = list[i].name.Trim();
+            }
+            return Ok(retArr);
+        }
+
         
         private bool ConceptExists(int id)
         {
