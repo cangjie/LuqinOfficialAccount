@@ -21,6 +21,7 @@ namespace LuqinOfficialAccount.Controllers
         private readonly IConfiguration _config;
         private readonly Settings _settings;
         private readonly ChipController chipCtrl;
+        private readonly ConceptController conceptCtrl;
 
         //public static DateTime now = DateTime.Now;
 
@@ -31,6 +32,7 @@ namespace LuqinOfficialAccount.Controllers
             _settings = Settings.GetSettings(_config);
             chipCtrl = new ChipController(_context, _config);
             Util._db = context;
+            conceptCtrl = new ConceptController(context, config);
         }
 
         
@@ -600,6 +602,7 @@ namespace LuqinOfficialAccount.Controllers
             dt.Columns.Add("MACD", Type.GetType("System.Double"));
             dt.Columns.Add("筹码", Type.GetType("System.Double"));
             dt.Columns.Add("放量", Type.GetType("System.Double"));
+            dt.Columns.Add("概念", Type.GetType("System.String"));
             dt.Columns.Add("买入", Type.GetType("System.Double"));
 
 
@@ -745,6 +748,17 @@ namespace LuqinOfficialAccount.Controllers
                     continue;
                 }
 
+                string conceptStr = "";
+                ActionResult<string[]> conceptResult = await conceptCtrl.GetConcept(s.gid);
+                if (conceptResult != null && conceptResult.Result.GetType().Name.Trim().Equals("OkObjectResult"))
+                {
+                    string[] cArr = (string[])((OkObjectResult)conceptResult.Result).Value;
+                    for (int j = 0; j < cArr.Length; j++)
+                    {
+                        conceptStr += (j > 0 ? "," : "") + cArr[j].Trim();
+                    }
+                }
+
                 //double buyPrice = s.klineDay[buyIndex].settle;
                 DataRow dr = dt.NewRow();
                 dr["日期"] = s.klineDay[buyIndex].settleTime.Date;
@@ -755,7 +769,7 @@ namespace LuqinOfficialAccount.Controllers
                 dr["买入"] = buyPrice;
                 double volumeDiff = (double)(s.klineDay[buyIndex].volume - s.klineDay[buyIndex - 1].volume) / (double)s.klineDay[buyIndex - 1].volume;
                 dr["放量"] = volumeDiff;
-
+                dr["概念"] = conceptStr.Trim();
                 int bottomIndex = s.GetItemIndex(bigRiseList[i].start_date.Date);
 
                 if (bottomIndex > 1)
