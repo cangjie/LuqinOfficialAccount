@@ -71,7 +71,43 @@ namespace LuqinOfficialAccount.Controllers
             }
             return Ok(j);
         }
-        
+
+        [HttpGet]
+        public async Task<ActionResult<int>> SearchLimitUp(DateTime date)
+        {
+            int j = 0;
+            DateTime nowDate = date.Date;
+            if (Util.IsTransacDay(nowDate, _db))
+            {
+                Stock[] sArr = Util.stockList;
+                for (int i = 0; i < sArr.Length; i++)
+                {
+                    Stock s = sArr[i];
+                    s.ForceRefreshKLineDay();
+                    int currentIndex = s.GetItemIndex(nowDate);
+                    if (currentIndex <= 0 || currentIndex >= s.klineDay.Length)
+                    {
+                        continue;
+                    }
+                    if ((s.klineDay[currentIndex].settle - s.klineDay[currentIndex - 1].settle) / s.klineDay[currentIndex - 1].settle >= 0.095)
+                    {
+                        var list = await _db.LimitUp.Where(l => (l.gid.Trim().Equals(s.gid.Trim()) && l.alert_date.Date == nowDate.Date)).ToListAsync();
+                        if (list.Count == 0)
+                        {
+                            LimitUp limitUp = new LimitUp();
+                            limitUp.gid = s.gid.Trim();
+                            limitUp.alert_date = nowDate.Date;
+                            await _db.AddAsync(limitUp);
+                            await _db.SaveChangesAsync();
+                            j++;
+
+                        }
+                    }
+                }
+            }
+            return Ok(j);
+        }
+
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<object>>> GetLimitUpTwiceNew()
