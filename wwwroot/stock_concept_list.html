@@ -418,7 +418,7 @@
             var tdClass = document.createAttribute('class')
 
             var value = parseFloat(txt);
-            if (isNaN(value) || i == 0) {
+            if (isNaN(value) || i == 0 || i == 1 || i == conceptFieldIndex) {
                 tdClass.value = 'table_body_cell_text'
             }
             else {
