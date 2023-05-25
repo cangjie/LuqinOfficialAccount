@@ -1037,7 +1037,11 @@ namespace LuqinOfficialAccount.Controllers
             dt.Columns.Add("信号", Type.GetType("System.String"));
             dt.Columns.Add("概念", Type.GetType("System.String"));
             dt.Columns.Add("买入", Type.GetType("System.Double"));
+
             dt.Columns.Add("缩量", Type.GetType("System.Double"));
+
+            dt.Columns.Add("开盘", Type.GetType("System.Double"));
+
 
             var list = await _db.LimitUpTwice.Where(l => l.alert_date >= startDate.Date && l.alert_date <= endDate.Date).ToListAsync();
 
@@ -1071,7 +1075,18 @@ namespace LuqinOfficialAccount.Controllers
                 dr["信号"] = "";
                 dr["概念"] = conceptStr.Trim();
                 dr["买入"] = s.klineDay[alertIndex].settle;
+
                 dr["缩量"] = 100 * (s.klineDay[alertIndex].volume - s.klineDay[alertIndex - 1].volume) / s.klineDay[alertIndex - 1].volume;
+
+                if (alertIndex < s.klineDay.Length - 1)
+                {
+                    dr["开盘"] = (s.klineDay[alertIndex + 1].open - s.klineDay[alertIndex].settle) / s.klineDay[alertIndex].settle;
+                }
+                else
+                {
+                    dr["开盘"] = 0;
+                }
+
                 dt.Rows.Add(dr);
 
             }
