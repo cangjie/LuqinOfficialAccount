@@ -25,7 +25,7 @@
         'description': '',
         'url': '/api/LimitUp/GetLinitUpTwiceWithConcept',
         'defaultCountDays': 15,
-        'defaultSort': ''
+        'defaultSort': '缩量'
     },
     {
         'name': '等待红绿灯',
@@ -126,5 +126,14 @@
         'url': '/api/BigRise/AfterChipsInLimitUpOnce',
         'defaultCountDays': 5,
         'defaultSort': '筹码'
+    },
+    //GetLinitUpVolumeReduceRise
+
+    {
+        'name': '一板后缩量暴涨',
+        'description': '',
+        'url': '/api/LimitUp/GetLinitUpVolumeReduceRise',
+        'defaultCountDays': 5,
+        'defaultSort': '缩量'
     }
 ];

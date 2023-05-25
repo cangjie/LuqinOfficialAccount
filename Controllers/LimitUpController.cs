@@ -1037,6 +1037,7 @@ namespace LuqinOfficialAccount.Controllers
             dt.Columns.Add("信号", Type.GetType("System.String"));
             dt.Columns.Add("概念", Type.GetType("System.String"));
             dt.Columns.Add("买入", Type.GetType("System.Double"));
+            dt.Columns.Add("缩量", Type.GetType("System.Double"));
 
             var list = await _db.LimitUpTwice.Where(l => l.alert_date >= startDate.Date && l.alert_date <= endDate.Date).ToListAsync();
 
@@ -1070,6 +1071,7 @@ namespace LuqinOfficialAccount.Controllers
                 dr["信号"] = "";
                 dr["概念"] = conceptStr.Trim();
                 dr["买入"] = s.klineDay[alertIndex].settle;
+                dr["缩量"] = 100 * (s.klineDay[alertIndex].volume - s.klineDay[alertIndex - 1].volume) / s.klineDay[alertIndex - 1].volume;
                 dt.Rows.Add(dr);
 
             }
@@ -1087,8 +1089,80 @@ namespace LuqinOfficialAccount.Controllers
             
         }
 
+        [HttpGet("{days}")]
+        public async Task<ActionResult<StockFilter>> GetLinitUpVolumeReduceRise(int days, DateTime startDate, DateTime endDate, string sort = "代码")
+        {
+            DataTable dt = new DataTable();
+            dt.Columns.Add("日期", Type.GetType("System.DateTime"));
+            dt.Columns.Add("代码", Type.GetType("System.String"));
+            dt.Columns.Add("名称", Type.GetType("System.String"));
+            dt.Columns.Add("信号", Type.GetType("System.String"));
+            dt.Columns.Add("概念", Type.GetType("System.String"));
+            dt.Columns.Add("买入", Type.GetType("System.Double"));
+            dt.Columns.Add("缩量", Type.GetType("System.Double"));
 
-            private bool LimitUpExists(string id)
+            var list = await _db.LimitUp
+                .Where(l => l.alert_date >= Util.GetLastTransactDate(startDate, 1, _db).Date
+                && l.alert_date <= Util.GetLastTransactDate(endDate, 1, _db).Date).ToListAsync();
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                string gid = list[i].gid.Trim();
+                DateTime alertDate = list[i].alert_date.Date;
+                Stock s = Stock.GetStock(gid.Trim());
+                s.ForceRefreshKLineDay();
+                int alertIndex = s.GetItemIndex(alertDate);
+                if (alertIndex < 0 && alertIndex >= s.klineDay.Length - 1)
+                {
+                    continue;
+                }
+                if (s.klineDay[alertIndex + 1].volume >= s.klineDay[alertIndex].volume)
+                {
+                    continue;
+                }
+                if ((s.klineDay[alertIndex + 1].settle - s.klineDay[alertIndex].settle) / s.klineDay[alertIndex].settle <= 0.08)
+                {
+                    continue;
+                }
+                if (KLine.IsLimitUp(s.klineDay, alertIndex + 1))
+                {
+                    continue;
+                }
+                ActionResult<string[]> conceptResult = await conceptCtrl.GetConcept(s.gid);
+                string conceptStr = "";
+                if (conceptResult != null && conceptResult.Result.GetType().Name.Trim().Equals("OkObjectResult"))
+                {
+                    string[] cArr = (string[])((OkObjectResult)conceptResult.Result).Value;
+                    for (int j = 0; j < cArr.Length; j++)
+                    {
+                        conceptStr += (j > 0 ? "," : "") + cArr[j].Trim();
+                    }
+                }
+
+                DataRow dr = dt.NewRow();
+                dr["日期"] = s.klineDay[alertIndex+1].settleTime.Date;
+                dr["代码"] = s.gid.Trim();
+                dr["名称"] = s.name.Trim();
+                dr["信号"] = "";
+                dr["概念"] = conceptStr.Trim();
+                dr["买入"] = s.klineDay[alertIndex + 1].settle;
+                dr["缩量"] = 100 * (s.klineDay[alertIndex].volume - s.klineDay[alertIndex - 1].volume) / s.klineDay[alertIndex - 1].volume;
+                dt.Rows.Add(dr);
+
+            }
+            StockFilter sf = StockFilter.GetResult(dt.Select("", "日期 desc, " + sort), days);
+            try
+            {
+                return Ok(sf);
+            }
+            catch
+            {
+                return NotFound();
+
+            }
+        }
+
+        private bool LimitUpExists(string id)
         {
             return _db.LimitUp.Any(e => e.gid == id);
         }
