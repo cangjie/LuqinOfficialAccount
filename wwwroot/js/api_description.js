@@ -142,5 +142,13 @@
         'url': '/api/LimitUp/GetLimitUpTwiceAdjustOverHigh',
         'defaultCountDays': 5,
         'defaultSort': '缩量'
+    },
+    //GetLimitUpTwiceAdjustOverHighest
+    {
+        'name': '二板后连续两不板收过前高且创半年新高',
+        'description': '',
+        'url': '/api/LimitUp/GetLimitUpTwiceAdjustOverHighest',
+        'defaultCountDays': 15,
+        'defaultSort': '缩量'
     }
 ];
