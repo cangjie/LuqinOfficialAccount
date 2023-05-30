@@ -135,5 +135,12 @@
         'url': '/api/LimitUp/GetLinitUpVolumeReduceRise',
         'defaultCountDays': 5,
         'defaultSort': '缩量'
+    },
+    {
+        'name': '二板后连续两不板收过前高',
+        'description': '',
+        'url': '/api/LimitUp/GetLimitUpTwiceAdjustOverHigh',
+        'defaultCountDays': 5,
+        'defaultSort': '缩量'
     }
 ];
