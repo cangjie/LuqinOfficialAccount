@@ -1346,16 +1346,18 @@ namespace LuqinOfficialAccount.Controllers
                         conceptStr += (j > 0 ? "," : "") + cArr[j].Trim();
                     }
                 }
-
-                DataRow dr = dt.NewRow();
-                dr["日期"] = s.klineDay[buyIndex].settleTime.Date;
-                dr["代码"] = s.gid.Trim();
-                dr["名称"] = s.name.Trim();
-                dr["信号"] = "";
-                dr["概念"] = conceptStr.Trim();
-                dr["买入"] = s.klineDay[buyIndex].settle;
-                dr["缩量"] = 100 * (s.klineDay[alertIndex].volume - s.klineDay[alertIndex - 1].volume) / s.klineDay[alertIndex - 1].volume;
-                dt.Rows.Add(dr);
+                if (dt.Select("代码 = '" + s.gid.Trim() + "' and 买入 = '" + s.klineDay[buyIndex].settle + "' ").Length == 0)
+                {
+                    DataRow dr = dt.NewRow();
+                    dr["日期"] = s.klineDay[buyIndex].settleTime.Date;
+                    dr["代码"] = s.gid.Trim();
+                    dr["名称"] = s.name.Trim();
+                    dr["信号"] = "";
+                    dr["概念"] = conceptStr.Trim();
+                    dr["买入"] = s.klineDay[buyIndex].settle;
+                    dr["缩量"] = 100 * (s.klineDay[alertIndex].volume - s.klineDay[alertIndex - 1].volume) / s.klineDay[alertIndex - 1].volume;
+                    dt.Rows.Add(dr);
+                }
 
             }
             StockFilter sf = StockFilter.GetResult(dt.Select("", "日期 desc, " + sort), days);
