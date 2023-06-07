@@ -1346,7 +1346,8 @@ namespace LuqinOfficialAccount.Controllers
                         conceptStr += (j > 0 ? "," : "") + cArr[j].Trim();
                     }
                 }
-                if (dt.Select("代码 = '" + s.gid.Trim() + "' and 买入 = '" + s.klineDay[buyIndex].settle + "' ").Length == 0)
+                if (dt.Select("代码 = '" + s.gid.Trim() + "' and 买入 = '" + s.klineDay[buyIndex].settle + "' ").Length == 0
+                    && s.klineDay[buyIndex].settleTime.Date >= startDate.Date && s.klineDay[buyIndex].settleTime.Date <= endDate.Date)
                 {
                     DataRow dr = dt.NewRow();
                     dr["日期"] = s.klineDay[buyIndex].settleTime.Date;
