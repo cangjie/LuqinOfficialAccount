@@ -1,4 +1,5 @@
 # globs
+config.redis
 Makefile.in
 *.userprefs
 *.usertasks
