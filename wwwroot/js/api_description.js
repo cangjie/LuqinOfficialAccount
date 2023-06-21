@@ -150,5 +150,13 @@
         'url': '/api/LimitUp/GetLimitUpTwiceAdjustOverHighest',
         'defaultCountDays': 15,
         'defaultSort': '缩量'
-    }
+    },
+    //GetLimitUpAdjustSettleOverHighestAndLimitUpAgain
+    {
+        'name': '涨停后调整收到涨停之上不超过三天再次涨停',
+        'description': '',
+        'url': '/api/LimitUp/GetLimitUpAdjustSettleOverHighestAndLimitUpAgain',
+        'defaultCountDays': 15,
+        'defaultSort': '缩量'
+    },
 ];
