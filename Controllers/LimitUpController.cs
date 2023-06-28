@@ -1437,6 +1437,7 @@ namespace LuqinOfficialAccount.Controllers
                     continue;
                 }
                 bool valid = true;
+                bool isOverHigh = true;
 
                 for (int k = lastLimitUpIndex + 1; k < alertIndex; k++)
                 {
@@ -1445,13 +1446,13 @@ namespace LuqinOfficialAccount.Controllers
                         valid = false;
                         break;
                     }
-                    /*
+                    
                     if (s.klineDay[k].settle < s.klineDay[lastLimitUpIndex].high)
                     {
-                        valid = false;
+                        isOverHigh = false;
                         break;
                     }
-                    */
+                    
                 }
                 if (!valid)
                 {
@@ -1472,7 +1473,15 @@ namespace LuqinOfficialAccount.Controllers
                 dr["日期"] = s.klineDay[buyIndex].settleTime.Date;
                 dr["代码"] = s.gid.Trim();
                 dr["名称"] = s.name.Trim();
-                dr["信号"] = "";
+                if (isOverHigh)
+                {
+                    dr["信号"] = "📈";
+                }
+                else
+                {
+                    dr["信号"] = "";
+                }
+                
                 dr["概念"] = conceptStr.Trim();
                 dr["买入"] = s.klineDay[buyIndex].settle;
                 dr["缩量"] = 100 * (s.klineDay[alertIndex].volume - s.klineDay[alertIndex - 1].volume) / s.klineDay[alertIndex - 1].volume;
