@@ -1377,9 +1377,15 @@ namespace LuqinOfficialAccount.Controllers
         [HttpGet("{days}")]
         public async Task<ActionResult<StockFilter>> GetLimitUpAdjustSettleOverHighestAndLimitUpAgain(int days, DateTime startDate, DateTime endDate, string sort = "代码")
         {
-            var limitUpListToday = await _db.LimitUp.Where(l => (l.alert_date >= startDate && l.alert_date <= endDate)).ToListAsync();
-            var limitUplistBefore = await _db.LimitUp.Where(l => (l.alert_date >= Util.GetLastTransactDate(startDate, 4, _db)
-                && l.alert_date <= Util.GetLastTransactDate(endDate, 4, _db))).ToListAsync();
+            var limitUpListToday = await _db.LimitUp.Where(l => (
+                l.alert_date >= startDate && l.alert_date <= endDate
+                //&& l.gid.Trim().Equals("sh605198")
+                )).ToListAsync();
+            var limitUplistBefore = await _db.LimitUp.Where(l => (
+                l.alert_date >= Util.GetLastTransactDate(startDate, 4, _db)
+                && l.alert_date <= Util.GetLastTransactDate(endDate, 1, _db)
+                //&& l.gid.Trim().Equals("sh605198")
+                )).ToListAsync();
 
             DataTable dt = new DataTable();
             dt.Columns.Add("日期", Type.GetType("System.DateTime"));
