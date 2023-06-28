@@ -10,6 +10,7 @@ namespace LuqinOfficialAccount
 
         public static void Init(string address)
         {
+
             redis = ConnectionMultiplexer.Connect(address);
             redisDb = redis.GetDatabase();
         }

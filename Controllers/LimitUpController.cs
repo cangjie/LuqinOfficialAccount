@@ -1439,11 +1439,13 @@ namespace LuqinOfficialAccount.Controllers
                         valid = false;
                         break;
                     }
+                    /*
                     if (s.klineDay[k].settle < s.klineDay[lastLimitUpIndex].high)
                     {
                         valid = false;
                         break;
                     }
+                    */
                 }
                 if (!valid)
                 {
