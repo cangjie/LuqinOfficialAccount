@@ -1598,7 +1598,42 @@ namespace LuqinOfficialAccount.Controllers
                 }
                 int buyIndex = alertIndex+1;
 
-                if (s.klineDay[buyIndex].open <= s.klineDay[buyIndex - 1].settle)
+                if (buyIndex >= s.klineDay.Length)
+                {
+                    continue;
+                }
+
+                bool isOpenHigh = true;
+
+                if (s.klineDay[buyIndex].open <= s.klineDay[buyIndex - 1].high)
+                {
+                    isOpenHigh = false;
+                }
+
+                for (var k = 2; isOpenHigh && k <= 5 && buyIndex - k >= 0; k++)
+                {
+                    if (s.klineDay[buyIndex].open <= s.klineDay[buyIndex - k].high)
+                    {
+                        isOpenHigh = false;
+                    }
+                    if (KLine.IsLimitUp(s.klineDay, buyIndex - k))
+                    {
+                        break;
+                    }
+
+                }
+                if (!isOpenHigh)
+                {
+                    continue;
+                }
+
+                if (s.klineDay[buyIndex].open <= s.klineDay[buyIndex - 1].high
+                    || s.klineDay[buyIndex].open <= s.klineDay[buyIndex - 2].high
+                    || s.klineDay[buyIndex].open <= s.klineDay[buyIndex - 3].high
+                    || s.klineDay[buyIndex].open <= s.klineDay[buyIndex - 4].high
+                    || s.klineDay[buyIndex].open <= s.klineDay[buyIndex - 5].high
+
+                    )
                 {
                     continue;
                 }
