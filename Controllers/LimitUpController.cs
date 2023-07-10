@@ -1637,7 +1637,7 @@ namespace LuqinOfficialAccount.Controllers
                 {
                     continue;
                 }
-
+                
                 DataRow dr = dt.NewRow();
                 dr["日期"] = s.klineDay[buyIndex].settleTime.Date;
                 dr["代码"] = s.gid.Trim();
@@ -1656,6 +1656,93 @@ namespace LuqinOfficialAccount.Controllers
                 dr["缩量"] = 100 * (s.klineDay[alertIndex].volume - s.klineDay[alertIndex - 1].volume) / s.klineDay[alertIndex - 1].volume;
                 dt.Rows.Add(dr);
 
+            }
+
+            StockFilter sf = StockFilter.GetResult(dt.Select("", "日期 desc, " + sort), days);
+            try
+            {
+                return Ok(sf);
+            }
+            catch
+            {
+                return NotFound();
+
+            }
+        }
+
+        [HttpGet("{days}")]
+        public async Task<ActionResult<StockFilter>> LimitUp3Green(int days, DateTime startDate, DateTime endDate, string sort = "代码")
+        {
+            DataTable dt = new DataTable();
+            dt.Columns.Add("日期", Type.GetType("System.DateTime"));
+            dt.Columns.Add("代码", Type.GetType("System.String"));
+            dt.Columns.Add("名称", Type.GetType("System.String"));
+            dt.Columns.Add("信号", Type.GetType("System.String"));
+            dt.Columns.Add("概念", Type.GetType("System.String"));
+            dt.Columns.Add("买入", Type.GetType("System.Double"));
+            dt.Columns.Add("缩量", Type.GetType("System.Double"));
+
+            var l = await _db.LimitUp.Where(l => (l.alert_date >= startDate.AddDays(-3) && l.alert_date <= endDate.AddDays(-3))).ToListAsync();
+            for (int i = 0; l != null && i < l.Count; i++)
+            {
+                Stock s = Stock.GetStock(l[i].gid.Trim());
+                try
+                {
+                    s.ForceRefreshKLineDay();
+                }
+                catch
+                {
+                    continue;
+                }
+                int alertIndex = Stock.GetItemIndex(l[i].alert_date, s.klineDay);
+                bool valid = true;
+               
+                for (int j = 0; j < 3 && alertIndex + j + 1 < s.klineDay.Length; j++)
+                {
+                    if (s.klineDay[alertIndex + j + 1].open <= s.klineDay[alertIndex + j + 1].settle)
+                    {
+                        valid = false;
+                        break;
+                    }
+                    if (s.klineDay[alertIndex + j + 1].volume > s.klineDay[alertIndex + j].volume)
+                    {
+                        valid = false;
+                        break;
+                    }
+                    if (s.klineDay[alertIndex + j + 1].low < s.klineDay[alertIndex].low)
+                    {
+                        valid = false;
+                        break;
+                    }
+                }
+                if (!valid)
+                {
+                    continue;
+                }
+                ActionResult<string[]> conceptResult = await conceptCtrl.GetConcept(s.gid);
+                string conceptStr = "";
+                if (conceptResult != null && conceptResult.Result.GetType().Name.Trim().Equals("OkObjectResult"))
+                {
+                    string[] cArr = (string[])((OkObjectResult)conceptResult.Result).Value;
+                    for (int j = 0; j < cArr.Length; j++)
+                    {
+                        conceptStr += (j > 0 ? "," : "") + cArr[j].Trim();
+                    }
+                }
+                int buyIndex = alertIndex + 3;
+                if (buyIndex >= s.klineDay.Length)
+                {
+                    continue; 
+                }
+
+                DataRow dr = dt.NewRow();
+                dr["日期"] = s.klineDay[buyIndex].settleTime.Date;
+                dr["代码"] = s.gid.Trim();
+                dr["名称"] = s.name.Trim();
+                dr["概念"] = conceptStr.Trim();
+                dr["买入"] = s.klineDay[buyIndex].settle;
+                dr["缩量"] = 100 * (s.klineDay[alertIndex].volume - s.klineDay[alertIndex - 1].volume) / s.klineDay[alertIndex - 1].volume;
+                dt.Rows.Add(dr);
             }
 
             StockFilter sf = StockFilter.GetResult(dt.Select("", "日期 desc, " + sort), days);

@@ -165,5 +165,12 @@
         'url': '/api/LimitUp/GetLimitUpAdjustSettleOverHighestAndLimitUpAgainOpenHigh',
         'defaultCountDays': 15,
         'defaultSort': '缩量'
+    },
+    {
+        'name': '三阴不破阳',
+        'description': '',
+        'url': '/api/LimitUp/LimitUp3Green',
+        'defaultCountDays': 15,
+        'defaultSort': '代码'
     }
 ];
