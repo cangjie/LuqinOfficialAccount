@@ -1682,7 +1682,8 @@ namespace LuqinOfficialAccount.Controllers
             dt.Columns.Add("买入", Type.GetType("System.Double"));
             dt.Columns.Add("缩量", Type.GetType("System.Double"));
 
-            var l = await _db.LimitUp.Where(l => (l.alert_date >= startDate.AddDays(-3) && l.alert_date <= endDate.AddDays(-3))).ToListAsync();
+            var l = await _db.LimitUp.Where(l => (l.alert_date.Date >= Util.GetLastTransactDate(startDate, 3, _db).Date 
+                && (l.alert_date.Date >= Util.GetLastTransactDate(endDate, 3, _db).Date))).ToListAsync();
             for (int i = 0; l != null && i < l.Count; i++)
             {
                 Stock s = Stock.GetStock(l[i].gid.Trim());
