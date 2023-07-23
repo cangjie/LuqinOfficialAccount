@@ -111,7 +111,7 @@ namespace LuqinOfficialAccount.Controllers
 
             var list = await _context.DoubleVolume
                 .Where(d => (d.alert_date.Date <= endDate.Date && d.alert_date.Date >= startDate.Date
-                 && d.gid.Trim().Equals("sz002316")
+                 //.&& d.gid.Trim().Equals("sz002316")
                 ))
                 .AsNoTracking().ToListAsync();
             for (int i = 0; i < list.Count; i++)
