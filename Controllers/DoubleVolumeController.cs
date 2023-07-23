@@ -111,7 +111,7 @@ namespace LuqinOfficialAccount.Controllers
 
             var list = await _context.DoubleVolume
                 .Where(d => (d.alert_date.Date <= endDate.Date && d.alert_date.Date >= startDate.Date
-                 //&& d.gid.Trim().Equals("sz002899")
+                 && d.gid.Trim().Equals("sz002316")
                 ))
                 .AsNoTracking().ToListAsync();
             for (int i = 0; i < list.Count; i++)
@@ -121,7 +121,7 @@ namespace LuqinOfficialAccount.Controllers
                 bool valid = true;
                 var subList = await _context.DoubleVolume
                     .Where(d => (d.gid.Trim().Equals(s.gid.Trim()) && d.alert_date.Date < list[i].alert_date.Date
-                   
+                    
                     ))
                     .AsNoTracking().OrderByDescending(d => d.alert_date).ToListAsync();
                 int endIndex = s.GetItemIndex(list[i].alert_date.Date);
@@ -153,8 +153,9 @@ namespace LuqinOfficialAccount.Controllers
                     long startVolume = s.klineDay[startIndex].volume;
                     double line3Start = KLine.GetAverageSettlePrice(s.klineDay, startIndex - 10, 3, 3);
                     
+                    
 
-                    for (int j = startIndex + 1; j < endIndex; j++)
+                    for (int j = startIndex + 1; j < endIndex && endIndex - startIndex <= 20 ; j++)
                     {
                         high = Math.Max(high, s.klineDay[j].high);
                         if (s.klineDay[j].volume >= startVolume)
