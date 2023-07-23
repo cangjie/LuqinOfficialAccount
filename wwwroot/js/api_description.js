@@ -172,5 +172,12 @@
         'url': '/api/LimitUp/LimitUp3Green',
         'defaultCountDays': 15,
         'defaultSort': '代码'
+    },
+    {
+        'name': '底部放量吸筹',
+        'description': '底部阳线放量，然后缩量调整，再次放量阳线买入。',
+        'url': '/api/DoubleVolume/GetVolumeDoubleAgain',
+        'defaultCountDays': 15,
+        'defaultSort': '放量'
     }
 ];

@@ -157,15 +157,24 @@ namespace LuqinOfficialAccount
         {
             DateTime nowDate = currentDate;
             int i = 0;
-            for (; i < days; i++)
+            int dayNum = Math.Abs(days);
+            for (; i < dayNum; i++)
             {
-                nowDate = nowDate.AddDays(-1);
+                if (days > 0)
+                {
+                    nowDate = nowDate.AddDays(-1);
+                }
+                else
+                {
+                    nowDate = nowDate.AddDays(1);
+                }
                 if (!Util.IsTransacDay(nowDate, db))
                     i--;
             }
             return nowDate;
         }
 
+        
         public static string GetName(string gid)
         {
             var resultValue = RedisClient.redisDb.SetMembers((StackExchange.Redis.RedisKey)"all_gids");
