@@ -276,11 +276,14 @@ namespace LuqinOfficialAccount.Controllers
 
                 double buyPrice = s.klineDay[buyIndex].settle;
 
+
                 DataRow dr = dt.NewRow();
                 dr["日期"] = s.klineDay[buyIndex].settleTime.Date;
                 dr["代码"] = s.gid.Trim();
                 dr["名称"] = s.name.Trim();
                 dr["信号"] = "";
+                
+                
                 dr["概念"] = conceptStr.Trim();
                 dr["筹码"] = chipValue;
                 dr["放量"] = s.klineDay[buyIndex].volume / s.klineDay[buyIndex - 1].volume;

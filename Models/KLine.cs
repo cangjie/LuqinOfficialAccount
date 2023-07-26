@@ -162,7 +162,7 @@ namespace LuqinOfficialAccount.Models
             KLine current = kArr[index];
             KLine prev = kArr[index - 1];
 
-            if ((current.settle - prev.settle) / prev.settle > 0.0975)
+            if ((current.settle - prev.settle) / prev.settle > 0.095)
             {
                 return true;
             }
