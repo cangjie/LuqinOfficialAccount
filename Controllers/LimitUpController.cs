@@ -1378,7 +1378,7 @@ namespace LuqinOfficialAccount.Controllers
         public async Task<ActionResult<StockFilter>> GetLimitUpAdjustSettleOverHighestAndLimitUpAgainVolumeEqual(int days, DateTime startDate, DateTime endDate, string sort = "代码")
         {
             StockFilter sf = (StockFilter)((OkObjectResult)(await GetLimitUpAdjustSettleOverHighestAndLimitUpAgain(days, startDate, endDate, sort)).Result).Value;
-            for (int i = 0; i < sf.itemList.Count; i++)
+            for (int i = 0; sf != null && sf.itemList != null &&  i < sf.itemList.Count; i++)
             {
                 double vol = (double)sf.itemList[i].referenceValues[1];
                 int unLimNum = (int)sf.itemList[i].referenceValues[2];
@@ -1395,7 +1395,7 @@ namespace LuqinOfficialAccount.Controllers
         public async Task<ActionResult<StockFilter>> GetLimitUpAdjustSettleOverHighestAndLimitUpAgainVolumeHigh(int days, DateTime startDate, DateTime endDate, string sort = "代码")
         {
             StockFilter sf = (StockFilter)((OkObjectResult)(await GetLimitUpAdjustSettleOverHighestAndLimitUpAgain(days, startDate, endDate, sort)).Result).Value;
-            for (int i = 0; i < sf.itemList.Count; i++)
+            for (int i = 0; sf != null && sf.itemList != null && i < sf.itemList.Count; i++)
             {
                 double vol = (double)sf.itemList[i].referenceValues[1];
                 int unLimNum = (int)sf.itemList[i].referenceValues[2];
