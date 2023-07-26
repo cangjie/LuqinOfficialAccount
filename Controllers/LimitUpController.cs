@@ -1381,7 +1381,8 @@ namespace LuqinOfficialAccount.Controllers
             for (int i = 0; i < sf.itemList.Count; i++)
             {
                 double vol = (double)sf.itemList[i].referenceValues[1];
-                if (vol > 10 || vol < -10)
+                int unLimNum = (int)sf.itemList[i].referenceValues[2];
+                if (vol > 10 || vol < -10 || unLimNum > 1)
                 {
                     sf.itemList.RemoveAt(i);
                     i--;
@@ -1397,7 +1398,8 @@ namespace LuqinOfficialAccount.Controllers
             for (int i = 0; i < sf.itemList.Count; i++)
             {
                 double vol = (double)sf.itemList[i].referenceValues[1];
-                if (vol < 10)
+                int unLimNum = (int)sf.itemList[i].referenceValues[2];
+                if (vol < 10 || unLimNum > 1)
                 {
                     sf.itemList.RemoveAt(i);
                     i--;
@@ -1429,6 +1431,7 @@ namespace LuqinOfficialAccount.Controllers
             dt.Columns.Add("概念", Type.GetType("System.String"));
             dt.Columns.Add("买入", Type.GetType("System.Double"));
             dt.Columns.Add("缩量", Type.GetType("System.Double"));
+            dt.Columns.Add("调整", Type.GetType("System.Int32"));
             for (int i = 0; i < limitUpListToday.Count; i++)
             {
                 bool exists = false;
@@ -1472,6 +1475,7 @@ namespace LuqinOfficialAccount.Controllers
                 }
                 bool valid = true;
                 bool isOverHigh = true;
+                int unLimitNum = 1;
 
                 for (int k = lastLimitUpIndex + 1; k < alertIndex; k++)
                 {
@@ -1486,7 +1490,9 @@ namespace LuqinOfficialAccount.Controllers
                         isOverHigh = false;
                         break;
                     }
-                    
+                    unLimitNum++;
+
+
                 }
                 if (!valid)
                 {
@@ -1519,6 +1525,7 @@ namespace LuqinOfficialAccount.Controllers
                 dr["概念"] = conceptStr.Trim();
                 dr["买入"] = s.klineDay[buyIndex].settle;
                 dr["缩量"] = 100 * (s.klineDay[alertIndex].volume - s.klineDay[alertIndex - 1].volume) / s.klineDay[alertIndex - 1].volume;
+                dr["调整"] = unLimitNum;
                 dt.Rows.Add(dr);
 
             }
