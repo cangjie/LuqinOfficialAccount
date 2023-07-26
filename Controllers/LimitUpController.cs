@@ -1415,7 +1415,7 @@ namespace LuqinOfficialAccount.Controllers
         {
             var limitUpListToday = await _db.LimitUp.Where(l => (
                 l.alert_date >= startDate && l.alert_date <= endDate
-                //&& l.gid.Trim().Equals("sz002146")
+                //&& l.gid.Trim().Equals("sz000020")
                 )).ToListAsync();
             var limitUplistBefore = await _db.LimitUp.Where(l => (
                 l.alert_date >= Util.GetLastTransactDate(startDate, 4, _db)
@@ -1475,7 +1475,7 @@ namespace LuqinOfficialAccount.Controllers
                 }
                 bool valid = true;
                 bool isOverHigh = true;
-                int unLimitNum = 1;
+                int unLimitNum = 0;
 
                 for (int k = lastLimitUpIndex + 1; k < alertIndex; k++)
                 {
@@ -1488,11 +1488,15 @@ namespace LuqinOfficialAccount.Controllers
                     if (s.klineDay[k].settle < s.klineDay[lastLimitUpIndex].high)
                     {
                         isOverHigh = false;
-                        break;
+                        //break;
                     }
                     unLimitNum++;
 
 
+                }
+                if (unLimitNum < 1)
+                {
+                    continue;
                 }
                 if (!valid)
                 {
