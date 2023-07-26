@@ -96,6 +96,109 @@ namespace LuqinOfficialAccount.Controllers
             }
             return Ok(num);
         }
+
+        [HttpGet("{days}")]
+        public async Task<ActionResult<StockFilter>> GetVolumeDoubleAgainGreenVolumeReduce(int days, DateTime startDate, DateTime endDate, string sort = "放量")
+        {
+            DataTable dt = new DataTable();
+            dt.Columns.Add("日期", Type.GetType("System.DateTime"));
+            dt.Columns.Add("代码", Type.GetType("System.String"));
+            dt.Columns.Add("名称", Type.GetType("System.String"));
+            dt.Columns.Add("信号", Type.GetType("System.String"));
+            dt.Columns.Add("概念", Type.GetType("System.String"));
+            dt.Columns.Add("筹码", Type.GetType("System.Double"));
+            dt.Columns.Add("放量", Type.GetType("System.Double"));
+            dt.Columns.Add("买入", Type.GetType("System.Double"));
+
+            startDate = Util.GetLastTransactDate(startDate, 1, _context);
+            endDate = Util.GetLastTransactDate(endDate, 1, _context);
+            StockFilter sf = (StockFilter)((OkObjectResult)(await GetVolumeDoubleAgain(days, startDate, endDate, sort)).Result).Value;
+            if (sf == null || sf.itemList == null)
+            {
+                return NotFound();
+            }
+            for (int i = 0; i < sf.itemList.Count; i++)
+            {
+                Stock s = Stock.GetStock(sf.itemList[i].gid.Trim());
+                DateTime alertDate = sf.itemList[i].alertDate.Date;
+                s.ForceRefreshKLineDay();
+                int alertIndex = s.GetItemIndex(alertDate);
+                if (alertIndex < 0 || alertIndex > s.klineDay.Length - 1)
+                {
+                    continue;
+                }
+                int buyIndex = alertIndex + 1;
+                if (s.klineDay[buyIndex].settle > s.klineDay[buyIndex].open
+                    || s.klineDay[buyIndex].volume >= s.klineDay[buyIndex - 1].volume)
+                {
+                    continue;
+                }
+
+
+
+                double buyPrice = s.klineDay[buyIndex].settle;
+                double chipValue = 0;
+                ActionResult<Chip> chipResult = (await _chipCtrl.GetChip(s.gid.Trim(), s.klineDay[buyIndex - 1].settleTime.Date));
+
+                if (chipResult.Result.GetType().Name.Trim().Equals("OkObjectResult"))
+                {
+                    Chip chip = (Chip)((OkObjectResult)chipResult.Result).Value;
+                    chipValue = chip.chipDistribute90;
+                }
+                else
+                {
+                    if (!s.gid.StartsWith("kc"))
+                    {
+                        chipResult = (await _chipCtrl.GetOne(s.gid.Trim(), s.klineDay[buyIndex - 1].settleTime.Date));
+                        if (chipResult.Result.GetType().Name.Trim().Equals("OkObjectResult"))
+                        {
+                            Chip chip = (Chip)((OkObjectResult)chipResult.Result).Value;
+                            chipValue = chip.chipDistribute90;
+                        }
+                    }
+                }
+
+                ActionResult<string[]> conceptResult = await _conceptCtrl.GetConcept(s.gid);
+                string conceptStr = "";
+                if (conceptResult != null && conceptResult.Result.GetType().Name.Trim().Equals("OkObjectResult"))
+                {
+                    string[] cArr = (string[])((OkObjectResult)conceptResult.Result).Value;
+                    for (int j = 0; j < cArr.Length; j++)
+                    {
+                        conceptStr += (j > 0 ? "," : "") + cArr[j].Trim();
+                    }
+                }
+
+                DataRow dr = dt.NewRow();
+                dr["日期"] = s.klineDay[buyIndex].settleTime.Date;
+                dr["代码"] = s.gid.Trim();
+                dr["名称"] = s.name.Trim();
+                dr["信号"] = "";
+
+
+                dr["概念"] = conceptStr.Trim();
+                dr["筹码"] = chipValue;
+                dr["放量"] = s.klineDay[buyIndex].volume / s.klineDay[buyIndex - 1].volume;
+                dr["买入"] = buyPrice;
+                dt.Rows.Add(dr);
+
+
+            }
+
+
+            sf = StockFilter.GetResult(dt.Select("", "日期 desc, " + sort), days);
+            try
+            {
+                return Ok(sf);
+            }
+            catch
+            {
+                return NotFound();
+
+            }
+        }
+
+
         [HttpGet("{days}")]
         public async Task<ActionResult<StockFilter>> GetVolumeDoubleAgain(int days, DateTime startDate, DateTime endDate, string sort = "放量")
         {
