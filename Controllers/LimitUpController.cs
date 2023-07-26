@@ -1397,7 +1397,7 @@ namespace LuqinOfficialAccount.Controllers
             for (int i = 0; i < sf.itemList.Count; i++)
             {
                 double vol = (double)sf.itemList[i].referenceValues[1];
-                if (vol > 10)
+                if (vol < 10)
                 {
                     sf.itemList.RemoveAt(i);
                     i--;
