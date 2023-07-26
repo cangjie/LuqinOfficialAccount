@@ -83,6 +83,7 @@ namespace LuqinOfficialAccount.Controllers
                 for (int i = 0; i < sArr.Length; i++)
                 {
                     Stock s = sArr[i];
+                   
                     s.ForceRefreshKLineDay();
                     int currentIndex = s.GetItemIndex(nowDate);
                     if (currentIndex <= 0 || currentIndex >= s.klineDay.Length)
@@ -1373,19 +1374,36 @@ namespace LuqinOfficialAccount.Controllers
             }
         }
 
+        [HttpGet("{days}")]
+        public async Task<ActionResult<StockFilter>> GetLimitUpAdjustSettleOverHighestAndLimitUpAgainVolumeEqual(int days, DateTime startDate, DateTime endDate, string sort = "代码")
+        {
+            StockFilter sf = (StockFilter)((OkObjectResult)(await GetLimitUpAdjustSettleOverHighestAndLimitUpAgain(days, startDate, endDate, sort)).Result).Value;
+            for (int i = 0; i < sf.itemList.Count; i++)
+            {
+                double vol = (double)sf.itemList[i].referenceValues[1];
+                if (vol > 10 || vol < -10)
+                {
+                    sf.itemList.RemoveAt(i);
+                    i--;
+                }
+            }
+            return Ok(sf);
+        }
+
+
 
         [HttpGet("{days}")]
         public async Task<ActionResult<StockFilter>> GetLimitUpAdjustSettleOverHighestAndLimitUpAgain(int days, DateTime startDate, DateTime endDate, string sort = "代码")
         {
             var limitUpListToday = await _db.LimitUp.Where(l => (
                 l.alert_date >= startDate && l.alert_date <= endDate
-                //&& l.gid.Trim().Equals("sh605198")
+                //&& l.gid.Trim().Equals("sz002146")
                 )).ToListAsync();
             var limitUplistBefore = await _db.LimitUp.Where(l => (
                 l.alert_date >= Util.GetLastTransactDate(startDate, 4, _db)
                 && l.alert_date <= Util.GetLastTransactDate(endDate, 1, _db)
                 //&& l.gid.Trim().Equals("sh605198")
-                )).ToListAsync();
+                )).OrderByDescending(l => l.alert_date).ToListAsync();
 
             DataTable dt = new DataTable();
             dt.Columns.Add("日期", Type.GetType("System.DateTime"));
