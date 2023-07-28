@@ -11,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 using System.Security.AccessControl;
 using System.Data;
 using Microsoft.AspNetCore.Mvc.TagHelpers;
+using System.Runtime.InteropServices.JavaScript;
 
 namespace LuqinOfficialAccount.Controllers
 {
@@ -34,6 +35,80 @@ namespace LuqinOfficialAccount.Controllers
             _settings = Settings.GetSettings(_config);
             _chipCtrl = new ChipController(_context, _config);
             _conceptCtrl = new ConceptController(context, config);
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<int>> SearchWeek(DateTime startDate, DateTime endDate)
+        {
+            
+            int num = 0;
+            Stock[] stockArr = Util.stockList;
+            for (int i = 0; i < stockArr.Length; i++)
+            {
+                Stock s = stockArr[i];
+                s.ForceRefreshKLineWeek();
+                for (int j = s.klineWeek.Length - 1; j > 0; j--)
+                {
+                    if (s.klineWeek[j].settleTime.Date >= startDate.Date
+                        && s.klineWeek[j].settleTime.Date <= endDate.Date
+                        && s.klineWeek[j].volume > s.klineWeek[j - 1].volume * 2
+                        && s.klineWeek[j].settle > s.klineWeek[j - 1].settle
+                        && s.klineWeek[j].settle > s.klineWeek[j].open)
+                    {
+                        DateTime weekStartDate = s.klineWeek[j].settleTime.Date;
+                        DateTime weekEndDate = s.klineWeek[j].settleTime.Date;
+                        switch (s.klineWeek[j].settleTime.Date.DayOfWeek)
+                        {
+                            case DayOfWeek.Tuesday:
+                                weekStartDate = weekStartDate.AddDays(-1);
+                                break;
+                            case DayOfWeek.Wednesday:
+                                weekStartDate = weekStartDate.AddDays(-2);
+                                break;
+                            case DayOfWeek.Thursday:
+                                weekStartDate = weekStartDate.AddDays(-3);
+                                break;
+                            case DayOfWeek.Friday:
+                                weekStartDate = weekStartDate.AddDays(-4);
+                                break;
+                            default:
+                                break;
+                        }
+                        weekEndDate = weekStartDate.AddDays(4);
+
+                        var list = await _context.DoubleVolumeWeek.Where(d => (d.gid.Trim().Equals(s.gid.Trim())
+                            && d.alert_date >= weekStartDate.Date && d.alert_date <= weekEndDate.Date )).ToListAsync();
+                        double volumeRate = (double)s.klineWeek[j].volume / (double)s.klineWeek[j - 1].volume;
+                        double priceRate = (s.klineWeek[j].settle - s.klineWeek[j - 1].settle) / s.klineWeek[j - 1].settle;
+                        DoubleVolumeWeek dvw = new DoubleVolumeWeek()
+                        {
+                            gid = s.gid,
+                            alert_date = s.klineWeek[j].settleTime.Date,
+                            price_increase = priceRate,
+                            volume_increase = volumeRate,
+                            high_price = s.klineWeek[j].high
+                        };
+                        if (list != null && list.Count > 0)
+                        {
+                            dvw = (DoubleVolumeWeek)list[0];
+                            dvw.alert_date = s.klineWeek[j].settleTime.Date;
+                            dvw.price_increase = priceRate;
+                            dvw.volume_increase = volumeRate;
+                            dvw.high_price = s.klineWeek[j].high;
+                            _context.Entry(dvw).State = EntityState.Modified;
+
+                        }
+                        else
+                        {
+                            await _context.AddAsync(dvw);
+                        }
+                        await _context.SaveChangesAsync();
+                        num++;
+
+                    }
+                }
+            }
+            return Ok(num);
         }
 
         [HttpGet]
@@ -97,6 +172,113 @@ namespace LuqinOfficialAccount.Controllers
             return Ok(num);
         }
 
+        [HttpGet("{days}")]
+        public async Task<ActionResult<StockFilter>> GetVolumeDoubleWeekTouchLine20(int days, DateTime startDate, DateTime endDate, string sort = "筹码")
+        {
+            DataTable dt = new DataTable();
+            dt.Columns.Add("日期", Type.GetType("System.DateTime"));
+            dt.Columns.Add("代码", Type.GetType("System.String"));
+            dt.Columns.Add("名称", Type.GetType("System.String"));
+            dt.Columns.Add("信号", Type.GetType("System.String"));
+            dt.Columns.Add("概念", Type.GetType("System.String"));
+            dt.Columns.Add("筹码", Type.GetType("System.Double"));
+            dt.Columns.Add("买入", Type.GetType("System.Double"));
+
+            var list = await _context.DoubleVolumeWeek
+                .Where(d => (d.alert_date.Date >= startDate.AddDays(-30) 
+                && d.alert_date.Date <= endDate.Date.AddDays(-1) && d.price_increase > 0.2))
+                .ToListAsync();
+            for (int i = 0; list != null && i < list.Count; i++)
+            {
+                Stock s = Stock.GetStock(list[i].gid);
+                s.ForceRefreshKLineDay();
+                s.ForceRefreshKLineWeek();
+                DateTime alertDate = list[i].alert_date;
+                Stock.ComputeRSV(s.klineWeek);
+                Stock.ComputeMACD(s.klineWeek);
+                Stock.ComputeKDJ(s.klineWeek);
+                int alertIndexWeek = Stock.GetItemIndex(alertDate, s.klineWeek);
+                if (alertIndexWeek < 1 || alertIndexWeek > s.klineWeek.Length)
+                {
+                    continue;
+                }
+                if (s.klineWeek[alertIndexWeek - 1].j > s.klineWeek[alertIndexWeek - 1].d || s.klineWeek[alertIndexWeek - 1].macd >= 0)
+                {
+                    continue;
+                }
+                int alertIndex = s.GetItemIndex(s.klineWeek[alertIndexWeek - 1].settleTime.Date) + 1;
+                if (alertIndex <= 20 || alertIndex >= s.klineDay.Length)
+                {
+                    continue;
+                }
+                int overMa20 = 0;
+                int buyIndex = -1;
+                double buyPrice = -1;
+                double startMa20 = double.MaxValue;
+                double endMa20 = double.MinValue;
+                for (int j = alertIndex; overMa20 < 2 && j < s.klineDay.Length; j++)
+                { 
+                    double ma20 = KLine.GetAverageSettlePrice(s.klineDay, j, 20, 0);
+                    if (j == alertIndex)
+                    {
+                        startMa20 = ma20;
+                    }
+                    else
+                    {
+                        endMa20 = ma20;
+                    }
+                    if (overMa20 == 1 && s.klineDay[j].low < ma20)
+                    {
+                        overMa20++;
+                        buyIndex = j;
+                        buyPrice = ma20;
+                        break;
+                    }
+                    if (overMa20 == 0 && s.klineDay[j].low > ma20)
+                    {
+                        overMa20++;
+                    }
+
+                }
+                if (endMa20 <= startMa20)
+                {
+                    continue;
+                }
+                if (buyIndex <= 20)
+                {
+                    continue;
+                }
+                if (s.klineDay[buyIndex].settleTime.Date < startDate.Date 
+                    || s.klineDay[buyIndex].settleTime.Date > endDate.Date) 
+                {
+                    continue;
+                }
+                DataRow dr = dt.NewRow();
+                dr["日期"] = s.klineDay[buyIndex].settleTime.Date;
+                dr["代码"] = s.gid.Trim();
+                dr["名称"] = s.name.Trim();
+                dr["信号"] = "";
+
+
+                dr["概念"] = "";
+                dr["筹码"] = 0;
+                //dr["放量"] = s.klineDay[buyIndex].volume / s.klineDay[buyIndex - 1].volume;
+                dr["买入"] = buyPrice;
+                dt.Rows.Add(dr);
+            }
+            StockFilter sf = StockFilter.GetResult(dt.Select("", "日期 desc, " + sort), days);
+            try
+            {
+                return Ok(sf);
+            }
+            catch
+            {
+                return NotFound();
+
+            }
+
+
+        }
         [HttpGet("{days}")]
         public async Task<ActionResult<StockFilter>> GetVolumeDoubleAgainGreenVolumeReduce(int days, DateTime startDate, DateTime endDate, string sort = "放量")
         {
