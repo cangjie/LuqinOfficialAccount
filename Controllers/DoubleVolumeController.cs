@@ -227,7 +227,7 @@ namespace LuqinOfficialAccount.Controllers
                     {
                         endMa20 = ma20;
                     }
-                    if (overMa20 == 1 && s.klineDay[j].low < ma20)
+                    if (overMa20 == 1 && s.klineDay[j].low < ma20 && s.klineDay[j].settle > ma20)
                     {
                         overMa20++;
                         buyIndex = j;
