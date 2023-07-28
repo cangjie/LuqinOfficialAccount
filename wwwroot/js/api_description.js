@@ -202,9 +202,23 @@
         'defaultSort': '放量'
     },
     {
-        'name': '周线倍量柱后，日线找买点',
+        'name': '周线倍量柱后，日线找买点20日均线',
         'description': '底部阳线放量，然后缩量调整，再次放量阳线后缩量调整买入。',
         'url': '/api/DoubleVolume/GetVolumeDoubleWeekTouchLine20',
+        'defaultCountDays': 15,
+        'defaultSort': '放量 desc'
+    },
+    {
+        'name': '周线倍量柱后，日线找买点10日均线',
+        'description': '底部阳线放量，然后缩量调整，再次放量阳线后缩量调整买入。',
+        'url': '/api/DoubleVolume/GetVolumeDoubleWeekTouchLine10',
+        'defaultCountDays': 15,
+        'defaultSort': '放量 desc'
+    },
+    {
+        'name': '周线倍量柱后，日线找买点3线',
+        'description': '底部阳线放量，然后缩量调整，再次放量阳线后缩量调整买入。',
+        'url': '/api/DoubleVolume/GetVolumeDoubleWeekTouchLine33',
         'defaultCountDays': 15,
         'defaultSort': '放量 desc'
     }

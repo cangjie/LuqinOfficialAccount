@@ -175,6 +175,63 @@ namespace LuqinOfficialAccount.Controllers
         [HttpGet("{days}")]
         public async Task<ActionResult<StockFilter>> GetVolumeDoubleWeekTouchLine20(int days, DateTime startDate, DateTime endDate, string sort = "放量 desc")
         {
+            DataTable dt = await GetVolumeDoubleWeekTouch(startDate, endDate, 20, 0);
+            
+            StockFilter sf = StockFilter.GetResult(dt.Select("", "日期 desc, " + sort), days);
+            try
+            {
+                return Ok(sf);
+            }
+            catch
+            {
+                return NotFound();
+
+            }
+
+
+        }
+
+        [HttpGet("{days}")]
+        public async Task<ActionResult<StockFilter>> GetVolumeDoubleWeekTouchLine10(int days, DateTime startDate, DateTime endDate, string sort = "放量 desc")
+        {
+            DataTable dt = await GetVolumeDoubleWeekTouch(startDate, endDate, 10, 0);
+
+            StockFilter sf = StockFilter.GetResult(dt.Select("", "日期 desc, " + sort), days);
+            try
+            {
+                return Ok(sf);
+            }
+            catch
+            {
+                return NotFound();
+
+            }
+
+
+        }
+
+        [HttpGet("{days}")]
+        public async Task<ActionResult<StockFilter>> GetVolumeDoubleWeekTouchLine33(int days, DateTime startDate, DateTime endDate, string sort = "放量 desc")
+        {
+            DataTable dt = await GetVolumeDoubleWeekTouch(startDate, endDate, 3, 3);
+
+            StockFilter sf = StockFilter.GetResult(dt.Select("", "日期 desc, " + sort), days);
+            try
+            {
+                return Ok(sf);
+            }
+            catch
+            {
+                return NotFound();
+
+            }
+
+
+        }
+
+        [NonAction]
+        public async Task<DataTable> GetVolumeDoubleWeekTouch(DateTime startDate, DateTime endDate, int maDays, int replacement)
+        {
             DataTable dt = new DataTable();
             dt.Columns.Add("日期", Type.GetType("System.DateTime"));
             dt.Columns.Add("代码", Type.GetType("System.String"));
@@ -185,7 +242,7 @@ namespace LuqinOfficialAccount.Controllers
             dt.Columns.Add("买入", Type.GetType("System.Double"));
 
             var list = await _context.DoubleVolumeWeek
-                .Where(d => (d.alert_date.Date >= startDate.AddDays(-30) 
+                .Where(d => (d.alert_date.Date >= startDate.AddDays(-30)
                 && d.alert_date.Date <= endDate.Date.AddDays(-1) && d.price_increase > 0.2))
                 .ToListAsync();
             for (int i = 0; list != null && i < list.Count; i++)
@@ -217,8 +274,8 @@ namespace LuqinOfficialAccount.Controllers
                 double startMa20 = double.MaxValue;
                 double endMa20 = double.MinValue;
                 for (int j = alertIndex; overMa20 < 2 && j < s.klineDay.Length; j++)
-                { 
-                    double ma20 = KLine.GetAverageSettlePrice(s.klineDay, j, 20, 0);
+                {
+                    double ma20 = KLine.GetAverageSettlePrice(s.klineDay, j, maDays, replacement);
                     if (j == alertIndex)
                     {
                         startMa20 = ma20;
@@ -248,8 +305,8 @@ namespace LuqinOfficialAccount.Controllers
                 {
                     continue;
                 }
-                if (s.klineDay[buyIndex].settleTime.Date < startDate.Date 
-                    || s.klineDay[buyIndex].settleTime.Date > endDate.Date) 
+                if (s.klineDay[buyIndex].settleTime.Date < startDate.Date
+                    || s.klineDay[buyIndex].settleTime.Date > endDate.Date)
                 {
                     continue;
                 }
@@ -261,24 +318,13 @@ namespace LuqinOfficialAccount.Controllers
                 dr["放量"] = (double)s.klineDay[buyIndex].volume / (double)s.klineDay[buyIndex - 1].volume;
 
                 dr["概念"] = "";
-                //dr["筹码"] = 0;
-                //dr["放量"] = s.klineDay[buyIndex].volume / s.klineDay[buyIndex - 1].volume;
                 dr["买入"] = buyPrice;
                 dt.Rows.Add(dr);
             }
-            StockFilter sf = StockFilter.GetResult(dt.Select("", "日期 desc, " + sort), days);
-            try
-            {
-                return Ok(sf);
-            }
-            catch
-            {
-                return NotFound();
-
-            }
-
-
+            return dt;
         }
+
+
         [HttpGet("{days}")]
         public async Task<ActionResult<StockFilter>> GetVolumeDoubleAgainGreenVolumeReduce(int days, DateTime startDate, DateTime endDate, string sort = "放量")
         {
