@@ -20,6 +20,7 @@ namespace LuqinOfficialAccount
             modelBuilder.Entity<Above3Line>().HasKey(m => new { m.gid, m.alert_date });
             modelBuilder.Entity<DoubleVolume>().HasKey(m => new { m.gid, m.alert_date });
             modelBuilder.Entity<DoubleVolumeWeek>().HasKey(m => new { m.gid, m.alert_date });
+            modelBuilder.Entity<DoubleGreenLeg>().HasKey(m => new { m.gid, m.alert_date });
         }
 
 
@@ -67,6 +68,8 @@ namespace LuqinOfficialAccount
         public DbSet<LuqinOfficialAccount.Models.DoubleVolume> DoubleVolume { get; set; }
 
         public DbSet<LuqinOfficialAccount.Models.DoubleVolumeWeek> DoubleVolumeWeek { get; set; }
+
+        public DbSet<LuqinOfficialAccount.Models.DoubleGreenLeg> DoubleGreenLeg { get; set; }
 
     }
 }
