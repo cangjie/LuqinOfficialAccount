@@ -173,7 +173,7 @@ namespace LuqinOfficialAccount.Controllers
         }
 
         [HttpGet("{days}")]
-        public async Task<ActionResult<StockFilter>> GetVolumeDoubleWeekTouchLine20(int days, DateTime startDate, DateTime endDate, string sort = "筹码")
+        public async Task<ActionResult<StockFilter>> GetVolumeDoubleWeekTouchLine20(int days, DateTime startDate, DateTime endDate, string sort = "放量 desc")
         {
             DataTable dt = new DataTable();
             dt.Columns.Add("日期", Type.GetType("System.DateTime"));
@@ -181,7 +181,7 @@ namespace LuqinOfficialAccount.Controllers
             dt.Columns.Add("名称", Type.GetType("System.String"));
             dt.Columns.Add("信号", Type.GetType("System.String"));
             dt.Columns.Add("概念", Type.GetType("System.String"));
-            dt.Columns.Add("筹码", Type.GetType("System.Double"));
+            dt.Columns.Add("放量", Type.GetType("System.Double"));
             dt.Columns.Add("买入", Type.GetType("System.Double"));
 
             var list = await _context.DoubleVolumeWeek
@@ -258,10 +258,10 @@ namespace LuqinOfficialAccount.Controllers
                 dr["代码"] = s.gid.Trim();
                 dr["名称"] = s.name.Trim();
                 dr["信号"] = "";
-
+                dr["放量"] = (double)s.klineDay[buyIndex].volume / (double)s.klineDay[buyIndex - 1].volume;
 
                 dr["概念"] = "";
-                dr["筹码"] = 0;
+                //dr["筹码"] = 0;
                 //dr["放量"] = s.klineDay[buyIndex].volume / s.klineDay[buyIndex - 1].volume;
                 dr["买入"] = buyPrice;
                 dt.Rows.Add(dr);
