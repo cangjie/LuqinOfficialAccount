@@ -206,6 +206,6 @@
         'description': '底部阳线放量，然后缩量调整，再次放量阳线后缩量调整买入。',
         'url': '/api/DoubleVolume/GetVolumeDoubleWeekTouchLine20',
         'defaultCountDays': 15,
-        'defaultSort': '筹码'
+        'defaultSort': '放量 desc'
     }
 ];
