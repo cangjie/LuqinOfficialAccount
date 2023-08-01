@@ -229,5 +229,12 @@
         'url': '/api/BigRise/LowRiseRateWithDoubleVolume',
         'defaultCountDays': 15,
         'defaultSort': '放量 desc'
+    },
+    {
+        'name': '九转线后放量',
+        'description': '20均线持续向上',
+        'url': '/api/DoubleVolume/WithDemark',
+        'defaultCountDays': 15,
+        'defaultSort': '筹码 desc'
     }
 ];
