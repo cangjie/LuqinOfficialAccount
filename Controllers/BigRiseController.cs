@@ -1007,6 +1007,7 @@ namespace LuqinOfficialAccount.Controllers
                 }
                 double high = s.klineDay[prevAlertIndex].high;
                 double low = s.klineDay[prevStartIndex].low;
+
                 double f5 = high - (high - low) * 0.618;
                 bool overF5 = false;
 
@@ -1069,6 +1070,94 @@ namespace LuqinOfficialAccount.Controllers
 
             }
 
+        }
+
+        [HttpGet("{days}")]
+        public async Task<ActionResult<StockFilter>> LowRiseRateWithDoubleVolume(int days, DateTime startDate, DateTime endDate, string sort = "放量")
+        {
+            DataTable dt = new DataTable();
+            dt.Columns.Add("日期", Type.GetType("System.DateTime"));
+            dt.Columns.Add("代码", Type.GetType("System.String"));
+            dt.Columns.Add("名称", Type.GetType("System.String"));
+            dt.Columns.Add("信号", Type.GetType("System.String"));
+            dt.Columns.Add("放量", Type.GetType("System.Double"));
+            dt.Columns.Add("买入", Type.GetType("System.Double"));
+            var bigList = await _context.BigRise
+                .FromSqlRaw(" select * from big_rise a where not exists ( "
+                + " select 'a' from big_rise b where a.gid = b.gid and b.alert_date >= dbo.func_GetLastTransactDate(a.alert_date, 60) and b.alert_date < a.alert_date ) "
+                + "  and exists(select 'a' from double_volume d where d.gid = a.gid and d.alert_date > a.alert_date and d.alert_date >= '"
+                + startDate.Date.ToShortDateString() + "' and d.alert_date <= '" + endDate.Date.ToShortDateString() + "' ) "
+                + "  and limit_up_num <= 1 and alert_date >= '" + Util.GetLastTransactDate(startDate, 60, _context).Date.ToShortDateString() + "'  "
+                + " and alert_date <= '" + endDate.Date.AddDays(-1).ToShortDateString() + "' " ).ToListAsync();
+            if (bigList == null)
+            {
+                return BadRequest();
+            }
+            for (int i = 0; i < bigList.Count; i++)
+            {
+                Stock s = Stock.GetStock(bigList[i].gid);
+                s.ForceRefreshKLineDay();
+                int bigRiseEndIndex = s.GetItemIndex(bigList[i].alert_date.Date);
+                int bigRiseStartIndex = s.GetItemIndex(bigList[i].start_date.Date);
+                int endIndex = s.GetItemIndex(endDate.Date);
+                if (bigRiseEndIndex < 0 || bigRiseEndIndex > s.klineDay.Length
+                    || bigRiseStartIndex < 0 || bigRiseStartIndex > s.klineDay.Length
+                    || bigRiseStartIndex >= bigRiseEndIndex   )
+                {
+                    continue;
+                }
+                double low = double.MaxValue;
+                double high = double.MinValue;
+                for (int j = bigRiseStartIndex; j <= bigRiseEndIndex; j++)
+                {
+                    low = Math.Min(low, s.klineDay[j].low);
+                    high = Math.Max(high, s.klineDay[j].high);
+                }
+                int buyIndex = -1;
+                for (int j = bigRiseEndIndex + 1; j < s.klineDay.Length && j <= endIndex; j++)
+                {
+                    if (s.klineDay[j].low <= low || s.klineDay[j].high >= high)
+                    {
+                        break;
+                    }
+                    
+                   
+                    if (s.klineDay[j].volume > s.klineDay[j - 1].volume * 2
+                        && s.klineDay[j].settle > s.klineDay[j - 1].settle
+                        && s.klineDay[j].settleTime.Date >= startDate.Date
+                        && s.klineDay[j].settleTime.Date <= endDate.Date)
+                    {
+                        buyIndex = j;
+                        break;
+                    }
+                    
+
+                }
+                if (buyIndex == -1)
+                {
+                    continue;
+                }
+
+                DataRow dr = dt.NewRow();
+                dr["日期"] = s.klineDay[buyIndex].settleTime.Date;
+                dr["代码"] = s.gid.Trim();
+                dr["名称"] = s.name.Trim();
+                dr["信号"] = "";
+                dr["放量"] = s.klineDay[buyIndex].volume / s.klineDay[buyIndex - 1].volume;
+                dr["买入"] = s.klineDay[buyIndex].settle;
+                dt.Rows.Add(dr);
+            }
+
+            StockFilter sf = StockFilter.GetResult(dt.Select("", "日期 desc, " + sort), days);
+            try
+            {
+                return Ok(sf);
+            }
+            catch
+            {
+                return NotFound();
+
+            }
         }
 
 

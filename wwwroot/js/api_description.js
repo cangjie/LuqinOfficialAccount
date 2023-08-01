@@ -221,5 +221,13 @@
         'url': '/api/DoubleVolume/GetVolumeDoubleWeekTouchLine33',
         'defaultCountDays': 15,
         'defaultSort': '放量 desc'
+    },
+    //LowRiseRateWithDoubleVolume
+    {
+        'name': '小涨幅后，放倍量',
+        'description': '等待二连板',
+        'url': '/api/BigRise/LowRiseRateWithDoubleVolume',
+        'defaultCountDays': 15,
+        'defaultSort': '放量 desc'
     }
 ];
