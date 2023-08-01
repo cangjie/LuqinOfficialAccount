@@ -1082,6 +1082,7 @@ namespace LuqinOfficialAccount.Controllers
             dt.Columns.Add("信号", Type.GetType("System.String"));
             dt.Columns.Add("放量", Type.GetType("System.Double"));
             dt.Columns.Add("买入", Type.GetType("System.Double"));
+            dt.Columns.Add("筹码", Type.GetType("System.Double"));
             var bigList = await _context.BigRise
                 .FromSqlRaw(" select * from big_rise a where not exists ( "
                 + " select 'a' from big_rise b where a.gid = b.gid and b.alert_date >= dbo.func_GetLastTransactDate(a.alert_date, 60) and b.alert_date < a.alert_date ) "
@@ -1138,6 +1139,21 @@ namespace LuqinOfficialAccount.Controllers
                     continue;
                 }
 
+
+                double chip = 0;
+                try
+                {
+                    ActionResult<double> chipResult = await chipCtrl.GetChipAll(s.gid, s.klineDay[buyIndex - 1].settleTime.Date);
+                    if (chipResult != null && chipResult.Result.GetType().Name.Trim().Equals("OkObjectResult"))
+                    {
+                        chip = (double)((OkObjectResult)chipResult.Result).Value;
+                    }
+                }
+                catch
+                {
+
+                }
+
                 DataRow dr = dt.NewRow();
                 dr["日期"] = s.klineDay[buyIndex].settleTime.Date;
                 dr["代码"] = s.gid.Trim();
@@ -1145,6 +1161,7 @@ namespace LuqinOfficialAccount.Controllers
                 dr["信号"] = "";
                 dr["放量"] = s.klineDay[buyIndex].volume / s.klineDay[buyIndex - 1].volume;
                 dr["买入"] = s.klineDay[buyIndex].settle;
+                dr["筹码"] = chip;
                 dt.Rows.Add(dr);
             }
 
@@ -1160,6 +1177,7 @@ namespace LuqinOfficialAccount.Controllers
             }
         }
 
+        
 
         private bool BigRiseExists(int id)
         {

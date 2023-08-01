@@ -634,6 +634,112 @@ namespace LuqinOfficialAccount.Controllers
 
             }
         }
+        [HttpGet("{days}")]
+        public async Task<ActionResult<StockFilter>> WithDemark(int days, DateTime startDate, DateTime endDate, string sort = "筹码")
+        {
+            var dvList = await _context.DoubleVolume
+                .Where(d => (d.alert_date.Date >= startDate.Date && d.alert_date.Date <= endDate.Date)).ToListAsync();
+            var deList = await _context.demark
+                .Where(d => (d.alert_time.Date >= Util.GetLastTransactDate(startDate.Date, 3, _context)
+                && d.alert_time.Date <= Util.GetLastTransactDate(endDate, -3, _context) 
+                && d.value == -9)).OrderByDescending(d => d.alert_time).ToListAsync();
+            DataTable dt = new DataTable();
+            dt.Columns.Add("日期", Type.GetType("System.DateTime"));
+            dt.Columns.Add("代码", Type.GetType("System.String"));
+            dt.Columns.Add("名称", Type.GetType("System.String"));
+            dt.Columns.Add("信号", Type.GetType("System.String"));
+            dt.Columns.Add("放量", Type.GetType("System.Double"));
+            dt.Columns.Add("买入", Type.GetType("System.Double"));
+            dt.Columns.Add("筹码", Type.GetType("System.Double"));
+            for (int i = 0; i < dvList.Count; i++)
+            {
+
+                for (int j = 0; j < deList.Count; j++)
+                {
+                    if (dvList[i].gid.Trim().Equals(deList[j].gid.Trim())
+                        && dvList[i].alert_date.Date >= Util.GetLastTransactDate(deList[j].alert_time.Date, 3, _context)
+                        && dvList[i].alert_date.Date <= Util.GetLastTransactDate(deList[j].alert_time.Date, -3, _context))
+                    {
+                        Stock s = Stock.GetStock(dvList[i].gid);
+                        s.ForceRefreshKLineDay();
+                        if (s.klineDay.Length <= 20)
+                        {
+                            break;
+                        }
+                        int dvIndex = s.GetItemIndex(dvList[i].alert_date.Date);
+                        int deIndex = s.GetItemIndex(deList[j].alert_time.Date);
+                        if (deIndex < 30)
+                        {
+                            break;
+                        }
+                        double currentMa20 = KLine.GetAverageSettlePrice(s.klineDay, dvIndex, 20, 0);
+                        if (s.klineDay[dvIndex].settle < currentMa20)
+                        {
+                            break;
+                        }
+                        double startMa20 = KLine.GetAverageSettlePrice(s.klineDay, deIndex - 9, 20, 0);
+                        double highMa20 = Math.Max(currentMa20, startMa20);
+                        for (int k = deIndex - 8; k < Math.Max(dvIndex, deIndex); k++)
+                        {
+                            if (highMa20 < KLine.GetAverageSettlePrice(s.klineDay, k, 20, 0))
+                            {
+                                currentMa20 = double.MaxValue;
+                                startMa20 = double.MinValue;
+                                break;
+                            }
+                        }
+                        if (currentMa20 < startMa20)
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            
+
+
+                            double chip = 0;
+                            try
+                            {
+                                ActionResult<double> chipResult = await _chipCtrl.GetChipAll(s.gid, s.klineDay[dvIndex - 1].settleTime.Date);
+                                if (chipResult != null && chipResult.Result.GetType().Name.Trim().Equals("OkObjectResult"))
+                                {
+                                    chip = (double)((OkObjectResult)chipResult.Result).Value;
+                                }
+                            }
+                            catch
+                            {
+
+                            }
+
+                            DataRow dr = dt.NewRow();
+                            dr["日期"] = s.klineDay[dvIndex].settleTime.Date;
+                            dr["代码"] = s.gid.Trim();
+                            dr["名称"] = s.name.Trim();
+                            dr["信号"] = "";
+                            dr["放量"] = s.klineDay[dvIndex].volume / s.klineDay[dvIndex - 1].volume;
+                            dr["买入"] = s.klineDay[dvIndex].settle;
+                            dr["筹码"] = chip;
+                            dt.Rows.Add(dr);
+                            break;
+                        }
+                    }
+                }
+
+
+
+            }
+            StockFilter sf = StockFilter.GetResult(dt.Select("", "日期 desc, " + sort), days);
+            try
+            {
+                return Ok(sf);
+            }
+            catch
+            {
+                return NotFound();
+
+            }
+        }
+
         /*
         // GET: api/DoubleVolume
         [HttpGet]
