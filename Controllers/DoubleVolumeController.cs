@@ -172,6 +172,12 @@ namespace LuqinOfficialAccount.Controllers
             return Ok(num);
         }
 
+        [HttpGet]
+        public async Task<ActionResult<int>> SearchToday()
+        {
+            return await Search(DateTime.Now.Date, DateTime.Now.Date);
+        }
+
         [HttpGet("{days}")]
         public async Task<ActionResult<StockFilter>> GetVolumeDoubleWeekTouchLine20(int days, DateTime startDate, DateTime endDate, string sort = "放量 desc")
         {
