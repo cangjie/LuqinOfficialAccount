@@ -28,6 +28,13 @@
         'defaultSort': '缩量'
     },
     {
+        'name': '昨日二连板查看所属概念',
+        'description': '',
+        'url': '/api/LimitUp/GetLastDayLimitUpTwiceWithConcept',
+        'defaultCountDays': 15,
+        'defaultSort': '缩量 desc'
+    },
+    {
         'name': '等待红绿灯',
         'description': '',
         'url': '/api/LimitUp/GetLimitUpAdjust',
