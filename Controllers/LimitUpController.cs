@@ -1148,7 +1148,7 @@ namespace LuqinOfficialAccount.Controllers
                 }
 
                 DataRow dr = dt.NewRow();
-                dr["日期"] = s.klineDay[alertIndex].settleTime.Date;
+                dr["日期"] = s.klineDay[alertIndex+1].settleTime.Date;
                 dr["代码"] = s.gid.Trim();
                 dr["名称"] = s.name.Trim();
                 dr["信号"] = "";
