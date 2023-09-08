@@ -243,5 +243,12 @@
         'url': '/api/DoubleVolume/WithDemark',
         'defaultCountDays': 15,
         'defaultSort': '筹码 desc'
+    },
+    {
+        'name': '调整后再度涨停高开',
+        'description': '',
+        'url': '/api/LimitUp/AjustOpenHigh',
+        'defaultCountDays': 15,
+        'defaultSort': '代码 desc'
     }
 ];
