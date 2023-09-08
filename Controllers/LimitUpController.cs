@@ -1794,6 +1794,84 @@ namespace LuqinOfficialAccount.Controllers
         }
 
         [HttpGet("{days}")]
+        public async Task<ActionResult<StockFilter>> AjustOpenHigh(int days, DateTime startDate, DateTime endDate, string sort = "代码")
+        {
+            DataTable dt = new DataTable();
+            dt.Columns.Add("日期", Type.GetType("System.DateTime"));
+            dt.Columns.Add("代码", Type.GetType("System.String"));
+            dt.Columns.Add("名称", Type.GetType("System.String"));
+            dt.Columns.Add("信号", Type.GetType("System.String"));
+            //dt.Columns.Add("概念", Type.GetType("System.String"));
+            dt.Columns.Add("买入", Type.GetType("System.Double"));
+            dt.Columns.Add("缩量", Type.GetType("System.Double"));
+
+            var l = await _db.LimitUp.FromSqlRaw(" select * from limit_up a  "
+                + "  where not exists (select 'a' from limit_up b where a.gid = b.gid and b.alert_date = dbo.func_GetLastTransactDate(a.alert_date, 1)) "
+                + " and exists (select 'a' from limit_up c where a.gid = c.gid and c.alert_date >= dbo.func_GetLastTransactDate(a.alert_date, 5) and c.alert_date < a.alert_date) "
+                + " and a.alert_date >= '" + Util.GetLastTransactDate(startDate, 1, _db).ToShortDateString()
+                + "'  and a.alert_date <= '" + Util.GetLastTransactDate(endDate, 1, _db).ToShortDateString() + "'  "
+                + " order by alert_date  ").ToListAsync();
+            for (int i = 0; l != null && i < l.Count; i++)
+            {
+                Stock s = Stock.GetStock(l[i].gid.Trim());
+                try
+                {
+                    s.ForceRefreshKLineDay();
+                }
+                catch
+                {
+                    continue;
+                }
+                int alertIndex = Stock.GetItemIndex(l[i].alert_date, s.klineDay);
+
+                bool isNewHigh = true;
+
+                for (int j = alertIndex - 1; !KLine.IsLimitUp(s.klineDay, j) && j >= 1; j--)
+                {
+                    if (s.klineDay[j].high > s.klineDay[alertIndex].settle)
+                    {
+                        isNewHigh = false;
+                        break;
+                    }
+                }
+                if (!isNewHigh)
+                {
+                    continue;
+                }
+                if (alertIndex + 1 >= s.klineDay.Length)
+                {
+                    continue;
+                }
+                if (s.klineDay[alertIndex + 1].open <= s.klineDay[alertIndex].settle)
+                {
+                    continue;
+                }
+
+                int buyIndex = alertIndex + 1;
+                DataRow dr = dt.NewRow();
+                dr["日期"] = s.klineDay[buyIndex].settleTime.Date;
+                dr["代码"] = s.gid.Trim();
+                dr["名称"] = s.name.Trim();
+                //dr["概念"] = "";
+                dr["买入"] = s.klineDay[alertIndex].settle;
+                dr["缩量"] = 100 * (s.klineDay[buyIndex].volume - s.klineDay[alertIndex].volume) / s.klineDay[alertIndex].volume;
+                dt.Rows.Add(dr);
+
+            }
+            StockFilter sf = StockFilter.GetResult(dt.Select("", "日期 desc, " + sort), days);
+            try
+            {
+                return Ok(sf);
+            }
+            catch
+            {
+                return NotFound();
+
+            }
+            //return NoContent();
+        }
+
+        [HttpGet("{days}")]
         public async Task<ActionResult<StockFilter>> LimitUp3Green(int days, DateTime startDate, DateTime endDate, string sort = "代码")
         {
             DataTable dt = new DataTable();
