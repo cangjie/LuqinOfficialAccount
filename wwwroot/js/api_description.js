@@ -250,5 +250,12 @@
         'url': '/api/LimitUp/AjustOpenHigh',
         'defaultCountDays': 15,
         'defaultSort': '代码 desc'
+    },
+    {
+        'name': '三连板，第三板盘中跌幅超6%',
+        'description': '',
+        'url': '/api/LimitUp/LimitUpTripleLongLeg',
+        'defaultCountDays': 15,
+        'defaultSort': '代码 desc'
     }
 ];
