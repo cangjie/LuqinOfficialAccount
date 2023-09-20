@@ -2068,6 +2068,10 @@ namespace LuqinOfficialAccount.Controllers
                 {
                     continue;
                 }
+                if (s.klineDay[alertIndex].open < s.klineDay[alertIndex - 1].settle)
+                {
+                    continue;
+                }
                 int buyIndex = alertIndex;
                 DataRow dr = dt.NewRow();
                 dr["日期"] = s.klineDay[buyIndex].settleTime.Date;
