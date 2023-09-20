@@ -2025,6 +2025,74 @@ namespace LuqinOfficialAccount.Controllers
             }
 
         }
+
+
+
+        [HttpGet("{days}")]
+        public async Task<ActionResult<StockFilter>> LimitUpTripleLongFoot(int days, DateTime startDate, DateTime endDate, string sort = "代码")
+        {
+            var l = await _db.LimitUp.FromSqlRaw(" select alert_date, gid from limit_up a "
+                + "  where  exists ( select 'a' from limit_up_twice b where a.gid = b.gid and b.alert_date = dbo.func_GetLastTransactDate(a.alert_date, 1))  "
+                + " and a.alert_date >= '" + startDate.ToShortDateString() + "' and a.alert_date <= '" + endDate.ToShortDateString() + "'  "
+                + "  order by a.alert_date  ").ToListAsync();
+
+            DataTable dt = new DataTable();
+            dt.Columns.Add("日期", Type.GetType("System.DateTime"));
+            dt.Columns.Add("代码", Type.GetType("System.String"));
+            dt.Columns.Add("名称", Type.GetType("System.String"));
+            dt.Columns.Add("信号", Type.GetType("System.String"));
+            //dt.Columns.Add("概念", Type.GetType("System.String"));
+            dt.Columns.Add("买入", Type.GetType("System.Double"));
+            dt.Columns.Add("缩量", Type.GetType("System.Double"));
+            dt.Columns.Add("盘中跌幅", Type.GetType("System.Double"));
+
+            for (int i = 0; l != null && i < l.Count; i++)
+            {
+                Stock s = Stock.GetStock(l[i].gid.Trim());
+                try
+                {
+                    s.ForceRefreshKLineDay();
+                }
+                catch
+                {
+                    continue;
+                }
+                int alertIndex = Stock.GetItemIndex(l[i].alert_date, s.klineDay);
+
+                if (alertIndex >= s.klineDay.Length || alertIndex < 3)
+                {
+                    continue;
+                }
+                double lowRate = (s.klineDay[alertIndex].low - s.klineDay[alertIndex - 1].settle) / s.klineDay[alertIndex - 1].settle;
+                if (lowRate >= -0.05)
+                {
+                    continue;
+                }
+                int buyIndex = alertIndex;
+                DataRow dr = dt.NewRow();
+                dr["日期"] = s.klineDay[buyIndex].settleTime.Date;
+                dr["代码"] = s.gid.Trim();
+                dr["名称"] = s.name.Trim();
+                //dr["概念"] = conceptStr.Trim();
+                dr["买入"] = s.klineDay[buyIndex].settle;
+                dr["缩量"] = 100 * (s.klineDay[alertIndex].volume - s.klineDay[alertIndex - 1].volume) / s.klineDay[alertIndex - 1].volume;
+                dr["盘中跌幅"] = lowRate;
+                dt.Rows.Add(dr);
+            }
+            StockFilter sf = StockFilter.GetResult(dt.Select("", "日期 desc, " + sort), days);
+            try
+            {
+                return Ok(sf);
+            }
+            catch
+            {
+                return NotFound();
+
+            }
+
+        }
+
+
         private bool LimitUpExists(string id)
         {
             return _db.LimitUp.Any(e => e.gid == id);
