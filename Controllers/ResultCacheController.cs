@@ -117,88 +117,165 @@ namespace LuqinOfficialAccount.Controllers
             }
 
         }
-            /*
-
-            // GET: api/ResultCache
-            [HttpGet]
-            public async Task<ActionResult<IEnumerable<ResultCache>>> GetResultCache()
+        //反包高开，无机会，看第二天
+        [HttpGet("{days}")]
+        public async Task<ActionResult<StockFilter>> ReverseLimitUpNoChanceTomorrow(int days, DateTime startDate, DateTime endDate, string sort = "代码")
+        {
+            DataTable dt = new DataTable();
+            dt.Columns.Add("日期", Type.GetType("System.DateTime"));
+            dt.Columns.Add("代码", Type.GetType("System.String"));
+            dt.Columns.Add("名称", Type.GetType("System.String"));
+            dt.Columns.Add("信号", Type.GetType("System.String"));
+            //dt.Columns.Add("涨停", Type.GetType("System.String"));
+            //dt.Columns.Add("概念", Type.GetType("System.String"));
+            dt.Columns.Add("买入", Type.GetType("System.Double"));
+            //dt.Columns.Add("缩量", Type.GetType("System.Double"));
+            string apiName = "/api/LimitUp/GetLimitUpAdjustSettleOverHighestAndLimitUpAgain";
+            DateTime limitStartDate = Util.GetLastTransactDate(startDate, 1, _db);
+            DateTime limitEndDate = Util.GetLastTransactDate(endDate, 1, _db);
+            var l = await _db.ResultCache
+                .Where(r => (r.alert_date >= startDate && r.alert_date <= endDate
+                && r.api_name.Trim().Equals(apiName.Trim()))).ToListAsync();
+            for (int i = 0; i < l.Count; i++)
             {
-                return await _context.ResultCache.ToListAsync();
-            }
-
-            // GET: api/ResultCache/5
-            [HttpGet("{id}")]
-            public async Task<ActionResult<ResultCache>> GetResultCache(int id)
-            {
-                var resultCache = await _context.ResultCache.FindAsync(id);
-
-                if (resultCache == null)
-                {
-                    return NotFound();
-                }
-
-                return resultCache;
-            }
-
-            // PUT: api/ResultCache/5
-            // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-            [HttpPut("{id}")]
-            public async Task<IActionResult> PutResultCache(int id, ResultCache resultCache)
-            {
-                if (id != resultCache.id)
-                {
-                    return BadRequest();
-                }
-
-                _context.Entry(resultCache).State = EntityState.Modified;
-
+                string gid = l[i].gid.Trim();
+                DateTime alertDate = l[i].alert_date;
+                Stock s = Stock.GetStock(gid.Trim());
                 try
                 {
-                    await _context.SaveChangesAsync();
+                    s.ForceRefreshKLineDay();
                 }
-                catch (DbUpdateConcurrencyException)
+                catch
                 {
-                    if (!ResultCacheExists(id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    continue;
                 }
+                int alertIndex = s.GetItemIndex(alertDate);
+                if (alertIndex < 0 || alertIndex >= s.klineDay.Length)
+                {
+                    continue;
+                }
+                if ((s.klineDay[alertIndex + 1].open - s.klineDay[alertIndex].settle) / s.klineDay[alertIndex].settle < 0.01
+                    || s.klineDay[alertIndex + 1].low > s.klineDay[alertIndex].settle || !KLine.IsLimitUp(s.klineDay, alertIndex + 1))
+                {
+                    continue;
+                }
+                if ((s.klineDay[alertIndex + 2].open - s.klineDay[alertIndex + 1].settle) / s.klineDay[alertIndex + 1].settle < 0.01
+                    || s.klineDay[alertIndex + 2].low > s.klineDay[alertIndex + 1].settle)
+                {
+                    continue;
+                }
+                DataRow dr = dt.NewRow();
+                dr["日期"] = s.klineDay[alertIndex + 2].settleTime.Date;
+                dr["代码"] = s.gid.Trim();
+                dr["名称"] = s.name.Trim();
+                dr["买入"] = s.klineDay[alertIndex + 1].settle;
+                if (KLine.IsLimitUp(s.klineDay, alertIndex + 1))
+                {
+                    dr["信号"] = "📈";
+                }
+                else
+                {
+                    dr["信号"] = "";
+                }
+                dt.Rows.Add(dr);
 
-                return NoContent();
+            }
+            StockFilter sf = StockFilter.GetResult(dt.Select("", "日期 desc, " + sort), days);
+            try
+            {
+                return Ok(sf);
+            }
+            catch
+            {
+                return NotFound();
+
             }
 
-            // POST: api/ResultCache
-            // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-            [HttpPost]
-            public async Task<ActionResult<ResultCache>> PostResultCache(ResultCache resultCache)
+        }
+
+
+        /*
+
+        // GET: api/ResultCache
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<ResultCache>>> GetResultCache()
+        {
+            return await _context.ResultCache.ToListAsync();
+        }
+
+        // GET: api/ResultCache/5
+        [HttpGet("{id}")]
+        public async Task<ActionResult<ResultCache>> GetResultCache(int id)
+        {
+            var resultCache = await _context.ResultCache.FindAsync(id);
+
+            if (resultCache == null)
             {
-                _context.ResultCache.Add(resultCache);
+                return NotFound();
+            }
+
+            return resultCache;
+        }
+
+        // PUT: api/ResultCache/5
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutResultCache(int id, ResultCache resultCache)
+        {
+            if (id != resultCache.id)
+            {
+                return BadRequest();
+            }
+
+            _context.Entry(resultCache).State = EntityState.Modified;
+
+            try
+            {
                 await _context.SaveChangesAsync();
-
-                return CreatedAtAction("GetResultCache", new { id = resultCache.id }, resultCache);
             }
-
-            // DELETE: api/ResultCache/5
-            [HttpDelete("{id}")]
-            public async Task<IActionResult> DeleteResultCache(int id)
+            catch (DbUpdateConcurrencyException)
             {
-                var resultCache = await _context.ResultCache.FindAsync(id);
-                if (resultCache == null)
+                if (!ResultCacheExists(id))
                 {
                     return NotFound();
                 }
-
-                _context.ResultCache.Remove(resultCache);
-                await _context.SaveChangesAsync();
-
-                return NoContent();
+                else
+                {
+                    throw;
+                }
             }
-            */
-            private bool ResultCacheExists(int id)
+
+            return NoContent();
+        }
+
+        // POST: api/ResultCache
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPost]
+        public async Task<ActionResult<ResultCache>> PostResultCache(ResultCache resultCache)
+        {
+            _context.ResultCache.Add(resultCache);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction("GetResultCache", new { id = resultCache.id }, resultCache);
+        }
+
+        // DELETE: api/ResultCache/5
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteResultCache(int id)
+        {
+            var resultCache = await _context.ResultCache.FindAsync(id);
+            if (resultCache == null)
+            {
+                return NotFound();
+            }
+
+            _context.ResultCache.Remove(resultCache);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+        */
+        private bool ResultCacheExists(int id)
         {
             return _db.ResultCache.Any(e => e.id == id);
         }
