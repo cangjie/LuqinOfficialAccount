@@ -2075,7 +2075,7 @@ namespace LuqinOfficialAccount.Controllers
                 }
                 if (s.klineDay[alertIndex].open < s.klineDay[alertIndex - 1].settle)
                 {
-                    continue;
+                    //continue;
                 }
                 int buyIndex = alertIndex;
                 DataRow dr = dt.NewRow();
