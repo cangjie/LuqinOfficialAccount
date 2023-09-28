@@ -26,6 +26,8 @@ namespace LuqinOfficialAccount.Controllers
 
         private readonly ConceptController conceptCtrl;
 
+        private readonly ResultCacheController resultHelper;
+
         public LimitUpController(AppDBContext context, IConfiguration config)
         {
             _db = context;
@@ -34,6 +36,7 @@ namespace LuqinOfficialAccount.Controllers
             chipCtrl = new ChipController(_db, _config);
             Util._db = context;
             conceptCtrl = new ConceptController(context, config);
+            resultHelper = new ResultCacheController(context, config);
         }
 
         [HttpGet]
@@ -1608,6 +1611,8 @@ namespace LuqinOfficialAccount.Controllers
                 dr["买入"] = s.klineDay[buyIndex].settle;
                 dr["缩量"] = 100 * (s.klineDay[alertIndex].volume - s.klineDay[alertIndex - 1].volume) / s.klineDay[alertIndex - 1].volume;
                 dr["调整"] = unLimitNum;
+                await resultHelper.AddNew("/api/LimitUp/GetLimitUpAdjustSettleOverHighestAndLimitUpAgain",
+                    s.klineDay[buyIndex].settleTime.Date, s.gid.Trim());
                 dt.Rows.Add(dr);
 
             }

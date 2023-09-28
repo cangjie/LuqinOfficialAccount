@@ -77,5 +77,7 @@ namespace LuqinOfficialAccount
 
         public DbSet<LuqinOfficialAccount.Models.Demark> demark { get; set; }
 
+        public DbSet<LuqinOfficialAccount.Models.ResultCache> ResultCache { get; set; }
+
     }
 }
