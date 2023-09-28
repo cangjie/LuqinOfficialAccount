@@ -264,5 +264,13 @@
         'url': '/api/LimitUp/LimitUpTripleLongFoot',
         'defaultCountDays': 15,
         'defaultSort': '代码 desc'
+    },
+    {
+        'name': '反包后，1%以上的高开且盘中触及上日涨停收盘',
+        'description': '',
+        'url': '/api/ResultCache/GetLimitUpAdjustSettleOverHighestAndLimitUpAgain',
+        'defaultCountDays': 15,
+        'defaultSort': '代码'
     }
+
 ];
