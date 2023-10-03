@@ -280,4 +280,11 @@
         'defaultCountDays': 15,
         'defaultSort': '代码'
     },
+    {
+        'name': '1，反包之后高开但是没有回踩，当日涨停;  2, 次日回踩前日涨停，并进场',
+        'description': '缺口',
+        'url': '/api/LimitUp/LimitUpAdjustLimitUpWithChance',
+        'defaultCountDays': 15,
+        'defaultSort': '代码'
+    },
 ];
