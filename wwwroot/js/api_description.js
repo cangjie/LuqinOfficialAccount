@@ -271,6 +271,20 @@
         'url': '/api/ResultCache/GetLimitUpAdjustSettleOverHighestAndLimitUpAgain',
         'defaultCountDays': 15,
         'defaultSort': '代码'
-    }
-
+    },
+    //ReverseLimitUpNoChanceTomorrow
+    {
+        'name': '反包后，第一天没有机会看第二天 ',
+        'description': '反包后，1%以上的高开且盘中未触及上日涨停收盘，然后看第二天高开同样条件的机会。',
+        'url': '/api/ResultCache/ReverseLimitUpNoChanceTomorrow',
+        'defaultCountDays': 15,
+        'defaultSort': '代码'
+    },
+    {
+        'name': '1，反包之后高开但是没有回踩，当日涨停;  2, 次日回踩前日涨停，并进场',
+        'description': '缺口',
+        'url': '/api/LimitUp/LimitUpAdjustLimitUpWithChance',
+        'defaultCountDays': 15,
+        'defaultSort': '代码'
+    },
 ];
