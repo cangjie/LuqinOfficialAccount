@@ -2115,7 +2115,7 @@ namespace LuqinOfficialAccount.Controllers
 
             startDate = Util.GetLastTransactDate(startDate, 1, _db);
             endDate = Util.GetLastTransactDate(endDate, 1, _db);
-
+            _db.Database.SetCommandTimeout(999);
             var l = await _db.LimitUpTwice.FromSqlRaw("select * from limit_up_twice a"
                 + " where a.alert_date >= '" + startDate.ToShortDateString() + "' and a.alert_date <= '" + endDate.ToShortDateString() + "' "
                 + " and not exists ( select 'a' from limit_up b where a.gid = b.gid and b.alert_date = dbo.func_GetLastTransactDate(a.alert_date, 2)  ) "
