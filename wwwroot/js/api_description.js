@@ -160,8 +160,8 @@
     },
     //GetLimitUpAdjustSettleOverHighestAndLimitUpAgain
     {
-        'name': '涨停后调整收到涨停之上不超过三天再次涨停',
-        'description': '',
+        'name': '反包',
+        'description': '涨停后调整收到涨停之上不超过三天再次涨停',
         'url': '/api/LimitUp/GetLimitUpAdjustSettleOverHighestAndLimitUpAgain',
         'defaultCountDays': 15,
         'defaultSort': '缩量'
@@ -287,4 +287,20 @@
         'defaultCountDays': 15,
         'defaultSort': '代码'
     },
+    //ReverseOpenHigBiggreenAndOpenStandard
+    {
+        'name': '高开下跌后平开看涨停概率',
+        'description': '',
+        'url': '/api/LimitUp/ReverseOpenHighBiggreenAndOpenStandard',
+        'defaultCountDays': 15,
+        'defaultSort': '代码'
+    },
+    {
+        'name': '反包后创新高然后跌停二连板',
+        'description': '',
+        'url': '/api/LimitUp/ReverseSettleHighWithLimitDownTwice',
+        'defaultCountDays': 15,
+        'defaultSort': '代码'
+    },
+
 ];
