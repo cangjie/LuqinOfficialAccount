@@ -164,7 +164,7 @@
         'description': '涨停后调整收到涨停之上不超过三天再次涨停',
         'url': '/api/LimitUp/GetLimitUpAdjustSettleOverHighestAndLimitUpAgain',
         'defaultCountDays': 15,
-        'defaultSort': '缩量'
+        'defaultSort': '代码'
     },
     {
         'name': '涨停后调整收到涨停之上不超过三天再次涨停，并且最后一天涨停和之前一天同量。',
