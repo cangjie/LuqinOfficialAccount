@@ -25,6 +25,7 @@
     <None Remove="NewLife.Redis" />
     <None Remove="BeetleX.Redis" />
     <None Remove="StackExchange.Redis" />
+    <None Remove="Models\Simulator\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
@@ -47,6 +48,7 @@
     <Folder Include="images\" />
     <Folder Include="wwwroot\fonts\" />
     <Folder Include="wwwroot\images\" />
+    <Folder Include="Models\Simulator\" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="ThoughtWorks.QRCode">
