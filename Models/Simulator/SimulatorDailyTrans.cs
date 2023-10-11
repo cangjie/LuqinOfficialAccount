@@ -10,7 +10,8 @@ namespace LuqinOfficialAccount.Models.Simulator
 	{
 		[Key]
 		public int      id              { get; set; }
-        public int      daily_id        { get; set; }
+        public DateTime trans_date      { get; set; }
+        public int      simulator_id    { get; set; }
         public string   gid             { get; set; }
         public string   name            { get; set; }
         public double   trans_price     { get; set; }
