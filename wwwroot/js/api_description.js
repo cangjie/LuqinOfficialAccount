@@ -302,5 +302,32 @@
         'defaultCountDays': 15,
         'defaultSort': '代码'
     },
-
+    {
+        'name': '反包后高开立刻买入',
+        'description': '',
+        'url': '/api/LimitUp/ReverseOpenHigh',
+        'defaultCountDays': 15,
+        'defaultSort': '代码'
+    },
+    {
+        'name': '二连板反包',
+        'description': '',
+        'url': '/api/LimitUp/ReverseWithLimitUpTwice',
+        'defaultCountDays': 15,
+        'defaultSort': '代码'
+    },
+    {
+        'name': '反包高开创新高',
+        'description': '',
+        'url': '/api/Reverse/OpenOverHigh',
+        'defaultCountDays': 15,
+        'defaultSort': '代码'
+    },
+    {
+        'name': 'T字板反包',
+        'description': '',
+        'url': '/api/Reverse/WithT',
+        'defaultCountDays': 15,
+        'defaultSort': '代码'
+    }
 ];

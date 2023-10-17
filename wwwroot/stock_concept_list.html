@@ -65,6 +65,7 @@
             <thead>
                 <tr>
                     <td class="table_head">信号</td>
+                    <td class="table_head">数量</td>
                     <td class="table_head">下跌</td>
                     <td class="table_head">横盘</td>
                     <td class="table_head">上涨</td>
@@ -301,11 +302,18 @@
             countTdSig.attributes.setNamedItem(txtClass);
             countTdSig.innerText = countTable[i].signal;
             countTr.appendChild(countTdSig);
+            var tdCount = document.createElement('td');
             var tdDown = document.createElement('td');
             var tdNoRise = document.createElement('td');
             var tdRise = document.createElement('td');
             var tdBigRise = document.createElement('td');
             if (countTable[i].countNum == 0) {
+
+                txtClass = document.createAttribute('class');
+                txtClass.value = 'table_body_cell_text';
+                tdCount.attributes.setNamedItem(txtClass);
+                tdCount.innerText = '0';
+                countTr.appendChild(tdCount);
 
                 txtClass = document.createAttribute('class');
                 txtClass.value = 'table_body_cell_text';
@@ -335,6 +343,13 @@
                 countTr.appendChild(tdBigRise);
             }
             else {
+
+                txtClass = document.createAttribute('class');
+                txtClass.value = 'table_body_cell_numeric';
+                tdCount.attributes.setNamedItem(txtClass);
+                tdCount.innerText = countTable[i].countNum;
+                countTr.appendChild(tdCount);
+
 
                 txtClass = document.createAttribute('class');
                 txtClass.value = 'table_body_cell_numeric';

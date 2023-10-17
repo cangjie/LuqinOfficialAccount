@@ -1,6 +1,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using LuqinOfficialAccount.Models;
+using LuqinOfficialAccount.Models.Simulator;
 namespace LuqinOfficialAccount
 {
     public class AppDBContext : DbContext
@@ -78,6 +79,14 @@ namespace LuqinOfficialAccount
         public DbSet<LuqinOfficialAccount.Models.Demark> demark { get; set; }
 
         public DbSet<LuqinOfficialAccount.Models.ResultCache> ResultCache { get; set; }
+
+        public DbSet<Simulator> simulator { get; set; }
+
+        public DbSet<SimulatorDaily> simulatorDaily { get; set; }
+
+        public DbSet<SimulatorDailyTrans> simulatorDailyTrans { get; set; }
+
+        public DbSet<SimulatorDailyHolding> simulatorDailyHolding { get; set; }
 
     }
 }
