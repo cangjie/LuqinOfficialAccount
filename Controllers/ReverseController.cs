@@ -90,6 +90,10 @@ namespace LuqinOfficialAccount.Controllers
                 {
                     continue;
                 }
+                if (s.klineDay[alertIndex].settle >= highest)
+                {
+                    continue;
+                }
                 DataRow dr = dt.NewRow();
                 dr["日期"] = s.klineDay[alertIndex+1].settleTime.Date;
                 dr["代码"] = s.gid.Trim();
