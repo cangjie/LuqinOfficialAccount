@@ -272,7 +272,7 @@ namespace LuqinOfficialAccount.Controllers
                 {
                     continue;
                 }
-                if (s.klineDay[alertIndex - 2].settle <= Math.Max(s.klineDay[alertIndex - 1].settle, s.klineDay[alertIndex - 1].open))
+                if (s.klineDay[alertIndex - 2].settle >= Math.Min(s.klineDay[alertIndex - 1].settle, s.klineDay[alertIndex - 1].open))
                 {
                     continue;
                 }
