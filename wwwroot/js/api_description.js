@@ -324,10 +324,25 @@
         'defaultSort': '代码'
     },
     {
+        'name': '反包高开创新高 以前一日收盘价买入',
+        'description': '',
+        'url': '/api/Reverse/OpenOverHighBackToLastSettle',
+        'defaultCountDays': 15,
+        'defaultSort': '代码'
+    },
+    {
         'name': 'T字板反包',
         'description': '',
         'url': '/api/Reverse/WithT',
         'defaultCountDays': 15,
         'defaultSort': '代码'
+    },
+    {
+        'name': '反包马头',
+        'description': '',
+        'url': '/api/Reverse/HorseHead',
+        'defaultCountDays': 15,
+        'defaultSort': '代码'
     }
+
 ];
