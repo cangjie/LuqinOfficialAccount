@@ -1573,6 +1573,26 @@ namespace LuqinOfficialAccount.Controllers
                 {
                     dr["信号"] = "";
                 }
+                switch (s.klineDay[alertIndex].settleTime.Date.DayOfWeek)
+                {
+                    case DayOfWeek.Monday:
+                        dr["信号"] = dr["信号"].ToString() + " 1⃣️";
+                        break;
+                    case DayOfWeek.Tuesday:
+                        dr["信号"] = dr["信号"].ToString() + " 2⃣️";
+                        break;
+                    case DayOfWeek.Wednesday:
+                        dr["信号"] = dr["信号"].ToString() + " 3⃣️";
+                        break;
+                    case DayOfWeek.Thursday:
+                        dr["信号"] = dr["信号"].ToString() + " 4⃣️";
+                        break;
+                    case DayOfWeek.Friday:
+                        dr["信号"] = dr["信号"].ToString() + " 5⃣️";
+                        break;
+                    default:
+                        break;
+                }
                 dr["买入"] = s.klineDay[alertIndex].settle;
                 dt.Rows.Add(dr);
                 await resultHelper.AddNew("/api/LimitUp/Reverse",
