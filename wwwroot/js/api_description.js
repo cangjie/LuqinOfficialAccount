@@ -343,6 +343,13 @@
         'url': '/api/Reverse/HorseHead',
         'defaultCountDays': 15,
         'defaultSort': '代码'
+    },
+    {
+        'name': '反包高开',
+        'description': '',
+        'url': '/api/Reverse/OpenHigh',
+        'defaultCountDays': 15,
+        'defaultSort': '代码'
     }
 
 ];
