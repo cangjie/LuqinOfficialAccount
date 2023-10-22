@@ -345,6 +345,12 @@ namespace LuqinOfficialAccount.Controllers
                 else
                 {
                     buyPrice = settle * 1.01;
+                    if (s.klineDay[alertIndex + 1].low > buyPrice)
+                    {
+                        continue;
+                    }
+                        
+                       
                 }
 
                 DataRow dr = dt.NewRow();
