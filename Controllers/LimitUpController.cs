@@ -1527,7 +1527,11 @@ namespace LuqinOfficialAccount.Controllers
                     continue;
                 }
 
-                
+                if (!KLine.IsLimitUp(s.klineDay, s.gid, alertIndex))
+                {
+                    continue;
+                }
+
                 if (alertIndex - 1 < 2 || alertIndex >= s.klineDay.Length)
                 {
                     continue;
@@ -1537,7 +1541,7 @@ namespace LuqinOfficialAccount.Controllers
                 int prevLimitUpIndex = -1;
                 for (int j = alertIndex - 1; j >= alertIndex - 6 && j >= 0; j--)
                 {
-                    if (KLine.IsLimitUp(s.klineDay, j))
+                    if (KLine.IsLimitUp(s.klineDay, s.gid, j))
                     {
                         prevLimitUpIndex = j;
                         break;
