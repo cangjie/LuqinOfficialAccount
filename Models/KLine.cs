@@ -162,7 +162,36 @@ namespace LuqinOfficialAccount.Models
             KLine current = kArr[index];
             KLine prev = kArr[index - 1];
 
+            
+
             if ((current.settle - prev.settle) / prev.settle > 0.095)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+
+        }
+
+        public static bool IsLimitUp(KLine[] kArr, string gid, int index)
+        {
+            if (index <= 0 || index >= kArr.Length)
+            {
+                return false;
+            }
+
+            KLine current = kArr[index];
+            KLine prev = kArr[index - 1];
+
+            double limitUpRate = 0.095;
+
+            if (gid.StartsWith("sz3") || gid.StartsWith("sh68"))
+            {
+                limitUpRate = 0.195;
+            }
+            if ((current.settle - prev.settle) / prev.settle > limitUpRate)
             {
                 return true;
             }
