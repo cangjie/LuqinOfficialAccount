@@ -346,7 +346,7 @@
     },
     {
         'name': '反包高开',
-        'description': '',
+        'description': '3⃣️ 高开3%以内；3⃣️🥉高开3%以内且涨停；2⃣️高开3%-6%；2⃣️🥈高开3%-6%且涨停；1⃣️高开6%-9%；1⃣️🥇高开6%-9%且涨停；0⃣️高开大于9%；0⃣️🐮高开大于9%且涨停',
         'url': '/api/Reverse/OpenHigh',
         'defaultCountDays': 15,
         'defaultSort': '代码'
