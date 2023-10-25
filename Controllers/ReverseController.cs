@@ -312,11 +312,15 @@ namespace LuqinOfficialAccount.Controllers
             dt.Columns.Add("代码", Type.GetType("System.String"));
             dt.Columns.Add("名称", Type.GetType("System.String"));
             dt.Columns.Add("信号", Type.GetType("System.String"));
+            dt.Columns.Add("高开", Type.GetType("System.Double"));
             dt.Columns.Add("买入", Type.GetType("System.Double"));
             StockFilter reverseList = (StockFilter)((OkObjectResult)(await limitUpHelper.Reverse(1, startDate, endDate, sort)).Result).Value;
             for (int i = 0; reverseList != null && i < reverseList.itemList.Count; i++)
             {
                 Stock s = Stock.GetStock(reverseList.itemList[i].gid);
+
+                
+
                 try
                 {
                     s.ForceRefreshKLineDay();
@@ -333,7 +337,7 @@ namespace LuqinOfficialAccount.Controllers
                 double buyPrice = 0;
                 double open = s.klineDay[alertIndex + 1].open;
                 double settle = s.klineDay[alertIndex].settle;
-
+                double openHighRate = (open - settle) / settle;
                 if (open < settle)
                 {
                     continue;
@@ -357,13 +361,47 @@ namespace LuqinOfficialAccount.Controllers
                 dr["日期"] = s.klineDay[alertIndex + 1].settleTime.Date;
                 dr["代码"] = s.gid.Trim();
                 dr["名称"] = s.name.Trim();
+                dr["高开"] = Math.Round(openHighRate * 100, 2);
                 if (KLine.IsLimitUp(s.klineDay, s.gid, alertIndex + 1))
                 {
                     dr["信号"] = "📈";
+                    if (openHighRate <= 0.03)
+                    {
+                        dr["信号"] = "3⃣️🥉";
+                    }
+                    else if (openHighRate <= 0.06)
+                    {
+                        dr["信号"] = "2⃣️🥈";
+                    }
+                    else if (openHighRate <= 0.09)
+                    {
+                        dr["信号"] = "1⃣️🥇";
+                    }
+                    else
+                    {
+                        dr["信号"] = "0⃣️🐮";
+                    }
                 }
                 else
                 {
-                    dr["信号"] = "";
+                    if (openHighRate <= 0.03)
+                    {
+                        dr["信号"] = "3⃣️";
+                    }
+                    else if (openHighRate <= 0.06)
+                    {
+                        dr["信号"] = "2⃣️";
+                    }
+                    else if (openHighRate <= 0.09)
+                    {
+                        dr["信号"] = "1⃣️";
+                    }
+                    else
+                    {
+                        dr["信号"] = "0⃣️";
+                    }
+                    //dr["信号"] = "";
+
                 }
                 
                 dr["买入"] = buyPrice;
