@@ -444,6 +444,7 @@ namespace LuqinOfficialAccount.Controllers
                 {
                     continue;
                 }
+                
                 int alertIndex = s.GetItemIndex(reverseList.itemList[i].alertDate.Date);
                 if (alertIndex < 3 || alertIndex >= s.klineDay.Length - 5)
                 {
@@ -454,7 +455,7 @@ namespace LuqinOfficialAccount.Controllers
                     continue;
                 }
                 int chances = 0;
-                for (int j = alertIndex + 1; j < s.klineDay.Length && j <= j + 5; j++)
+                for (int j = alertIndex + 1; j < s.klineDay.Length && j <= alertIndex + 5; j++)
                 {
                     if (s.klineDay[j].high > s.klineDay[alertIndex - 1].settle)
                     {
