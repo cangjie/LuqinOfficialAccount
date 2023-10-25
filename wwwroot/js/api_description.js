@@ -350,6 +350,13 @@
         'url': '/api/Reverse/OpenHigh',
         'defaultCountDays': 15,
         'defaultSort': '代码'
+    },
+    {
+        'name': '反包高开，当日亏损，计算未来五日平进平出几率。',
+        'description': '',
+        'url': '/api/Reverse/ResumeSettleLossRate',
+        'defaultCountDays': 5,
+        'defaultSort': '代码'
     }
 
 ];
