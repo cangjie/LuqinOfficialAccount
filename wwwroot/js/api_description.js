@@ -357,6 +357,13 @@
         'url': '/api/Reverse/ResumeSettleLossRate',
         'defaultCountDays': 5,
         'defaultSort': '代码'
+    },
+    {
+        'name': '反包高开，回踩收于涨停上下1%。',
+        'description': '',
+        'url': '/api/Reverse/OpenHighGoBack',
+        'defaultCountDays': 15,
+        'defaultSort': '代码'
     }
 
 ];

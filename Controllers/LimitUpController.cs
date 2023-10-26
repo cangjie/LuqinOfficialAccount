@@ -1565,6 +1565,10 @@ namespace LuqinOfficialAccount.Controllers
                 {
                     continue;
                 }
+
+                
+
+
                 DataRow dr = dt.NewRow();
                 dr["日期"] = s.klineDay[alertIndex].settleTime.Date;
                 dr["代码"] = s.gid.Trim();
@@ -1597,6 +1601,23 @@ namespace LuqinOfficialAccount.Controllers
                     default:
                         break;
                 }
+                /*
+                try
+                {
+
+                    Chip chipLast = (Chip)((OkObjectResult)(await chipCtrl.GetOne(s.gid, s.klineDay[prevLimitUpIndex].settleTime.Date)).Result).Value;
+                    Chip chipCurrent = (Chip)((OkObjectResult)(await chipCtrl.GetOne(s.gid, s.klineDay[alertIndex].settleTime.Date)).Result).Value;
+
+                    if (chipCurrent.chipDistribute70 < chipLast.chipDistribute70 )
+                    {
+                        dr["信号"] = dr["信号"].ToString() + " 🔥";
+                    }
+                }
+                catch
+                {
+
+                }
+                */
                 dr["买入"] = s.klineDay[alertIndex].settle;
                 dt.Rows.Add(dr);
                 await resultHelper.AddNew("/api/LimitUp/Reverse",
