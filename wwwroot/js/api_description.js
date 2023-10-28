@@ -364,6 +364,20 @@
         'url': '/api/Reverse/OpenHighGoBack',
         'defaultCountDays': 15,
         'defaultSort': '代码'
+    },
+    {
+        'name': '三连板，第三板回踩第一板收盘价之上的2%，第四日买入。',
+        'description': '',
+        'url': '/api/LimitUp/TripleWithLongLeg',
+        'defaultCountDays': 15,
+        'defaultSort': '代码'
+    },
+    {
+        'name': '反包，碰三线',
+        'description': '',
+        'url': '/api/Reverse/Touch3Line',
+        'defaultCountDays': 15,
+        'defaultSort': '代码'
     }
 
 ];

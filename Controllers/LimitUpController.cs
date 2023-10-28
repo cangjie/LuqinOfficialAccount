@@ -2658,9 +2658,75 @@ namespace LuqinOfficialAccount.Controllers
         }
 
 
+        [HttpGet("{days}")]
+        public async Task<ActionResult<StockFilter>> TripleWithLongLeg(int days, DateTime startDate, DateTime endDate, string sort = "代码")
+        {
+            DataTable dt = new DataTable();
+            dt.Columns.Add("日期", Type.GetType("System.DateTime"));
+            dt.Columns.Add("代码", Type.GetType("System.String"));
+            dt.Columns.Add("名称", Type.GetType("System.String"));
+            dt.Columns.Add("信号", Type.GetType("System.String"));
+            dt.Columns.Add("买入", Type.GetType("System.Double"));
 
 
-        private bool LimitUpExists(string id)
+            startDate = Util.GetLastTransactDate(startDate, 1, _db);
+            endDate = Util.GetLastTransactDate(endDate, 1, _db);
+            var l = await _db.LimitUp.FromSqlRaw(" select * from limit_up a where  "
+                + " exists (select 'a' from limit_up_twice b where a.gid = b.gid and b.alert_date = dbo.func_GetLastTransactDate(a.alert_date , 1)) "
+                + " and a.alert_date >= '" + startDate.ToShortDateString() + "' and a.alert_date <= '" + endDate.ToShortDateString() + "' "
+                + " order by a.alert_date desc").ToListAsync();
+            for (int i = 0; l != null && i < l.Count; i++)
+            {
+                Stock s = Stock.GetStock(l[i].gid);
+                try
+                {
+                    s.ForceRefreshKLineDay();
+                }
+                catch
+                {
+                    continue;
+                }
+                int alertIndex = s.GetItemIndex(l[i].alert_date.Date);
+                if (alertIndex < 2 && alertIndex >= s.klineDay.Length - 1)
+                {
+                    continue;
+                }
+                if (!KLine.IsLimitUp(s.klineDay, s.gid, alertIndex)
+                    || !KLine.IsLimitUp(s.klineDay, s.gid, alertIndex - 1)
+                    || !KLine.IsLimitUp(s.klineDay, s.gid, alertIndex - 2))
+                {
+                    continue;
+                }
+                if (s.klineDay[alertIndex].low > s.klineDay[alertIndex - 2].settle * 1.03)
+                {
+                    continue;
+                }
+                DataRow dr = dt.NewRow();
+                dr["日期"] = s.klineDay[alertIndex + 1].settleTime.Date;
+                dr["代码"] = s.gid.Trim();
+                dr["名称"] = s.name.Trim();
+                dr["信号"] = "";
+         
+                dr["买入"] = s.klineDay[alertIndex + 1].open;
+                dt.Rows.Add(dr);
+            }
+            StockFilter sf = StockFilter.GetResult(dt.Select("", "日期 desc, " + sort), days);
+            try
+            {
+                return Ok(sf);
+            }
+            catch
+            {
+                return NotFound();
+
+            }
+        }
+
+
+
+
+
+            private bool LimitUpExists(string id)
         {
             return _db.LimitUp.Any(e => e.gid == id);
         }

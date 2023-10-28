@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using LuqinOfficialAccount.Models;
 using Microsoft.Extensions.Configuration;
+using System.Threading.Channels;
 
 
 namespace LuqinOfficialAccount.Controllers
@@ -532,6 +533,62 @@ namespace LuqinOfficialAccount.Controllers
                 dt.Rows.Add(dr);
             }
 
+            StockFilter sf = StockFilter.GetResult(dt.Select("", "日期 desc, " + sort), days);
+            try
+            {
+                return Ok(sf);
+            }
+            catch
+            {
+                return NotFound();
+
+            }
+        }
+
+        [HttpGet("{days}")]
+        public async Task<ActionResult<StockFilter>> Touch3Line(int days, DateTime startDate, DateTime endDate, string sort = "代码")
+        {
+            DataTable dt = new DataTable();
+            dt.Columns.Add("日期", Type.GetType("System.DateTime"));
+            dt.Columns.Add("代码", Type.GetType("System.String"));
+            dt.Columns.Add("名称", Type.GetType("System.String"));
+            dt.Columns.Add("信号", Type.GetType("System.String"));
+            dt.Columns.Add("买入", Type.GetType("System.Double"));
+            StockFilter reverseList = (StockFilter)((OkObjectResult)(await limitUpHelper.Reverse(1, startDate, endDate, sort)).Result).Value;
+            for (int i = 0; reverseList != null && i < reverseList.itemList.Count; i++)
+            {
+                Stock s = Stock.GetStock(reverseList.itemList[i].gid);
+                try
+                {
+                    s.ForceRefreshKLineDay();
+                }
+                catch
+                {
+                    continue;
+                }
+                int alertIndex = s.GetItemIndex(reverseList.itemList[i].alertDate.Date);
+                if (alertIndex < 2 || alertIndex >= s.klineDay.Length)
+                {
+                    continue;
+                }
+                if (!KLine.IsLimitUp(s.klineDay, s.gid, alertIndex))
+                {
+                    continue;
+                }
+                if (s.klineDay[alertIndex].low > KLine.GetAverageSettlePrice(s.klineDay, alertIndex, 3, 3))
+                {
+                    continue;
+                }
+                DataRow dr = dt.NewRow();
+                dr["日期"] = s.klineDay[alertIndex].settleTime.Date;
+                dr["代码"] = s.gid.Trim();
+                dr["名称"] = s.name.Trim();
+                dr["信号"] = "";
+                dr["买入"] = s.klineDay[alertIndex].settle;
+                dt.Rows.Add(dr);
+
+                //if (s.klineDay[alertIndex])
+            }
             StockFilter sf = StockFilter.GetResult(dt.Select("", "日期 desc, " + sort), days);
             try
             {
