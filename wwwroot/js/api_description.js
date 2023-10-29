@@ -378,6 +378,13 @@
         'url': '/api/Reverse/Touch3Line',
         'defaultCountDays': 15,
         'defaultSort': '代码'
+    },
+    {
+        'name': '反包—高开回踩，当日未涨停',
+        'description': '',
+        'url': '/api/Reverse/OpenHighNoLimitUp',
+        'defaultCountDays': 15,
+        'defaultSort': '代码'
     }
 
 ];
