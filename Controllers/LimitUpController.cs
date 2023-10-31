@@ -1767,7 +1767,7 @@ namespace LuqinOfficialAccount.Controllers
                 }
                 if (s.klineDay[alertIndex + 1].settle <= s.klineDay[alertIndex].settle)
                 {
-                    continue;
+                    //continue;
                 }
                 double buyPrice = s.klineDay[alertIndex].settle;
                 if (s.klineDay[alertIndex + 1].low > s.klineDay[alertIndex].settle)
