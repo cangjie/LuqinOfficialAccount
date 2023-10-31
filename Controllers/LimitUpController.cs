@@ -1601,23 +1601,7 @@ namespace LuqinOfficialAccount.Controllers
                     default:
                         break;
                 }
-                /*
-                try
-                {
-
-                    Chip chipLast = (Chip)((OkObjectResult)(await chipCtrl.GetOne(s.gid, s.klineDay[prevLimitUpIndex].settleTime.Date)).Result).Value;
-                    Chip chipCurrent = (Chip)((OkObjectResult)(await chipCtrl.GetOne(s.gid, s.klineDay[alertIndex].settleTime.Date)).Result).Value;
-
-                    if (chipCurrent.chipDistribute70 < chipLast.chipDistribute70 )
-                    {
-                        dr["信号"] = dr["信号"].ToString() + " 🔥";
-                    }
-                }
-                catch
-                {
-
-                }
-                */
+              
                 dr["买入"] = s.klineDay[alertIndex].settle;
                 dt.Rows.Add(dr);
                 await resultHelper.AddNew("/api/LimitUp/Reverse",
@@ -1745,7 +1729,73 @@ namespace LuqinOfficialAccount.Controllers
             }
         }
 
+        [HttpGet("{days}")]
+        public async Task<ActionResult<StockFilter>> LimitUpOpenHighGoBack(int days, DateTime startDate, DateTime endDate, string sort = "代码")
+        {
+            DataTable dt = new DataTable();
+            dt.Columns.Add("日期", Type.GetType("System.DateTime"));
+            dt.Columns.Add("代码", Type.GetType("System.String"));
+            dt.Columns.Add("名称", Type.GetType("System.String"));
+            dt.Columns.Add("信号", Type.GetType("System.String"));
+            dt.Columns.Add("买入", Type.GetType("System.Double"));
 
+            startDate = Util.GetLastTransactDate(startDate, 1, _db);
+            endDate = Util.GetLastTransactDate(endDate, 1, _db);
+            var l = await _db.LimitUpTwice
+                .Where(w => w.alert_date >= startDate.Date && w.alert_date <= endDate)
+                .ToListAsync();
+            for (int i = 0; i < l.Count; i++)
+            {
+                Stock s = Stock.GetStock(l[i].gid);
+                try
+                {
+                    s.ForceRefreshKLineDay();
+                }
+                catch
+                {
+                    continue;
+                }
+                int alertIndex = s.GetItemIndex(l[i].alert_date.Date);
+                if (alertIndex < 1 || alertIndex >= s.klineDay.Length - 1)
+                {
+                    continue;
+                }
+                if (s.klineDay[alertIndex + 1].open < s.klineDay[alertIndex].settle
+                    || (s.klineDay[alertIndex + 1].open - s.klineDay[alertIndex].settle)/ s.klineDay[alertIndex].settle >= 0.08)
+                {
+                    continue;
+                }
+                if (s.klineDay[alertIndex + 1].settle <= s.klineDay[alertIndex].settle)
+                {
+                    continue;
+                }
+                double buyPrice = s.klineDay[alertIndex].settle;
+                if (s.klineDay[alertIndex + 1].low > s.klineDay[alertIndex].settle)
+                {
+                    continue;
+                }
+               
+                DataRow dr = dt.NewRow();
+                dr["日期"] = s.klineDay[alertIndex + 1].settleTime.Date;
+                dr["代码"] = s.gid.Trim();
+                dr["名称"] = s.name.Trim();
+                dr["信号"] = "";
+
+                dr["买入"] = buyPrice;
+                dt.Rows.Add(dr);
+
+            }
+            StockFilter sf = StockFilter.GetResult(dt.Select("", "日期 desc, " + sort), days);
+            try
+            {
+                return Ok(sf);
+            }
+            catch
+            {
+                return NotFound();
+
+            }
+        }
 
         [HttpGet("{days}")]
         public async Task<ActionResult<StockFilter>> ReverseOpenHigh(int days, DateTime startDate, DateTime endDate, string sort = "代码")

@@ -385,6 +385,14 @@
         'url': '/api/Reverse/OpenHighNoLimitUp',
         'defaultCountDays': 15,
         'defaultSort': '代码'
+    },
+    //LimitUpOpenHighGoBack
+    {
+        'name': '二连板高开回踩涨停',
+        'description': '二连板高开回踩，但是最终不能跌破前一天涨停。当天跌破则止损。',
+        'url': '/api/LimitUp/LimitUpOpenHighGoBack',
+        'defaultCountDays': 15,
+        'defaultSort': '代码'
     }
 
 ];
