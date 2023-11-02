@@ -1505,6 +1505,7 @@ namespace LuqinOfficialAccount.Controllers
             dt.Columns.Add("名称", Type.GetType("System.String"));
             dt.Columns.Add("信号", Type.GetType("System.String"));
             dt.Columns.Add("买入", Type.GetType("System.Double"));
+            //dt.Columns.Add("换手比", Type.GetType("System.Double"));
 
             for (int i = 0; i < l.Count; i++)
             {
@@ -1539,6 +1540,8 @@ namespace LuqinOfficialAccount.Controllers
                 double highestSettle = s.klineDay[alertIndex].settle;
                 bool isReverse = true;
                 int prevLimitUpIndex = -1;
+                long ajustVolume = 0;
+                
                 for (int j = alertIndex - 1; j >= alertIndex - 6 && j >= 0; j--)
                 {
                     if (KLine.IsLimitUp(s.klineDay, s.gid, j))
@@ -1546,6 +1549,8 @@ namespace LuqinOfficialAccount.Controllers
                         prevLimitUpIndex = j;
                         break;
                     }
+                    ajustVolume += s.klineDay[j].volume;
+                    //s.klineDay[j]
                     if (highestSettle <= Math.Max(s.klineDay[j].settle, s.klineDay[j].open))
                     {
                         isReverse = false;
@@ -1573,6 +1578,7 @@ namespace LuqinOfficialAccount.Controllers
                 dr["日期"] = s.klineDay[alertIndex].settleTime.Date;
                 dr["代码"] = s.gid.Trim();
                 dr["名称"] = s.name.Trim();
+                //dr["换手比"] = (double)ajustVolume / (s.klineDay[alertIndex].volume + s.klineDay[prevLimitUpIndex].volume);
                 if (KLine.IsLimitUp(s.klineDay, alertIndex + 2))
                 {
                     dr["信号"] = "📈";
@@ -1581,6 +1587,8 @@ namespace LuqinOfficialAccount.Controllers
                 {
                     dr["信号"] = "";
                 }
+
+                /*
                 switch (s.klineDay[alertIndex].settleTime.Date.DayOfWeek)
                 {
                     case DayOfWeek.Monday:
@@ -1601,7 +1609,7 @@ namespace LuqinOfficialAccount.Controllers
                     default:
                         break;
                 }
-              
+              */
                 dr["买入"] = s.klineDay[alertIndex].settle;
                 dt.Rows.Add(dr);
                 await resultHelper.AddNew("/api/LimitUp/Reverse",
