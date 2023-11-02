@@ -400,6 +400,12 @@
         'url': '/api/Reverse/OpenHighLimitDown',
         'defaultCountDays': 15,
         'defaultSort': '代码'
+    },
+    {
+        'name': '反包高开严选',
+        'description': '',
+        'url': '/api/Reverse/OpenHighCollection',
+        'defaultCountDays': 15,
+        'defaultSort': '代码'
     }
-
 ];
