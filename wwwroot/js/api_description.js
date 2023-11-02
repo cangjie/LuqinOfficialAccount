@@ -393,6 +393,13 @@
         'url': '/api/LimitUp/LimitUpOpenHighGoBack',
         'defaultCountDays': 15,
         'defaultSort': '代码'
+    },
+    {
+        'name': '反包当日跌停',
+        'description': '',
+        'url': '/api/Reverse/OpenHighLimitDown',
+        'defaultCountDays': 15,
+        'defaultSort': '代码'
     }
 
 ];
