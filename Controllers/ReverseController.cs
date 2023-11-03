@@ -456,6 +456,14 @@ namespace LuqinOfficialAccount.Controllers
                 dr["名称"] = s.name.Trim();
                 dr["高开"] = Math.Round(openHighRate * 100, 2);
                 dr["买入"] = buyPrice;
+                if (s.klineDay[alertIndex + 1].settle > s.klineDay[alertIndex + 1].open)
+                {
+                    dr["信号"] = "🔴";
+                }
+                if (s.klineDay[alertIndex + 1].settle < buyPrice)
+                {
+                    dr["信号"] = "⬇️";
+                }
                 dt.Rows.Add(dr);
 
             }
