@@ -25,6 +25,9 @@ namespace LuqinOfficialAccount.Controllers
             _config = config;
             _settings = Settings.GetSettings(_config);
         }
+
+        
+
         /*
         [HttpGet]
         public async Task<ActionResult<bool>> CheckToken(string token)
