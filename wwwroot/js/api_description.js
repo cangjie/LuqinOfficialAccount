@@ -407,5 +407,12 @@
         'url': '/api/Reverse/OpenHighCollection',
         'defaultCountDays': 15,
         'defaultSort': '代码'
+    },
+    {
+        'name': '反包调整两个马头以内',
+        'description': '',
+        'url': '/api/Reverse/HorseHeadLess2',
+        'defaultCountDays': 15,
+        'defaultSort': '代码'
     }
 ];
