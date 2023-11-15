@@ -306,6 +306,8 @@ namespace LuqinOfficialAccount.Controllers
         [HttpGet("{days}")]
         public async Task<ActionResult<StockFilter>> HorseHeadLess2(int days, DateTime startDate, DateTime endDate, string sort = "代码")
         {
+            startDate = Util.GetLastTransactDate(startDate, 1, _db);
+            endDate = Util.GetLastTransactDate(endDate, 1, _db);
             DataTable dt = new DataTable();
             dt.Columns.Add("日期", Type.GetType("System.DateTime"));
             dt.Columns.Add("代码", Type.GetType("System.String"));
