@@ -402,11 +402,23 @@
         'defaultSort': '代码'
     },
     {
+
+        'name': '反包后双马头不涨停',
+        'description': '',
+        'url': '/api/Reverse/DoubleHorse',
+        'defaultCountDays': 15,
+        'defaultSort': '代码'
+    },
+    {
+
+
+
         'name': '反包高开严选',
         'description': '',
         'url': '/api/Reverse/OpenHighCollection',
         'defaultCountDays': 15,
         'defaultSort': '代码'
+        
     },
     {
         'name': '反包调整两个马头以内',
