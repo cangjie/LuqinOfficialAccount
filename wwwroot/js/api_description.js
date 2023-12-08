@@ -400,6 +400,13 @@
         'url': '/api/Reverse/OpenHighLimitDown',
         'defaultCountDays': 15,
         'defaultSort': '代码'
+    },
+    {
+        'name': '反包后双马头不涨停',
+        'description': '',
+        'url': '/api/Reverse/DoubleHorse',
+        'defaultCountDays': 15,
+        'defaultSort': '代码'
     }
 
 ];
