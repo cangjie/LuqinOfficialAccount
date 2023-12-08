@@ -30,6 +30,15 @@ namespace LuqinOfficialAccount.Controllers
             Util._db = context;
         }
 
+        [HttpGet("{gid}")]
+        public ActionResult<KLine> ViewStock(string gid)
+        {
+            Stock s = Stock.GetStock(gid);
+            s.ForceRefreshKLineDay();
+            return Ok(s.klineDay[s.klineDay.Length - 1]);
+            //return BadRequest();
+        }
+
         [HttpGet]
         public  ActionResult<Stock> GetStock(string gid)
         {
