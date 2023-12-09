@@ -411,6 +411,14 @@
     },
     {
 
+        'name': '反包后单马头不涨停',
+        'description': '',
+        'url': '/api/Reverse/SingleHorse',
+        'defaultCountDays': 15,
+        'defaultSort': '代码'
+    },
+    {
+
 
 
         'name': '反包高开严选',
