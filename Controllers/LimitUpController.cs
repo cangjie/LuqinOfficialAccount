@@ -1091,6 +1091,21 @@ namespace LuqinOfficialAccount.Controllers
                 {
                     dr["开盘"] = 0;
                 }
+                bool firstLimitUp = true;
+                for (int j = alertIndex - 2; j >= alertIndex - 22 && j >= 1; j--)
+                {
+                    if (KLine.IsLimitUp(s.klineDay, j))
+                    {
+                        firstLimitUp = false;
+                        break;
+                    }
+                }
+
+                if (firstLimitUp)
+                {
+                    dr["信号"] = "📈";
+                }
+
 
                 dt.Rows.Add(dr);
 
