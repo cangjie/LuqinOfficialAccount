@@ -88,5 +88,7 @@ namespace LuqinOfficialAccount
 
         public DbSet<SimulatorDailyHolding> simulatorDailyHolding { get; set; }
 
+        public DbSet<bak_daily> bakDaily { get; set; }
+
     }
 }
