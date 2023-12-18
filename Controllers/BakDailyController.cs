@@ -124,7 +124,7 @@ namespace LuqinOfficialAccount.Controllers
                     string postData = "{\n    \"api_name\": \"bak_daily\",\n    \"token\": \"" + tushareToken + "\",\n    \"params\":{\n        \"trade_date\": \"" + dateStr + "\",\n        \"offset\": " + offset.ToString() + ",\n        \"limit\": " + pageSize.ToString() + "\n    },\n    \"fields\":[\n        \"ts_code\",\n    \"trade_date\",\n    \"name\",\n    \"pct_change\",\n    \"close\",\n    \"change\",\n    \"open\",\n    \"high\",\n    \"low\",\n    \"pre_close\",\n    \"vol_ratio\",\n    \"turn_over\",\n    \"swing\",\n    \"vol\",\n    \"amount\",\n    \"selling\",\n    \"buying\",\n    \"total_share\",\n    \"float_share\",\n    \"pe\",\n    \"industry\",\n    \"area\",\n    \"float_mv\",\n    \"total_mv\",\n    \"avg_price\",\n    \"strength\",\n    \"activity\",\n    \"avg_turnover\",\n    \"attack\",\n    \"interval_3\",\n    \"interval_6\"\n    ]\n}";
                     string retJson = Util.GetWebContent(tushareUrl, postData);
                     BakDailyResponse res = JsonConvert.DeserializeObject<BakDailyResponse>(retJson);
-                    if (res.data == null || res.data.items.Length < pageSize || currentPage >= 10)
+                    if (res.data == null || currentPage >= 10)
                     {
                         break;
                     }
@@ -135,6 +135,7 @@ namespace LuqinOfficialAccount.Controllers
                             object[] item = res.data.items[i];
                             string[] gidArr = item[0].ToString().Split('.');
                             string gid = gidArr[1].ToLower() + gidArr[0];
+                            Console.WriteLine(gid);
                             bak_daily bd = new bak_daily()
                             {
                                 id = 0,
