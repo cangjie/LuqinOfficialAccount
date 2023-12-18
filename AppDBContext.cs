@@ -90,5 +90,7 @@ namespace LuqinOfficialAccount
 
         public DbSet<bak_daily> bakDaily { get; set; }
 
+        public DbSet<BakDailyDetail> bakDailyDetail { get; set; }
+
     }
 }

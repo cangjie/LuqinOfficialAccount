@@ -45,6 +45,69 @@ namespace LuqinOfficialAccount.Controllers
         }
 
         [HttpGet]
+        public async Task<ActionResult<int>> GetDetail()
+        {
+            int count = 0;
+            int pageSize = 1000;
+            int currentPage = 0;
+            int offset = pageSize * currentPage;
+            DateTime date = DateTime.Now.Date;
+            for (; ; )
+            {
+                try
+                {
+                    string dateStr = date.Year.ToString()
+                        + "00".Substring(0, 2 - date.Month.ToString().Length) + date.Month.ToString()
+                        + "00".Substring(0, 2 - date.Day.ToString().Length) + date.Day.ToString();
+                    string postData = "{\n    \"api_name\": \"bak_daily\",\n    \"token\": \"" + tushareToken + "\",\n    \"params\":{\n        \"trade_date\": \"" + dateStr + "\",\n        \"offset\": " + offset.ToString() + ",\n        \"limit\": " + pageSize.ToString()
+                        + "\n    },\n    \"fields\":[\n        \"ts_code\",\n    \"trade_date\",\n    \"name\",\n      \"close\",\n     \"vol\",\n      \"selling\",\n    \"buying\",\n     \"avg_price\",\n    \"strength\",\n    \"activity\",\n   \"avg_turnover\",\n    \"attack\",\n     ]\n}";
+                    string retJson = Util.GetWebContent(tushareUrl, postData);
+                    BakDailyResponse res = JsonConvert.DeserializeObject<BakDailyResponse>(retJson);
+                    if (res.data == null || res.data.items.Length < pageSize || currentPage >= 10)
+                    {
+                        break;
+                    }
+                    for (int i = 0; i < res.data.items.Length; i++)
+                    {
+                        try
+                        {
+                            object[] item = res.data.items[i];
+                            string[] gidArr = item[0].ToString().Split('.');
+                            string gid = gidArr[1].ToLower() + gidArr[0];
+                            BakDailyDetail dtl = new BakDailyDetail()
+                            {
+                                id = 0,
+                                gid = gid,
+                                alert_date = date,
+                                price = double.Parse(item[3].ToString()),
+                                vol = double.Parse(item[4].ToString()),
+                                selling = double.Parse(item[5].ToString()),
+                                buying = double.Parse(item[6].ToString()),
+                                avg_price = double.Parse(item[7].ToString()),
+                                strength = double.Parse(item[8].ToString()),
+                                activity = double.Parse(item[9].ToString()),
+                                avg_turn_over = double.Parse(item[10].ToString()),
+                                attack = double.Parse(item[11].ToString())
+                            };
+                            await _db.bakDailyDetail.AddAsync(dtl);
+                            count++;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    await _db.SaveChangesAsync();
+                }
+                catch
+                {
+
+                }
+            }
+            return Ok(count);
+        }
+
+        [HttpGet]
         public async Task<ActionResult<int>> GetBakDaily(DateTime date)
         {
             int pageSize = 1000;
