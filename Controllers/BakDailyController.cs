@@ -108,6 +108,18 @@ namespace LuqinOfficialAccount.Controllers
         }
 
         [HttpGet]
+        public async Task<ActionResult<int>> GetBakForDays(DateTime startDate, DateTime endDate)
+        {
+            for (DateTime i = startDate.Date; i <= endDate.Date; i = i.AddDays(1))
+            {
+                if (Util.IsTransacDay(i, _db))
+                {
+                    await GetBakDaily(i);
+                }
+            }
+            return Ok(0);
+        }
+        [HttpGet]
         public async Task<ActionResult<int>> GetBakDaily(DateTime date)
         {
             int pageSize = 1000;
