@@ -434,5 +434,19 @@
         'url': '/api/Reverse/HorseHeadLess2',
         'defaultCountDays': 15,
         'defaultSort': '代码'
+    },
+    {
+        'name': '一月内首次二连板后买入',
+        'description': '',
+        'url': '/api/LimitUp/GreenBeforeFirstLimitUpTwice',
+        'defaultCountDays': 15,
+        'defaultSort': '代码'
+    },
+    {
+        'name': '反包低开涨停后统计再次涨停的概率',
+        'description': '',
+        'url': '/api/Reverse/OpenLowLimitUp',
+        'defaultCountDays': 15,
+        'defaultSort': '代码'
     }
 ];
