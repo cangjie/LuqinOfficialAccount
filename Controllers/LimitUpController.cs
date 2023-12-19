@@ -1094,6 +1094,15 @@ namespace LuqinOfficialAccount.Controllers
         [HttpGet("{days}")]
         public async Task<ActionResult<StockFilter>> GetLinitUpTwiceWithConcept(int days, DateTime startDate, DateTime endDate, string sort = "代码")
         {
+
+
+            string sql = " select * from dbo.func_get_buying_days('" + Util.GetLastTransactDate(startDate, 15, _db).ToShortDateString() + "' ,"
+                + " '" + Util.GetLastTransactDate(endDate, 1, _db).ToShortDateString()
+                + "' )  order by alert_date desc";
+            var buyingList = await _db.buyingAlert
+                .FromSqlRaw(sql).ToListAsync();
+
+
             DataTable dt = new DataTable();
             dt.Columns.Add("日期", Type.GetType("System.DateTime"));
             dt.Columns.Add("代码", Type.GetType("System.String"));
@@ -1105,7 +1114,8 @@ namespace LuqinOfficialAccount.Controllers
             dt.Columns.Add("缩量", Type.GetType("System.Double"));
 
             dt.Columns.Add("开盘", Type.GetType("System.Double"));
-
+            dt.Columns.Add("流入日期", Type.GetType("System.String"));
+            dt.Columns.Add("流入天数", Type.GetType("System.String"));
 
             var list = await _db.LimitUpTwice.Where(l => l.alert_date >= startDate.Date && l.alert_date <= endDate.Date).ToListAsync();
 
@@ -1165,6 +1175,24 @@ namespace LuqinOfficialAccount.Controllers
                     dr["信号"] = "📈";
                 }
 
+                dr["流入日期"] = "--";
+                dr["流入天数"] = "--";
+                for (int j = 0; j < buyingList.Count; j++)
+                {
+                    BuyingAlert ba = buyingList[j];
+
+                    if (ba.gid.Trim().Equals(s.gid.Trim())
+                        && ba.alert_date.Date <= s.klineDay[alertIndex].settleTime.Date)
+                    {
+                        dr["流入日期"] = "`" + ba.alert_date.ToString("yyyy-MM-dd");
+                        dr["流入天数"] = "`" + ba.in_days.ToString() + "天";
+                        if (s.klineDay[alertIndex].settleTime.Date - ba.alert_date.Date <= new TimeSpan(3, 0, 0, 0))
+                        {
+                            dr["信号"] = dr["信号"].ToString() + "🔥";
+                        }
+                        break;
+                    }
+                }
 
                 dt.Rows.Add(dr);
 
@@ -1573,12 +1601,23 @@ namespace LuqinOfficialAccount.Controllers
                 + " and not exists ( select 'a' from limit_up b where a.gid = b.gid and b.alert_date = dbo.func_GetLastTransactDate(a.alert_date, 1) ) "
                 + " and exists ( select 'a' from limit_up c where a.gid = c.gid and c.alert_date < a.alert_date and c.alert_date >= dbo.func_GetLastTransactDate(a.alert_date, 6) ) "
                 + " order by a.alert_date desc ").ToListAsync();
+
+            string sql = " select * from dbo.func_get_buying_days('" + Util.GetLastTransactDate(startDate, 15, _db).ToShortDateString() + "' ,"
+                + " '" + Util.GetLastTransactDate(endDate, 1, _db).ToShortDateString()
+                + "' )  order by alert_date desc";
+            var buyingList = await _db.buyingAlert
+                .FromSqlRaw(sql).ToListAsync();
+
+
             DataTable dt = new DataTable();
             dt.Columns.Add("日期", Type.GetType("System.DateTime"));
             dt.Columns.Add("代码", Type.GetType("System.String"));
             dt.Columns.Add("名称", Type.GetType("System.String"));
             dt.Columns.Add("信号", Type.GetType("System.String"));
             dt.Columns.Add("买入", Type.GetType("System.Double"));
+            dt.Columns.Add("流入日期", Type.GetType("System.String"));
+            dt.Columns.Add("流入天数", Type.GetType("System.String"));
+           
             //dt.Columns.Add("换手比", Type.GetType("System.Double"));
 
             for (int i = 0; i < l.Count; i++)
@@ -1645,7 +1684,9 @@ namespace LuqinOfficialAccount.Controllers
                     continue;
                 }
 
+
                 
+                  
 
 
                 DataRow dr = dt.NewRow();
@@ -1684,6 +1725,29 @@ namespace LuqinOfficialAccount.Controllers
                         break;
                 }
               */
+
+               
+                dr["流入日期"] = "--";
+                dr["流入天数"] = "--";
+                for (int j = 0; j < buyingList.Count; j++)
+                {
+                    BuyingAlert ba = buyingList[j];
+                    
+                    if (ba.gid.Trim().Equals(s.gid.Trim())
+                        && ba.alert_date.Date <= s.klineDay[alertIndex].settleTime.Date)
+                    {
+                        dr["流入日期"] = "`" + ba.alert_date.ToString("yyyy-MM-dd");
+                        dr["流入天数"] = "`" + ba.in_days.ToString() + "天";
+                        if (s.klineDay[alertIndex].settleTime.Date - ba.alert_date.Date <= new TimeSpan(3, 0, 0,0))
+                        {
+                            dr["信号"] =  "🔥";
+                        }
+                        break;
+                    }
+                }
+
+
+               
                 dr["买入"] = s.klineDay[alertIndex].settle;
                 dt.Rows.Add(dr);
                 await resultHelper.AddNew("/api/LimitUp/Reverse",

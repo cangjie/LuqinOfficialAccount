@@ -317,6 +317,13 @@
         'defaultSort': '代码'
     },
     {
+        'name': '反包',
+        'description': '',
+        'url': '/api/LimitUp/Reverse',
+        'defaultCountDays': 15,
+        'defaultSort': '代码'
+    },
+    {
         'name': '反包高开创新高',
         'description': '',
         'url': '/api/Reverse/OpenOverHigh',
