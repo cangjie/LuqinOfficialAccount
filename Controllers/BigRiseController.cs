@@ -1075,6 +1075,13 @@ namespace LuqinOfficialAccount.Controllers
         [HttpGet("{days}")]
         public async Task<ActionResult<StockFilter>> LowRiseRateWithDoubleVolume(int days, DateTime startDate, DateTime endDate, string sort = "放量")
         {
+            string sql = " select * from dbo.func_get_buying_days('"
+                + Util.GetLastTransactDate(startDate, 15, _context).ToShortDateString() + "' ,"
+                + " '" + endDate.ToShortDateString()
+                + "' )  order by alert_date desc";
+            var buyingList = await _context.buyingAlert.FromSqlRaw(sql)
+                .AsNoTracking().ToListAsync();
+
             DataTable dt = new DataTable();
             dt.Columns.Add("日期", Type.GetType("System.DateTime"));
             dt.Columns.Add("代码", Type.GetType("System.String"));
@@ -1083,6 +1090,10 @@ namespace LuqinOfficialAccount.Controllers
             dt.Columns.Add("放量", Type.GetType("System.Double"));
             dt.Columns.Add("买入", Type.GetType("System.Double"));
             dt.Columns.Add("筹码", Type.GetType("System.Double"));
+            dt.Columns.Add("流入日期", Type.GetType("System.String"));
+            dt.Columns.Add("流入天数", Type.GetType("System.String"));
+
+
             var bigList = await _context.BigRise
                 .FromSqlRaw(" select * from big_rise a where not exists ( "
                 + " select 'a' from big_rise b where a.gid = b.gid and b.alert_date >= dbo.func_GetLastTransactDate(a.alert_date, 60) and b.alert_date < a.alert_date ) "
@@ -1162,6 +1173,24 @@ namespace LuqinOfficialAccount.Controllers
                 dr["放量"] = s.klineDay[buyIndex].volume / s.klineDay[buyIndex - 1].volume;
                 dr["买入"] = s.klineDay[buyIndex].settle;
                 dr["筹码"] = chip;
+                dr["流入日期"] = "--";
+                dr["流入天数"] = "--";
+                for (int j = 0; j < buyingList.Count; j++)
+                {
+                    BuyingAlert ba = buyingList[j];
+
+                    if (ba.gid.Trim().Equals(s.gid.Trim())
+                        && ba.alert_date.Date <= s.klineDay[buyIndex].settleTime.Date)
+                    {
+                        dr["流入日期"] = "`" + ba.alert_date.ToString("yyyy-MM-dd");
+                        dr["流入天数"] = "`" + ba.in_days.ToString() + "天";
+                        if (s.klineDay[buyIndex].settleTime.Date - ba.alert_date.Date <= new TimeSpan(3, 0, 0, 0))
+                        {
+                            dr["信号"] = dr["信号"].ToString() + "🔥";
+                        }
+                        break;
+                    }
+                }
                 dt.Rows.Add(dr);
             }
 
