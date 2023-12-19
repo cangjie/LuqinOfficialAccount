@@ -24,6 +24,7 @@ namespace LuqinOfficialAccount
             modelBuilder.Entity<DoubleGreenLeg>().HasKey(m => new { m.gid, m.alert_date });
             modelBuilder.Entity<FirstLimitUpNewHigh>().HasKey(m => new { m.gid, m.alert_date });
             modelBuilder.Entity<Demark>().HasKey(m => new { m.gid, m.alert_time });
+            modelBuilder.Entity<BuyingAlert>().HasNoKey();
         }
 
 
@@ -91,6 +92,8 @@ namespace LuqinOfficialAccount
         public DbSet<bak_daily> bakDaily { get; set; }
 
         public DbSet<BakDailyDetail> bakDailyDetail { get; set; }
+
+        public DbSet<BuyingAlert> buyingAlert { get; set; }
 
     }
 }
