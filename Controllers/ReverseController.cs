@@ -928,6 +928,7 @@ namespace LuqinOfficialAccount.Controllers
             dt.Columns.Add("名称", Type.GetType("System.String"));
             dt.Columns.Add("信号", Type.GetType("System.String"));
             dt.Columns.Add("买入", Type.GetType("System.Double"));
+            dt.Columns.Add("流入", Type.GetType("System.Double"));
 
             startDate = Util.GetLastTransactDate(startDate, 2, _db);
             endDate = Util.GetLastTransactDate(endDate, 2, _db);
@@ -948,6 +949,26 @@ namespace LuqinOfficialAccount.Controllers
                 {
                     continue;
                 }
+
+                var flowL = await _db.bakDaily.Where(b => b.gid.Trim().Equals(s.gid)
+                    && b.alert_date.Date >= s.klineDay[alertIndex + 1].settleTime.Date
+                    && b.alert_date.Date <= s.klineDay[alertIndex + 2].settleTime.Date)
+                    .AsNoTracking().ToListAsync();
+                double flowRate = 0;
+                double buying = 0;
+                double selling = 0;
+
+                for (int j = 0; j < flowL.Count; j++)
+                {
+                    buying += flowL[j].buying;
+                    selling += flowL[j].selling;
+                }
+                if (selling > 0)
+                {
+                    flowRate = buying / selling;
+                }
+
+
                 double settlePrice = s.klineDay[alertIndex].settle;
                 if (settlePrice > Math.Min(s.klineDay[alertIndex + 1].open, s.klineDay[alertIndex + 1].settle)
                     || settlePrice > Math.Min(s.klineDay[alertIndex + 2].open, s.klineDay[alertIndex + 2].settle))
@@ -964,6 +985,11 @@ namespace LuqinOfficialAccount.Controllers
                 dr["名称"] = s.name.Trim();
                 dr["信号"] = "";
                 dr["买入"] = s.klineDay[alertIndex + 2].settle;
+                if (flowRate < 1)
+                {
+                    dr["信号"] = "📈";
+                }
+                dr["流入"] = flowRate;
                 dt.Rows.Add(dr);
             }
             StockFilter sf = StockFilter.GetResult(dt.Select("", "日期 desc, " + sort), days);
@@ -987,7 +1013,7 @@ namespace LuqinOfficialAccount.Controllers
             dt.Columns.Add("名称", Type.GetType("System.String"));
             dt.Columns.Add("信号", Type.GetType("System.String"));
             dt.Columns.Add("买入", Type.GetType("System.Double"));
-
+            dt.Columns.Add("流入", Type.GetType("System.Double"));
             startDate = Util.GetLastTransactDate(startDate, 1, _db);
             endDate = Util.GetLastTransactDate(endDate, 1, _db);
             StockFilter reverseList = (StockFilter)((OkObjectResult)(await limitUpHelper.Reverse(1, startDate, endDate, sort)).Result).Value;
@@ -1016,12 +1042,34 @@ namespace LuqinOfficialAccount.Controllers
                 {
                     continue;
                 }
+
+                var flowL = await _db.bakDaily.Where(b => b.gid.Trim().Equals(s.gid) && b.alert_date.Date == s.klineDay[alertIndex + 1].settleTime.Date)
+                    .AsNoTracking().ToListAsync();
+
+
                 DataRow dr = dt.NewRow();
                 dr["日期"] = s.klineDay[alertIndex + 1].settleTime.Date;
                 dr["代码"] = s.gid.Trim();
                 dr["名称"] = s.name.Trim();
                 dr["信号"] = "";
                 dr["买入"] = s.klineDay[alertIndex + 1].settle;
+                if (flowL.Count > 0)
+                {
+                    double flowRate = 0;
+                    if (flowL[0].selling > 0)
+                    {
+                        flowRate = flowL[0].buying / flowL[0].selling;
+                    }
+                    if (flowRate < 1)
+                    {
+                        dr["信号"] = "📈";
+                    }
+                    dr["流入"] = flowRate;
+                }
+                else
+                {
+                    dr["流入"] = 0;
+                }
                 dt.Rows.Add(dr);
             }
             StockFilter sf = StockFilter.GetResult(dt.Select("", "日期 desc, " + sort), days);
