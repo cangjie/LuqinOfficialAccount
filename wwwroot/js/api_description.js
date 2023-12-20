@@ -318,7 +318,7 @@
     },
     {
         'name': '反包',
-        'description': '',
+        'description': '📈表示第三天涨停；🔥表示创新高的反包；',
         'url': '/api/LimitUp/Reverse',
         'defaultCountDays': 15,
         'defaultSort': '代码'
