@@ -1601,13 +1601,13 @@ namespace LuqinOfficialAccount.Controllers
                 + " and not exists ( select 'a' from limit_up b where a.gid = b.gid and b.alert_date = dbo.func_GetLastTransactDate(a.alert_date, 1) ) "
                 + " and exists ( select 'a' from limit_up c where a.gid = c.gid and c.alert_date < a.alert_date and c.alert_date >= dbo.func_GetLastTransactDate(a.alert_date, 6) ) "
                 + " order by a.alert_date desc ").ToListAsync();
-
+            /*
             string sql = " select * from dbo.func_get_buying_days('" + Util.GetLastTransactDate(startDate, 15, _db).ToShortDateString() + "' ,"
                 + " '" + Util.GetLastTransactDate(endDate, 1, _db).ToShortDateString()
                 + "' )  order by alert_date desc";
             var buyingList = await _db.buyingAlert
                 .FromSqlRaw(sql).ToListAsync();
-
+            */
 
             DataTable dt = new DataTable();
             dt.Columns.Add("日期", Type.GetType("System.DateTime"));
@@ -1615,13 +1615,15 @@ namespace LuqinOfficialAccount.Controllers
             dt.Columns.Add("名称", Type.GetType("System.String"));
             dt.Columns.Add("信号", Type.GetType("System.String"));
             dt.Columns.Add("买入", Type.GetType("System.Double"));
-            dt.Columns.Add("流入日期", Type.GetType("System.String"));
-            dt.Columns.Add("流入天数", Type.GetType("System.String"));
+            //dt.Columns.Add("流入日期", Type.GetType("System.String"));
+            //dt.Columns.Add("流入天数", Type.GetType("System.String"));
            
             //dt.Columns.Add("换手比", Type.GetType("System.Double"));
 
             for (int i = 0; i < l.Count; i++)
             {
+                
+                
                 Stock s = Stock.GetStock(l[i].gid.Trim());
                 try
                 {
@@ -1667,7 +1669,7 @@ namespace LuqinOfficialAccount.Controllers
                     if (highestSettle <= Math.Max(s.klineDay[j].settle, s.klineDay[j].open))
                     {
                         isReverse = false;
-                        break;
+                        //break;
                     }
                 }
 
@@ -1679,11 +1681,12 @@ namespace LuqinOfficialAccount.Controllers
                 {
                     isReverse = false;
                 }
+                /*
                 if (!isReverse)
                 {
                     continue;
                 }
-
+                */
 
                 
                   
@@ -1701,6 +1704,11 @@ namespace LuqinOfficialAccount.Controllers
                 else
                 {
                     dr["信号"] = "";
+                }
+
+                if (isReverse)
+                {
+                    dr["信号"] = dr["信号"].ToString() + "🔥";
                 }
 
                 /*
@@ -1726,7 +1734,7 @@ namespace LuqinOfficialAccount.Controllers
                 }
               */
 
-               
+               /*
                 dr["流入日期"] = "--";
                 dr["流入天数"] = "--";
                 for (int j = 0; j < buyingList.Count; j++)
@@ -1745,7 +1753,7 @@ namespace LuqinOfficialAccount.Controllers
                         break;
                     }
                 }
-
+               */
 
                
                 dr["买入"] = s.klineDay[alertIndex].settle;
