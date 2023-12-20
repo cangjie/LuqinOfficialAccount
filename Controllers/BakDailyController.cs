@@ -65,6 +65,121 @@ namespace LuqinOfficialAccount.Controllers
         }
 
         [HttpGet("{days}")]
+        public async Task<ActionResult<StockFilter>> LimitUpInflow(int days, DateTime startDate, DateTime endDate, string sort = "流入")
+        {
+            DataTable dt = new DataTable();
+            dt.Columns.Add("日期", Type.GetType("System.DateTime"));
+            dt.Columns.Add("代码", Type.GetType("System.String"));
+            dt.Columns.Add("名称", Type.GetType("System.String"));
+            dt.Columns.Add("信号", Type.GetType("System.String"));
+            dt.Columns.Add("流入", Type.GetType("System.Double"));
+            dt.Columns.Add("买入", Type.GetType("System.Double"));
+
+            int inFlowDays = 10;
+            int adjustDays = 3;
+            startDate = Util.GetLastTransactDate(startDate, adjustDays, _db);
+            endDate = Util.GetLastTransactDate(endDate, adjustDays, _db);
+            var l = await _db.LimitUp.Where(l => l.alert_date >= startDate.Date && l.alert_date <= endDate.Date)
+                .OrderByDescending(l => l.alert_date).AsNoTracking().ToListAsync();
+
+            if (l.Count <= 0)
+            {
+                return NotFound();
+            }
+            DateTime countDate = l[0].alert_date.Date;
+
+            List<Inflow> inflowList = (List<Inflow>)((OkObjectResult)(await GetDailyInflow(Util.GetLastTransactDate(countDate, -2, _db), inFlowDays)).Result).Value;
+
+
+            for (int i = 0; i < l.Count; i++)
+            {
+                if (countDate.Date != l[i].alert_date.Date)
+                {
+                    countDate = l[i].alert_date;
+                    inflowList = (List<Inflow>)((OkObjectResult)(await GetDailyInflow(Util.GetLastTransactDate(countDate, -2, _db), inFlowDays)).Result).Value;
+                }
+                Stock s = Stock.GetStock(l[i].gid);
+                try
+                {
+                    s.ForceRefreshKLineDay();
+                }
+                catch
+                {
+                    continue;
+                }
+                int alertIndex = s.GetItemIndex(l[i].alert_date);
+                if (alertIndex >= s.klineDay.Length - adjustDays || alertIndex <= 2)
+                {
+                    continue;
+                }
+
+                bool haveLimitUpBefore = false;
+                for (int j = alertIndex - 1; j >= 0 && j >= alertIndex - 20; j--)
+                {
+                    if (KLine.IsLimitUp(s.klineDay, j))
+                    {
+                        haveLimitUpBefore = true;
+                        break;
+                    }
+                }
+                if (haveLimitUpBefore)
+                {
+                    continue;
+                }
+
+
+                //bool findInflow = false;
+                double inflow = 0;
+                for (int j = 0; j < inflowList.Count; j++)
+                {
+                    if (inflowList[j].gid.Trim().Equals(s.gid))
+                    {
+                        if (inflowList[j].inflow >= inFlowDays)
+                        {
+                            inflow = inflowList[j].inflow;
+                        }
+                        break;
+                    }
+                }
+                if (inflow == 0)
+                {
+                    continue;
+                }
+                int buyIndex = alertIndex + adjustDays;
+
+                if (s.klineDay[buyIndex].settle < s.klineDay[buyIndex - 1].settle)
+                {
+                    continue;
+                }
+
+                if (KLine.IsLimitUp(s.klineDay, buyIndex - 1) || KLine.IsLimitUp(s.klineDay, buyIndex))
+                {
+                    continue;
+                }
+
+                DataRow dr = dt.NewRow();
+                dr["日期"] = s.klineDay[buyIndex].settleTime.Date;
+                dr["代码"] = s.gid.Trim();
+                dr["名称"] = s.name.Trim();
+
+                //dr["信号"] = "";
+                dr["买入"] = s.klineDay[buyIndex].settle;
+                dr["流入"] = inflow;
+                dt.Rows.Add(dr);
+            }
+            StockFilter sf = StockFilter.GetResult(dt.Select("", "日期 desc, " + sort), days);
+            try
+            {
+                return Ok(sf);
+            }
+            catch
+            {
+                return NotFound();
+
+            }
+        }
+
+        [HttpGet("{days}")]
         public async Task<ActionResult<StockFilter>> LimitUpTwiceInflow(int days, DateTime startDate, DateTime endDate, string sort = "流入")
         {
             DataTable dt = new DataTable();
