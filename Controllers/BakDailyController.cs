@@ -10,6 +10,7 @@ using LuqinOfficialAccount.Models;
 using Microsoft.Extensions.Configuration;
 using System.Data;
 using Newtonsoft.Json;
+using System.Security.Cryptography;
 //using Microsoft.AspNe
 namespace LuqinOfficialAccount.Controllers
 {
@@ -42,6 +43,255 @@ namespace LuqinOfficialAccount.Controllers
             _db = context;
             _config = config;
             _settings = Settings.GetSettings(_config);
+        }
+
+        [HttpGet("{days}")]
+        public async Task<ActionResult<List<Inflow>>> GetDailyInflow(DateTime date, int days)
+        {
+            if (!Util.IsTransacDay(date, _db))
+            {
+                return NotFound();
+            }
+            string sql = " select gid, sum(case selling when 0 then 0 else (buying / selling)  end) as inflow from bak_daily  "
+                + " where alert_date <= '" + date.Date.ToShortDateString() + "' and  alert_date >= '"
+                + Util.GetLastTransactDate(date, days, _db).ToShortDateString() + "' group by gid "
+                + " order by  sum(case selling when 0 then 0 else (buying / selling)  end)  desc ";
+            var l = await _db.inflow.FromSqlRaw(sql).AsNoTracking().ToListAsync();
+            for (int i = 0; i < l.Count; i++)
+            {
+                l[i].alert_date = date.Date;
+            }
+            return Ok(l);
+        }
+
+        [HttpGet("{days}")]
+        public async Task<ActionResult<StockFilter>> LimitUpTwiceInflow(int days, DateTime startDate, DateTime endDate, string sort = "流入")
+        {
+            DataTable dt = new DataTable();
+            dt.Columns.Add("日期", Type.GetType("System.DateTime"));
+            dt.Columns.Add("代码", Type.GetType("System.String"));
+            dt.Columns.Add("名称", Type.GetType("System.String"));
+            dt.Columns.Add("信号", Type.GetType("System.String"));
+            dt.Columns.Add("流入", Type.GetType("System.Double"));
+            dt.Columns.Add("买入", Type.GetType("System.Double"));
+
+            int inFlowDays = 10;
+            int adjustDays = 3;
+            startDate = Util.GetLastTransactDate(startDate, adjustDays, _db);
+            endDate = Util.GetLastTransactDate(endDate, adjustDays, _db);
+            var l = await _db.LimitUpTwice.Where(l => l.alert_date >= startDate.Date && l.alert_date <= endDate.Date)
+                .OrderByDescending(l => l.alert_date).AsNoTracking().ToListAsync();
+
+            if (l.Count <= 0)
+            {
+                return NotFound();
+            }
+            DateTime countDate = l[0].alert_date.Date;
+
+            List<Inflow> inflowList = (List<Inflow>)((OkObjectResult)(await GetDailyInflow(Util.GetLastTransactDate(countDate, -2, _db), inFlowDays)).Result).Value;
+
+
+            for (int i = 0; i < l.Count; i++)
+            {
+                if (countDate.Date != l[i].alert_date.Date)
+                {
+                    countDate = l[i].alert_date;
+                    inflowList = (List<Inflow>)((OkObjectResult)(await GetDailyInflow(Util.GetLastTransactDate(countDate, -2, _db), inFlowDays)).Result).Value;
+                }
+                Stock s = Stock.GetStock(l[i].gid);
+                try
+                {
+                    s.ForceRefreshKLineDay();
+                }
+                catch
+                {
+                    continue;
+                }
+                int alertIndex = s.GetItemIndex(l[i].alert_date);
+                if (alertIndex >= s.klineDay.Length - adjustDays || alertIndex <= 2)
+                {
+                    continue;
+                }
+
+                bool haveLimitUpBefore = false;
+                for (int j = alertIndex - 2; j >= 0 && j >= alertIndex - 20; j--)
+                {
+                    if (KLine.IsLimitUp(s.klineDay, j))
+                    {
+                        haveLimitUpBefore = true;
+                        break;
+                    }
+                }
+                if (haveLimitUpBefore)
+                {
+                    continue;
+                }
+
+
+                //bool findInflow = false;
+                double inflow = 0;
+                for (int j = 0; j < inflowList.Count; j++)
+                {
+                    if (inflowList[j].gid.Trim().Equals(s.gid))
+                    {
+                        if (inflowList[j].inflow >= inFlowDays)
+                        {
+                            inflow = inflowList[j].inflow;
+                        }
+                        break;
+                    }
+                }
+                if (inflow == 0)
+                {
+                    continue;
+                }
+                int buyIndex = alertIndex + adjustDays;
+                
+                if (s.klineDay[buyIndex].settle < s.klineDay[buyIndex - 1].settle)
+                {
+                    continue;
+                }
+                
+                if (KLine.IsLimitUp(s.klineDay, buyIndex - 1) || KLine.IsLimitUp(s.klineDay, buyIndex))
+                {
+                    continue;
+                }
+                
+                DataRow dr = dt.NewRow();
+                dr["日期"] = s.klineDay[buyIndex].settleTime.Date;
+                dr["代码"] = s.gid.Trim();
+                dr["名称"] = s.name.Trim();
+                
+                //dr["信号"] = "";
+                dr["买入"] = s.klineDay[buyIndex].settle;
+                dr["流入"] = inflow;
+                dt.Rows.Add(dr);
+            }
+            StockFilter sf = StockFilter.GetResult(dt.Select("", "日期 desc, " + sort), days);
+            try
+            {
+                return Ok(sf);
+            }
+            catch
+            {
+                return NotFound();
+
+            }
+        }
+
+        [HttpGet("{days}")]
+        public async Task<ActionResult<StockFilter>> GetContinousFlowin(int days, DateTime startDate, DateTime endDate, string sort = "流入")
+        {
+            int reverseDays = 10;
+            DataTable dt = new DataTable();
+            dt.Columns.Add("日期", Type.GetType("System.DateTime"));
+            dt.Columns.Add("代码", Type.GetType("System.String"));
+            dt.Columns.Add("名称", Type.GetType("System.String"));
+            dt.Columns.Add("信号", Type.GetType("System.String"));
+            dt.Columns.Add("流入", Type.GetType("System.Double"));
+            dt.Columns.Add("买入", Type.GetType("System.Double"));
+
+
+
+            for (DateTime i = endDate.Date; i >= startDate.Date; i = i.AddDays(-1))
+            {
+                var flowInList = (List<Inflow>)((OkObjectResult)(await GetDailyInflow(i, reverseDays)).Result).Value;
+                for (int j = 0; j < flowInList.Count; j++)
+                {
+                    try
+                    {
+                        Inflow f = flowInList[j];
+                        if (f.inflow < reverseDays || f.gid.ToLower().StartsWith("bj"))
+                        {
+                            continue;
+                        }
+                        Stock s = Stock.GetStock(f.gid);
+                        s.ForceRefreshKLineDay();
+                        int alertIndex = s.GetItemIndex(((DateTime)f.alert_date).Date);
+                        if (alertIndex <= 60 || alertIndex >= s.klineDay.Length)
+                        {
+                            continue;
+                        }
+                        if (KLine.IsLimitUp(s.klineDay, s.gid, alertIndex) || s.klineDay[alertIndex].settle < s.klineDay[alertIndex - 1].settle)
+                        {
+                            continue;
+                        }
+                        bool haveLimitDown = false;
+                        bool haveLimitUp = false;
+                        bool haveAdjustLimitUp = false;
+                        for (int k = alertIndex; k >= 1 && k >= alertIndex - reverseDays; k--)
+                        {
+                            if ((s.klineDay[k].low - s.klineDay[k - 1].settle) / s.klineDay[k - 1].settle <= -0.095)
+                            {
+                                haveLimitDown = true;
+                                break;
+                            }
+                            if (KLine.IsLimitUp(s.klineDay, s.gid, k))
+                            {
+                                if (k < alertIndex - 1 && k > alertIndex - 5)
+                                {
+                                    haveAdjustLimitUp = true;
+                                }
+                                haveLimitUp = true;
+                            }
+                        }
+                        if (haveLimitDown || !haveLimitUp || (s.klineDay[alertIndex].high - s.klineDay[alertIndex - 1].settle) / s.klineDay[alertIndex - 1].settle > 0.095)
+                        {
+                            continue;
+                        }
+
+
+
+                        
+
+                        double ma5 = KLine.GetAverageSettlePrice(s.klineDay, alertIndex, 5, 0);
+                        double ma10 = KLine.GetAverageSettlePrice(s.klineDay, alertIndex, 10, 0);
+                        double ma20 = KLine.GetAverageSettlePrice(s.klineDay, alertIndex, 20, 0);
+                        double ma60 = KLine.GetAverageSettlePrice(s.klineDay, alertIndex, 60, 0);
+
+                        bool rise = false;
+                        if (s.klineDay[alertIndex].settle > ma5 && ma5 > ma10 && ma10 > ma20 && ma20 > ma60)
+                        {
+                            rise = true;
+                        }
+                        if (!rise)
+                        {
+                            continue;
+                        }
+                        DataRow dr = dt.NewRow();
+                        dr["日期"] = s.klineDay[alertIndex].settleTime.Date;
+                        dr["代码"] = s.gid.Trim();
+                        dr["名称"] = s.name.Trim();
+                        if (!haveAdjustLimitUp)
+                        {
+                            dr["信号"] = "";
+                        }
+                        else
+                        {
+                            dr["信号"] = "📈";
+                        }
+                        //dr["信号"] = "";
+                        dr["买入"] = s.klineDay[alertIndex].settle;
+                        dr["流入"] = f.inflow;
+                        dt.Rows.Add(dr);
+                    }
+                    catch
+                    {
+
+                    }
+                }
+            }
+            StockFilter sf = StockFilter.GetResult(dt.Select("", "日期 desc, " + sort), days);
+            try
+            {
+                return Ok(sf);
+            }
+            catch
+            {
+                return NotFound();
+
+            }
+            
         }
 
         [HttpGet]

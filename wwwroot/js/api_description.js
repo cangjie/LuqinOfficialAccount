@@ -455,5 +455,19 @@
         'url': '/api/Reverse/OpenLowLimitUp',
         'defaultCountDays': 15,
         'defaultSort': '代码'
+    },
+    {
+        'name': '资金持续流程，价格均线多头排列',
+        'description': '',
+        'url': '/api/BakDaily/GetContinousFlowin',
+        'defaultCountDays': 15,
+        'defaultSort': '流入 desc'
+    },
+    {
+        'name': '二连板后，资金持续流入',
+        'description': '',
+        'url': '/api/BakDaily/LimitUpTwiceInflow',
+        'defaultCountDays': 15,
+        'defaultSort': '流入 desc'
     }
 ];

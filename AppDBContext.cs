@@ -95,5 +95,6 @@ namespace LuqinOfficialAccount
 
         public DbSet<BuyingAlert> buyingAlert { get; set; }
 
+        public DbSet<Inflow> inflow { get; set; }
     }
 }
