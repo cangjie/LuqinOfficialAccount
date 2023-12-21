@@ -318,7 +318,7 @@
     },
     {
         'name': '反包',
-        'description': '',
+        'description': '📈表示第三天涨停；🔥表示创新高的反包；',
         'url': '/api/LimitUp/Reverse',
         'defaultCountDays': 15,
         'defaultSort': '代码'
@@ -345,7 +345,7 @@
         'defaultSort': '代码'
     },
     {
-        'name': '反包马头',
+        'name': '反包马头高开',
         'description': '',
         'url': '/api/Reverse/HorseHead',
         'defaultCountDays': 15,
@@ -411,7 +411,7 @@
     {
 
         'name': '反包后双马头不涨停',
-        'description': '',
+        'description': '资金流出价格扛住连续两天做标记',
         'url': '/api/Reverse/DoubleHorse',
         'defaultCountDays': 15,
         'defaultSort': '代码'
@@ -419,7 +419,7 @@
     {
 
         'name': '反包后单马头不涨停',
-        'description': '',
+        'description': '资金流出价格扛住做标记',
         'url': '/api/Reverse/SingleHorse',
         'defaultCountDays': 15,
         'defaultSort': '代码'
@@ -460,6 +460,14 @@
         'name': '资金持续流程，价格均线多头排列',
         'description': '',
         'url': '/api/BakDaily/GetContinousFlowin',
+        'defaultCountDays': 15,
+        'defaultSort': '流入 desc'
+    },
+    {
+
+        'name': '一板后，资金持续流入',
+        'description': '',
+        'url': '/api/BakDaily/LimitUpInflow',
         'defaultCountDays': 15,
         'defaultSort': '流入 desc'
     },
