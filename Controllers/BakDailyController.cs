@@ -295,7 +295,7 @@ namespace LuqinOfficialAccount.Controllers
         }
 
         [HttpGet("{days}")]
-        public async Task<ActionResult<StockFilter>> GetContinousFlowin(int days, DateTime startDate, DateTime endDate, string sort = "流入")
+        public async Task<ActionResult<StockFilter>> GetContinousFlowout(int days, DateTime startDate, DateTime endDate, string sort = "流入")
         {
             int reverseDays = 10;
             DataTable dt = new DataTable();
@@ -316,7 +316,7 @@ namespace LuqinOfficialAccount.Controllers
                     try
                     {
                         Inflow f = flowInList[j];
-                        if (f.inflow < reverseDays || f.gid.ToLower().StartsWith("bj"))
+                        if (f.inflow > reverseDays || f.gid.ToLower().StartsWith("bj"))
                         {
                             continue;
                         }

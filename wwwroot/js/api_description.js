@@ -457,9 +457,9 @@
         'defaultSort': '代码'
     },
     {
-        'name': '资金持续流程，价格均线多头排列',
+        'name': '资金持续流出，价格均线多头排列',
         'description': '',
-        'url': '/api/BakDaily/GetContinousFlowin',
+        'url': '/api/BakDaily/GetContinousFlowout',
         'defaultCountDays': 15,
         'defaultSort': '流入 desc'
     },
