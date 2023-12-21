@@ -297,7 +297,7 @@ namespace LuqinOfficialAccount.Controllers
         [HttpGet("{days}")]
         public async Task<ActionResult<StockFilter>> GetContinousFlowout(int days, DateTime startDate, DateTime endDate, string sort = "流入")
         {
-            int reverseDays = 5;
+            //int reverseDays = 5;
             DataTable dt = new DataTable();
             dt.Columns.Add("日期", Type.GetType("System.DateTime"));
             dt.Columns.Add("代码", Type.GetType("System.String"));
@@ -310,62 +310,113 @@ namespace LuqinOfficialAccount.Controllers
 
             for (DateTime i = endDate.Date; i >= startDate.Date; i = i.AddDays(-1))
             {
-                var flowInList = (List<Inflow>)((OkObjectResult)(await GetDailyInflow(i, reverseDays)).Result).Value;
-                for (int j = 0; j < flowInList.Count; j++)
+                //var flowInList = (List<Inflow>)((OkObjectResult)(await GetDailyInflow(i, reverseDays)).Result).Value;
+                List<FlowList> flowList = await _db.flowList.FromSqlRaw(" select * from dbo.func_get_flow_list('"
+                    + Util.GetLastTransactDate(i, 1, _db).ToShortDateString() + "') where flow_out_days >= 3 "
+                    //+ " and gid = 'sh603057' "
+                    + " order by flow_out_days desc ")
+                    .AsNoTracking().ToListAsync();
+                for (int j = 0; j < flowList.Count; j++)
                 {
                     try
                     {
-                        Inflow f = flowInList[j];
-                        if (f.inflow > reverseDays || f.gid.ToLower().StartsWith("bj"))
+                        FlowList f = flowList[j];
+                        if (f.gid.ToLower().StartsWith("bj"))
                         {
                             continue;
                         }
                         Stock s = Stock.GetStock(f.gid);
-                        s.ForceRefreshKLineDay();
-                        int alertIndex = s.GetItemIndex(((DateTime)f.alert_date).Date);
-                        if (alertIndex <= 60 || alertIndex >= s.klineDay.Length)
+                        try
                         {
-                            continue;
-                        }
-                        if (KLine.IsLimitUp(s.klineDay, s.gid, alertIndex) || s.klineDay[alertIndex].settle < s.klineDay[alertIndex - 1].settle)
-                        {
-                            continue;
-                        }
-                        bool haveLimitDown = false;
-                        bool haveLimitUp = false;
-                        bool haveAdjustLimitUp = false;
-                        for (int k = alertIndex; k >= 1 && k >= alertIndex - reverseDays; k--)
-                        {
-                            if ((s.klineDay[k].low - s.klineDay[k - 1].settle) / s.klineDay[k - 1].settle <= -0.095)
+                            if (s.klineDay == null || s.klineDay.Length == 0)
                             {
-                                haveLimitDown = true;
-                                break;
+                                s.ForceRefreshKLineDay();
                             }
+                        }
+                        catch
+                        {
+                            continue;
+                        }
+
+                        int alertIndex = s.GetItemIndex(((DateTime)f.alert_date).Date);
+                        if (alertIndex <= 60 || alertIndex >= s.klineDay.Length - 1)
+                        {
+                            continue;
+                        }
+                        int buyIndex = alertIndex + 1;
+                        
+                        if ((s.klineDay[buyIndex].settle - s.klineDay[alertIndex].settle) / s.klineDay[alertIndex].settle >= 0.06)
+                        {
+                            continue;
+                        }
+
+                        if (s.klineDay[buyIndex].settle < s.klineDay[buyIndex].open)
+                        {
+                            continue;
+                        }
+
+                        double ma5 = KLine.GetAverageSettlePrice(s.klineDay, buyIndex, 5, 0);
+                        double ma10 = KLine.GetAverageSettlePrice(s.klineDay, buyIndex, 10, 0);
+                        double ma20 = KLine.GetAverageSettlePrice(s.klineDay, buyIndex, 20, 0);
+                        double ma60 = KLine.GetAverageSettlePrice(s.klineDay, buyIndex, 60, 0);
+
+
+
+
+                        bool haveFlowOutLimitUp = false;
+                        bool ma60GoesDown = false;
+                        for (int k = alertIndex; k > 0 && k > alertIndex - f.flow_out_days; k--)
+                        {
                             if (KLine.IsLimitUp(s.klineDay, s.gid, k))
                             {
-                                if (k < alertIndex - 1 && k > alertIndex - 5)
-                                {
-                                    haveAdjustLimitUp = true;
-                                }
-                                haveLimitUp = true;
+                                haveFlowOutLimitUp = true;
+                                break;
                             }
+                            
                         }
-                        if (haveLimitDown || !haveLimitUp || (s.klineDay[alertIndex].high - s.klineDay[alertIndex - 1].settle) / s.klineDay[alertIndex - 1].settle > 0.095)
+
+                        if (haveFlowOutLimitUp )
                         {
                             continue;
                         }
 
+                        
+                        bool havePrevLimitUp = false;
+                        //int ma60StartIndex = -1;
+
+                        for (int k = alertIndex - f.flow_out_days;
+                            k >= 60 && s.klineDay[k].settle > KLine.GetAverageSettlePrice(s.klineDay, k, 60, 0); k--)
+                        {
+                            if (!havePrevLimitUp)
+                            {
+                                if (KLine.IsLimitUp(s.klineDay, k))
+                                {
+                                    havePrevLimitUp = true;
+                                }
+                            }
+                            if (ma60 <= KLine.GetAverageSettlePrice(s.klineDay, k, 60, 0))
+                            {
+                                ma60GoesDown = true;
+                                break;
+                            }
+                        }
+
+                        if (ma60GoesDown)
+                        {
+                            continue;
+                        }
+                        
 
 
 
 
-                        double ma5 = KLine.GetAverageSettlePrice(s.klineDay, alertIndex, 5, 0);
-                        double ma10 = KLine.GetAverageSettlePrice(s.klineDay, alertIndex, 10, 0);
-                        double ma20 = KLine.GetAverageSettlePrice(s.klineDay, alertIndex, 20, 0);
-                        double ma60 = KLine.GetAverageSettlePrice(s.klineDay, alertIndex, 60, 0);
 
+
+
+
+                        
                         bool rise = false;
-                        if (s.klineDay[alertIndex].settle > ma5 && ma5 > ma10 && ma10 > ma20 && ma20 > ma60)
+                        if (s.klineDay[buyIndex].settle > ma5 && ma5 > ma10 && ma10 > ma20 && ma20 > ma60)
                         {
                             rise = true;
                         }
@@ -374,28 +425,34 @@ namespace LuqinOfficialAccount.Controllers
                             continue;
                         }
 
-                        if (s.klineDay[alertIndex].high < s.klineDay[alertIndex - 1].high
-                            || s.klineDay[alertIndex].high < s.klineDay[alertIndex - 2].high
-                            || s.klineDay[alertIndex].high < s.klineDay[alertIndex - 3].high)
+                        if (s.klineDay[buyIndex].high < s.klineDay[buyIndex - 1].high
+                            || s.klineDay[buyIndex - 1].high < s.klineDay[buyIndex - 2].high
+                            ||  s.klineDay[buyIndex - 2].high < s.klineDay[buyIndex - 3].high)
                         {
                             continue;
                         }
 
+                        if (s.klineDay[buyIndex].open >= ma5)
+                        {
+                            continue;
+                        }
+
+
+                        //Stock.GetLowestPrice(s.klineDay);
+
+
                         DataRow dr = dt.NewRow();
-                        dr["日期"] = s.klineDay[alertIndex].settleTime.Date;
+                        dr["日期"] = s.klineDay[buyIndex].settleTime.Date;
                         dr["代码"] = s.gid.Trim();
                         dr["名称"] = s.name.Trim();
-                        if (!haveAdjustLimitUp)
-                        {
-                            dr["信号"] = "";
-                        }
-                        else
+                        
+                        dr["信号"] = "";
+                        if (havePrevLimitUp)
                         {
                             dr["信号"] = "📈";
                         }
-                        //dr["信号"] = "";
-                        dr["买入"] = s.klineDay[alertIndex].settle;
-                        dr["流入"] = f.inflow;
+                        dr["买入"] = s.klineDay[buyIndex].settle;
+                        dr["流入"] = f.flow_rate;
                         dt.Rows.Add(dr);
                     }
                     catch

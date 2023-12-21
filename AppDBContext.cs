@@ -25,6 +25,7 @@ namespace LuqinOfficialAccount
             modelBuilder.Entity<FirstLimitUpNewHigh>().HasKey(m => new { m.gid, m.alert_date });
             modelBuilder.Entity<Demark>().HasKey(m => new { m.gid, m.alert_time });
             modelBuilder.Entity<BuyingAlert>().HasNoKey();
+            modelBuilder.Entity<FlowList>().HasNoKey();
         }
 
 
@@ -96,5 +97,7 @@ namespace LuqinOfficialAccount
         public DbSet<BuyingAlert> buyingAlert { get; set; }
 
         public DbSet<Inflow> inflow { get; set; }
+
+        public DbSet<FlowList> flowList { get; set; }
     }
 }
