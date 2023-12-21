@@ -357,7 +357,7 @@ namespace LuqinOfficialAccount.Controllers
 
 
 
-                        
+
 
                         double ma5 = KLine.GetAverageSettlePrice(s.klineDay, alertIndex, 5, 0);
                         double ma10 = KLine.GetAverageSettlePrice(s.klineDay, alertIndex, 10, 0);
@@ -373,6 +373,14 @@ namespace LuqinOfficialAccount.Controllers
                         {
                             continue;
                         }
+
+                        if (s.klineDay[alertIndex].high < s.klineDay[alertIndex - 1].high
+                            || s.klineDay[alertIndex].high < s.klineDay[alertIndex - 2].high
+                            || s.klineDay[alertIndex].high < s.klineDay[alertIndex - 3].high)
+                        {
+                            continue;
+                        }
+
                         DataRow dr = dt.NewRow();
                         dr["日期"] = s.klineDay[alertIndex].settleTime.Date;
                         dr["代码"] = s.gid.Trim();
