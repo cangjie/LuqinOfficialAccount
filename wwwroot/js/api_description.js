@@ -464,8 +464,8 @@
         'defaultSort': '流入 desc'
     },
     {
-        'name': '二连板后，资金持续流入',
-        'description': '',
+        'name': '二连板后，资金持续流入，统计资金流入期间，需要有涨停板。',
+        'description': '📈最近5日有涨停板',
         'url': '/api/BakDaily/LimitUpTwiceInflow',
         'defaultCountDays': 15,
         'defaultSort': '流入 desc'
