@@ -314,6 +314,7 @@ namespace LuqinOfficialAccount.Controllers
             dt.Columns.Add("名称", Type.GetType("System.String"));
             dt.Columns.Add("信号", Type.GetType("System.String"));
             dt.Columns.Add("买入", Type.GetType("System.Double"));
+            dt.Columns.Add("流入", Type.GetType("System.Double"));
             StockFilter reverseList = (StockFilter)((OkObjectResult)(await limitUpHelper.Reverse(days, startDate, endDate, sort)).Result).Value;
             for (int i = 0; reverseList != null && i < reverseList.itemList.Count; i++)
             {
@@ -352,6 +353,19 @@ namespace LuqinOfficialAccount.Controllers
                     continue;
                 }
                 bool allHorseHead = true;
+                double flowRate = 0;
+                double selling = 0;
+                double buying = 0;
+                var l = await _db.bakDaily.Where(b => b.gid.Trim().Equals(s.gid.Trim())
+                    && b.alert_date.Date >= s.klineDay[prevLimIndex].settleTime.Date
+                    && b.alert_date.Date <= s.klineDay[alertIndex].settleTime.Date)
+                    .AsNoTracking().ToListAsync();
+                for (int j = 0; j < l.Count; j++)
+                {
+                    buying += l[j].buying;
+                    selling += l[j].selling;
+                }
+
                 for (int j = alertIndex - 1; j > prevLimIndex; j--)
                 {
                     if (s.klineDay[j].open < prevLimPrice || s.klineDay[j].settle < prevLimPrice)
@@ -370,6 +384,19 @@ namespace LuqinOfficialAccount.Controllers
                 dr["名称"] = s.name.Trim();
                 dr["信号"] = "";
                 dr["买入"] = s.klineDay[alertIndex + 1].open;
+                if (selling > 0)
+                {
+                    flowRate = buying / selling;
+                    dr["流入"] = flowRate;
+                    if (flowRate < 1)
+                    {
+                        dr["信号"] = "📈";
+                    }
+                }
+                else
+                {
+                    dr["流入"] = 0;
+                }
                 dt.Rows.Add(dr);
 
             }
@@ -1139,6 +1166,8 @@ namespace LuqinOfficialAccount.Controllers
             }
             
         }
+
+        
 
     }
 }

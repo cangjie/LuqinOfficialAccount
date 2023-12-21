@@ -464,6 +464,7 @@
         'defaultSort': '流入 desc'
     },
     {
+
         'name': '一板后，资金持续流入',
         'description': '',
         'url': '/api/BakDaily/LimitUpInflow',
@@ -471,9 +472,37 @@
         'defaultSort': '流入 desc'
     },
     {
-        'name': '二连板后，资金持续流入',
-        'description': '',
+        'name': '二连板后，资金持续流入，统计资金流入期间，需要有涨停板。',
+        'description': '📈最近5日有涨停板',
         'url': '/api/BakDaily/LimitUpTwiceInflow',
+        'defaultCountDays': 15,
+        'defaultSort': '流入 desc'
+    },
+    {
+        'name': '一板一马头，资金流入',
+        'description': '📈资金流出，价格扛住',
+        'url': '/api/BakDaily/LimitUpWithSingleHorse',
+        'defaultCountDays': 15,
+        'defaultSort': '流入 desc'
+    },
+    {
+        'name': '一板二马头，资金流入',
+        'description': '📈资金流出，价格扛住',
+        'url': '/api/BakDaily/LimitUpWithDoubleHorse',
+        'defaultCountDays': 15,
+        'defaultSort': '流入 desc'
+    },
+    {
+        'name': '二板一马头，资金流入',
+        'description': '📈资金流出，价格扛住',
+        'url': '/api/BakDaily/LimitUpTwiceWithSingleHorse',
+        'defaultCountDays': 15,
+        'defaultSort': '流入 desc'
+    },
+    {
+        'name': '二板二马头，资金流入',
+        'description': '📈资金流出，价格扛住',
+        'url': '/api/BakDaily/LimitUpTwiceWithDoubleHorse',
         'defaultCountDays': 15,
         'defaultSort': '流入 desc'
     }
