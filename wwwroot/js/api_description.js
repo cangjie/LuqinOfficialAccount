@@ -458,7 +458,7 @@
     },
     {
         'name': '资金持续流出，价格均线多头排列',
-        'description': '',
+        'description': '📈表示调整过程中有涨停板',
         'url': '/api/BakDaily/GetContinousFlowout',
         'defaultCountDays': 15,
         'defaultSort': '流入 desc'
