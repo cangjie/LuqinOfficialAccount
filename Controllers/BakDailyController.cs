@@ -566,6 +566,263 @@ namespace LuqinOfficialAccount.Controllers
        
             return Ok(count);
         }
-	}
+
+        [HttpGet("{days}")]
+        public async Task<ActionResult<StockFilter>> LimitUpWithSingleHorse(int days, DateTime startDate, DateTime endDate, string sort = "代码")
+        {
+            DataTable dt = (await LimitUpWithHorse(startDate, endDate, 1));
+            StockFilter sf = StockFilter.GetResult(dt.Select("", "日期 desc, " + sort), days);
+            try
+            {
+                return Ok(sf);
+            }
+            catch
+            {
+                return NotFound();
+
+            }
+
+        }
+
+        [HttpGet("{days}")]
+        public async Task<ActionResult<StockFilter>> LimitUpWithDoubleHorse(int days, DateTime startDate, DateTime endDate, string sort = "代码")
+        {
+            DataTable dt = (await LimitUpWithHorse(startDate, endDate, 2));
+            StockFilter sf = StockFilter.GetResult(dt.Select("", "日期 desc, " + sort), days);
+            try
+            {
+                return Ok(sf);
+            }
+            catch
+            {
+                return NotFound();
+
+            }
+
+        }
+
+        [HttpGet("{days}")]
+        public async Task<ActionResult<StockFilter>> LimitUpTwiceWithSingleHorse(int days, DateTime startDate, DateTime endDate, string sort = "代码")
+        {
+            DataTable dt = (await LimitUpTwiceWithHorse(startDate, endDate, 1));
+            StockFilter sf = StockFilter.GetResult(dt.Select("", "日期 desc, " + sort), days);
+            try
+            {
+                return Ok(sf);
+            }
+            catch
+            {
+                return NotFound();
+
+            }
+
+        }
+
+        [HttpGet("{days}")]
+        public async Task<ActionResult<StockFilter>> LimitUpTwiceWithDoubleHorse(int days, DateTime startDate, DateTime endDate, string sort = "代码")
+        {
+            DataTable dt = (await LimitUpTwiceWithHorse(startDate, endDate, 2));
+            StockFilter sf = StockFilter.GetResult(dt.Select("", "日期 desc, " + sort), days);
+            try
+            {
+                return Ok(sf);
+            }
+            catch
+            {
+                return NotFound();
+
+            }
+
+        }
+
+        [NonAction]
+        public async Task<DataTable> LimitUpTwiceWithHorse(DateTime startDate, DateTime endDate, int horseNum)
+        {
+            startDate = Util.GetLastTransactDate(startDate, horseNum, _db);
+            endDate = Util.GetLastTransactDate(endDate, horseNum, _db);
+
+
+
+            var limL = await _db.LimitUp.FromSqlRaw(" select * from limit_up_twice a where not exists ( "
+                + " select 'a' from limit_up b where a.gid = b.gid and b.alert_date >= dbo.func_GetLastTransactDate(a.alert_date, 21) and b.alert_date < dbo.func_GetLastTransactDate(a.alert_date, 1)  "
+                + " ) and a.alert_date >= '" + startDate.ToShortDateString() + "' and a.alert_date <= '" + endDate.ToShortDateString() + "' ").AsNoTracking().ToListAsync();
+
+            DataTable dt = new DataTable();
+            dt.Columns.Add("日期", Type.GetType("System.DateTime"));
+            dt.Columns.Add("代码", Type.GetType("System.String"));
+            dt.Columns.Add("名称", Type.GetType("System.String"));
+            dt.Columns.Add("信号", Type.GetType("System.String"));
+            dt.Columns.Add("买入", Type.GetType("System.Double"));
+            dt.Columns.Add("流入", Type.GetType("System.Double"));
+
+            for (int i = 0; i < limL.Count; i++)
+            {
+                Stock s = Stock.GetStock(limL[i].gid);
+                try
+                {
+                    s.ForceRefreshKLineDay();
+                }
+                catch
+                {
+                    continue;
+                }
+                int alertIndex = s.GetItemIndex(limL[i].alert_date.Date);
+                if (alertIndex < 2 || alertIndex >= s.klineDay.Length - horseNum)
+                {
+                    continue;
+                }
+                if (!KLine.IsLimitUp(s.klineDay, s.gid, alertIndex)
+                    || !KLine.IsLimitUp(s.klineDay, s.gid, alertIndex - 1))
+                {
+                    continue;
+                }
+                double limPrice = s.klineDay[alertIndex].settle;
+                bool isHorse = true;
+
+                for (int j = 0; j < horseNum; j++)
+                {
+                    if (s.klineDay[alertIndex + j + 1].open <= limPrice || s.klineDay[alertIndex + j + 1].settle <= limPrice
+                        || KLine.IsLimitUp(s.klineDay, alertIndex + j + 1))
+                    {
+                        isHorse = false;
+                        break;
+                    }
+                }
+                if (!isHorse)
+                {
+                    continue;
+                }
+
+                double selling = 0;
+                double buying = 0;
+                var flowL = await _db.bakDaily.Where(b => b.gid.Trim().Equals(s.gid)
+                    && b.alert_date.Date >= s.klineDay[alertIndex + 1].settleTime.Date
+                    && b.alert_date.Date <= s.klineDay[alertIndex + horseNum].settleTime.Date)
+                    .AsNoTracking().ToListAsync();
+                for (int j = 0; j < flowL.Count; j++)
+                {
+                    selling += flowL[j].selling;
+                    buying += flowL[j].buying;
+                }
+                int buyIndex = alertIndex + horseNum;
+
+                DataRow dr = dt.NewRow();
+                dr["日期"] = s.klineDay[buyIndex].settleTime.Date;
+                dr["代码"] = s.gid.Trim();
+                dr["名称"] = s.name.Trim();
+                dr["信号"] = "";
+                dr["买入"] = s.klineDay[buyIndex].settle;
+                if (selling == 0)
+                {
+                    dr["流入"] = 0;
+                }
+                else
+                {
+                    double flowNum = buying / selling;
+                    dr["流入"] = flowNum;
+                    if (flowNum < 1)
+                    {
+                        dr["信号"] = "📈";
+                    }
+                }
+                dt.Rows.Add(dr);
+            }
+            return dt;
+        }
+
+        [NonAction]
+        public async Task<DataTable> LimitUpWithHorse(DateTime startDate, DateTime endDate, int horseNum)
+        {
+            startDate = Util.GetLastTransactDate(startDate, horseNum, _db);
+            endDate = Util.GetLastTransactDate(endDate, horseNum, _db);
+
+
+
+            var limL = await _db.LimitUp.FromSqlRaw(" select * from limit_up a where not exists ( "
+                + " select 'a' from limit_up b where a.gid = b.gid and b.alert_date >= dbo.func_GetLastTransactDate(a.alert_date, 21) and b.alert_date < a.alert_date "
+                + " ) and a.alert_date >= '" + startDate.ToShortDateString() + "' and a.alert_date <= '" + endDate.ToShortDateString() + "' ").AsNoTracking().ToListAsync();
+
+            DataTable dt = new DataTable();
+            dt.Columns.Add("日期", Type.GetType("System.DateTime"));
+            dt.Columns.Add("代码", Type.GetType("System.String"));
+            dt.Columns.Add("名称", Type.GetType("System.String"));
+            dt.Columns.Add("信号", Type.GetType("System.String"));
+            dt.Columns.Add("买入", Type.GetType("System.Double"));
+            dt.Columns.Add("流入", Type.GetType("System.Double"));
+
+            for (int i = 0; i < limL.Count; i++)
+            {
+                Stock s = Stock.GetStock(limL[i].gid);
+                try
+                {
+                    s.ForceRefreshKLineDay();
+                }
+                catch
+                {
+                    continue;
+                }
+                int alertIndex = s.GetItemIndex(limL[i].alert_date.Date);
+                if (alertIndex < 2 || alertIndex >= s.klineDay.Length - horseNum)
+                {
+                    continue;
+                }
+                if (!KLine.IsLimitUp(s.klineDay, s.gid, alertIndex))
+                {
+                    continue;
+                }
+                double limPrice = s.klineDay[alertIndex].settle;
+                bool isHorse = true;
+
+                for (int j = 0; j < horseNum; j++)
+                {
+                    if (s.klineDay[alertIndex + j + 1].open <= limPrice || s.klineDay[alertIndex + j + 1].settle <= limPrice
+                        || KLine.IsLimitUp(s.klineDay, alertIndex + j + 1))
+                    {
+                        isHorse = false;
+                        break;
+                    }
+                }
+                if (!isHorse)
+                {
+                    continue;
+                }
+
+                double selling = 0;
+                double buying = 0;
+                var flowL = await _db.bakDaily.Where(b => b.gid.Trim().Equals(s.gid)
+                    && b.alert_date.Date >= s.klineDay[alertIndex + 1].settleTime.Date
+                    && b.alert_date.Date <= s.klineDay[alertIndex + horseNum].settleTime.Date)
+                    .AsNoTracking().ToListAsync();
+                for (int j = 0; j < flowL.Count; j++)
+                {
+                    selling += flowL[j].selling;
+                    buying += flowL[j].buying;
+                }
+                int buyIndex = alertIndex + horseNum;
+
+                DataRow dr = dt.NewRow();
+                dr["日期"] = s.klineDay[buyIndex].settleTime.Date;
+                dr["代码"] = s.gid.Trim();
+                dr["名称"] = s.name.Trim();
+                dr["信号"] = "";
+                dr["买入"] = s.klineDay[buyIndex].settle;
+                if (selling == 0)
+                {
+                    dr["流入"] = 0;
+                }
+                else
+                {
+                    double flowNum = buying / selling;
+                    dr["流入"] = flowNum;
+                    if (flowNum < 1)
+                    {
+                        dr["信号"] = "📈";
+                    }
+                }
+                dt.Rows.Add(dr);
+            }
+            return dt;
+        }
+    }
 }
 

@@ -477,5 +477,33 @@
         'url': '/api/BakDaily/LimitUpTwiceInflow',
         'defaultCountDays': 15,
         'defaultSort': '流入 desc'
+    },
+    {
+        'name': '一板一马头，资金流入',
+        'description': '📈资金流出，价格扛住',
+        'url': '/api/BakDaily/LimitUpWithSingleHorse',
+        'defaultCountDays': 15,
+        'defaultSort': '流入 desc'
+    },
+    {
+        'name': '一板二马头，资金流入',
+        'description': '📈资金流出，价格扛住',
+        'url': '/api/BakDaily/LimitUpWithDoubleHorse',
+        'defaultCountDays': 15,
+        'defaultSort': '流入 desc'
+    },
+    {
+        'name': '二板一马头，资金流入',
+        'description': '📈资金流出，价格扛住',
+        'url': '/api/BakDaily/LimitUpTwiceWithSingleHorse',
+        'defaultCountDays': 15,
+        'defaultSort': '流入 desc'
+    },
+    {
+        'name': '二板二马头，资金流入',
+        'description': '📈资金流出，价格扛住',
+        'url': '/api/BakDaily/LimitUpTwiceWithDoubleHorse',
+        'defaultCountDays': 15,
+        'defaultSort': '流入 desc'
     }
 ];
