@@ -16,7 +16,7 @@ namespace LuqinOfficialAccount.Controllers
     [Route("api/[controller]/[action]")]
     [ApiController]
     public class ReverseController : ControllerBase
-	{
+    {
         private readonly AppDBContext _db;
 
         private readonly IConfiguration _config;
@@ -32,7 +32,7 @@ namespace LuqinOfficialAccount.Controllers
         private readonly LimitUpController limitUpHelper;
 
         public ReverseController(AppDBContext context, IConfiguration config)
-		{
+        {
             _db = context;
             _config = config;
             _settings = Settings.GetSettings(_config);
@@ -85,13 +85,13 @@ namespace LuqinOfficialAccount.Controllers
                 {
                     continue;
                 }
-                  
+
                 DataRow dr = dt.NewRow();
                 dr["日期"] = s.klineDay[alertIndex + 1].settleTime.Date;
                 dr["代码"] = s.gid.Trim();
                 dr["名称"] = s.name.Trim();
                 dr["信号"] = "";
-                
+
                 dr["买入"] = s.klineDay[alertIndex].settle;
                 dt.Rows.Add(dr);
             }
@@ -162,7 +162,7 @@ namespace LuqinOfficialAccount.Controllers
                     continue;
                 }
                 DataRow dr = dt.NewRow();
-                dr["日期"] = s.klineDay[alertIndex+1].settleTime.Date;
+                dr["日期"] = s.klineDay[alertIndex + 1].settleTime.Date;
                 dr["代码"] = s.gid.Trim();
                 dr["名称"] = s.name.Trim();
                 if (KLine.IsLimitUp(s.klineDay, alertIndex + 1))
@@ -173,7 +173,7 @@ namespace LuqinOfficialAccount.Controllers
                 {
                     dr["信号"] = "";
                 }
-                dr["买入"] = s.klineDay[alertIndex+1].open;
+                dr["买入"] = s.klineDay[alertIndex + 1].open;
                 dt.Rows.Add(dr);
             }
             StockFilter sf = StockFilter.GetResult(dt.Select("", "日期 desc, " + sort), days);
@@ -511,7 +511,7 @@ namespace LuqinOfficialAccount.Controllers
                 {
                     continue;
                 }
-                
+
                 if (!KLine.IsLimitUp(s.klineDay, s.gid, alertIndex))
                 {
                     continue;
@@ -610,7 +610,7 @@ namespace LuqinOfficialAccount.Controllers
             {
                 Stock s = Stock.GetStock(reverseList.itemList[i].gid);
 
-                
+
 
                 try
                 {
@@ -644,8 +644,8 @@ namespace LuqinOfficialAccount.Controllers
                     {
                         continue;
                     }
-                        
-                       
+
+
                 }
 
                 DataRow dr = dt.NewRow();
@@ -696,7 +696,7 @@ namespace LuqinOfficialAccount.Controllers
 
                 }
                 */
-               
+
                 dr["买入"] = buyPrice;
                 dt.Rows.Add(dr);
 
@@ -737,13 +737,13 @@ namespace LuqinOfficialAccount.Controllers
                 {
                     continue;
                 }
-                
+
                 int alertIndex = s.GetItemIndex(reverseList.itemList[i].alertDate.Date);
                 if (alertIndex < 3 || alertIndex >= s.klineDay.Length - 5)
                 {
                     continue;
                 }
-                if (s.klineDay[alertIndex-1].settle <= s.klineDay[alertIndex].settle)
+                if (s.klineDay[alertIndex - 1].settle <= s.klineDay[alertIndex].settle)
                 {
                     continue;
                 }
@@ -767,7 +767,7 @@ namespace LuqinOfficialAccount.Controllers
                 {
                     dr["信号"] = "";
                 }
-                dr["买入"] = s.klineDay[alertIndex-1].settle;
+                dr["买入"] = s.klineDay[alertIndex - 1].settle;
                 dt.Rows.Add(dr);
             }
 
@@ -815,12 +815,12 @@ namespace LuqinOfficialAccount.Controllers
                 {
                     continue;
                 }
-                
+
                 DataRow dr = dt.NewRow();
                 dr["日期"] = s.klineDay[alertIndex].settleTime.Date;
                 dr["代码"] = s.gid.Trim();
                 dr["名称"] = s.name.Trim();
-                
+
                 dr["买入"] = s.klineDay[alertIndex - 1].settle;
                 dt.Rows.Add(dr);
             }
@@ -901,7 +901,7 @@ namespace LuqinOfficialAccount.Controllers
             dt.Columns.Add("代码", Type.GetType("System.String"));
             dt.Columns.Add("名称", Type.GetType("System.String"));
             dt.Columns.Add("信号", Type.GetType("System.String"));
-            
+
             dt.Columns.Add("买入", Type.GetType("System.Double"));
             StockFilter reverseList = (StockFilter)((OkObjectResult)(await OpenHigh(1, startDate, endDate, sort)).Result).Value;
             for (int i = 0; i < reverseList.itemList.Count; i++)
@@ -972,7 +972,7 @@ namespace LuqinOfficialAccount.Controllers
                     continue;
                 }
                 int alertIndex = s.GetItemIndex(reverseList.itemList[i].alertDate.Date);
-                if (alertIndex < 2 || alertIndex >= s.klineDay.Length-2)
+                if (alertIndex < 2 || alertIndex >= s.klineDay.Length - 2)
                 {
                     continue;
                 }
@@ -1150,7 +1150,7 @@ namespace LuqinOfficialAccount.Controllers
                 dr["日期"] = s.klineDay[alertIndex + 2].settleTime.Date;
                 dr["代码"] = s.gid.Trim();
                 dr["名称"] = s.name.Trim();
-                dr["信号"] = KLine.IsLimitUp(s.klineDay, s.gid, alertIndex + 2)?"📈":"";
+                dr["信号"] = KLine.IsLimitUp(s.klineDay, s.gid, alertIndex + 2) ? "📈" : "";
                 dr["买入"] = s.klineDay[alertIndex + 2].settle;
                 dt.Rows.Add(dr);
             }
@@ -1164,11 +1164,68 @@ namespace LuqinOfficialAccount.Controllers
                 return NotFound();
 
             }
-            
+
         }
 
-        
 
+        [HttpGet("{days}")]
+        public async Task<ActionResult<StockFilter>> OpenHighWithBigGreen(int days, DateTime startDate, DateTime endDate, string sort = "代码")
+        {
+            DataTable dt = new DataTable();
+            dt.Columns.Add("日期", Type.GetType("System.DateTime"));
+            dt.Columns.Add("代码", Type.GetType("System.String"));
+            dt.Columns.Add("名称", Type.GetType("System.String"));
+            dt.Columns.Add("信号", Type.GetType("System.String"));
+            dt.Columns.Add("买入", Type.GetType("System.Double"));
+
+
+            startDate = Util.GetLastTransactDate(startDate, 1, _db);
+            endDate = Util.GetLastTransactDate(endDate, 1, _db);
+            StockFilter l = (StockFilter)((OkObjectResult)(await limitUpHelper.Reverse(1, startDate, endDate)).Result).Value;
+            for (int i = 0; i < l.itemList.Count; i++)
+            {
+                Stock s = Stock.GetStock(l.itemList[i].gid);
+                try
+                {
+                    s.ForceRefreshKLineDay();
+                }
+                catch
+                {
+                    continue;
+                }
+                int alertIndex = s.GetItemIndex(l.itemList[i].alertDate.Date);
+                if (alertIndex < 2 || alertIndex >= s.klineDay.Length - 1)
+                {
+                    continue;
+                }
+                if (s.klineDay[alertIndex + 1].open <= s.klineDay[alertIndex].settle)
+                {
+                    continue;
+                }
+                if (s.klineDay[alertIndex + 1].settle >= s.klineDay[alertIndex].settle
+                    || s.klineDay[alertIndex + 1].settle >= s.klineDay[alertIndex + 1].open)
+                {
+                    continue;
+                }
+                DataRow dr = dt.NewRow();
+                dr["日期"] = s.klineDay[alertIndex + 1].settleTime.Date;
+                dr["代码"] = s.gid.Trim();
+                dr["名称"] = s.name.Trim();
+                dr["信号"] = "";//KLine.IsLimitUp(s.klineDay, s.gid, alertIndex + 2) ? "📈" : "";
+                dr["买入"] = s.klineDay[alertIndex + 1].settle;
+                dt.Rows.Add(dr);
+            }
+            StockFilter sf = StockFilter.GetResult(dt.Select("", "日期 desc, " + sort), days);
+            try
+            {
+                return Ok(sf);
+            }
+            catch
+            {
+                return NotFound();
+
+            }
+        }
     }
 }
 

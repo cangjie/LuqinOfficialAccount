@@ -505,5 +505,12 @@
         'url': '/api/BakDaily/LimitUpTwiceWithDoubleHorse',
         'defaultCountDays': 15,
         'defaultSort': '流入 desc'
+    },
+    {
+        'name': '反包后，阴线下跌',
+        'description': '',
+        'url': '/api/Reverse/OpenHighWithBigGreen',
+        'defaultCountDays': 15,
+        'defaultSort': '代码 desc'
     }
 ];
