@@ -1724,7 +1724,7 @@ namespace LuqinOfficialAccount.Controllers
                 {
                     dr["信号"] = dr["信号"].ToString() + "🔥";
                 }
-
+                /*
                 var bakL = await _db.bakDaily.Where(b => b.gid.Trim().Equals(s.gid.Trim())
                     && b.alert_date > s.klineDay[prevLimitUpIndex].settleTime
                     && b.alert_date < s.klineDay[alertIndex].settleTime)
@@ -1740,7 +1740,7 @@ namespace LuqinOfficialAccount.Controllers
                 {
                     dr["信号"] = dr["信号"].ToString() + "👌";
                 }
-
+                */
                 /*
                 switch (s.klineDay[alertIndex].settleTime.Date.DayOfWeek)
                 {
