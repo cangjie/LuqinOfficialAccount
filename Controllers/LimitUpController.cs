@@ -1177,6 +1177,7 @@ namespace LuqinOfficialAccount.Controllers
 
                 dr["流入日期"] = "--";
                 dr["流入天数"] = "--";
+                /*
                 for (int j = 0; j < buyingList.Count; j++)
                 {
                     BuyingAlert ba = buyingList[j];
@@ -1191,6 +1192,18 @@ namespace LuqinOfficialAccount.Controllers
                             dr["信号"] = dr["信号"].ToString() + "🔥";
                         }
                         break;
+                    }
+                }
+                */
+
+                var bakList = await _db.bakDaily.Where(b => b.gid.Trim().Equals(s.gid.Trim())
+                    && b.alert_date.Date == s.klineDay[alertIndex].settleTime.Date)
+                    .AsNoTracking().ToListAsync();
+                if (bakList.Count > 0)
+                {
+                    if (bakList[0].selling < bakList[0].buying)
+                    {
+                        dr["信号"] = dr["信号"].ToString() + "🔥";
                     }
                 }
 
