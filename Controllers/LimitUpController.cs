@@ -1725,6 +1725,22 @@ namespace LuqinOfficialAccount.Controllers
                     dr["信号"] = dr["信号"].ToString() + "🔥";
                 }
 
+                var bakL = await _db.bakDaily.Where(b => b.gid.Trim().Equals(s.gid.Trim())
+                    && b.alert_date > s.klineDay[prevLimitUpIndex].settleTime
+                    && b.alert_date < s.klineDay[alertIndex].settleTime)
+                    .AsNoTracking().ToListAsync();
+                double totalSelling = 0;
+                double totalBuying = 0;
+                for (int k = 0; k > bakL.Count; k++)
+                {
+                    totalBuying += bakL[k].buying;
+                    totalSelling += bakL[k].selling;
+                }
+                if (totalSelling > totalBuying)
+                {
+                    dr["信号"] = dr["信号"].ToString() + "👌";
+                }
+
                 /*
                 switch (s.klineDay[alertIndex].settleTime.Date.DayOfWeek)
                 {
