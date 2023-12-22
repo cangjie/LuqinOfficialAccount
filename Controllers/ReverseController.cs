@@ -1207,7 +1207,7 @@ namespace LuqinOfficialAccount.Controllers
                 {
                     continue;
                 }
-                if ((s.klineDay[alertIndex + 1].settle - s.klineDay[alertIndex].settle) / s.klineDay[alertIndex].settle < -0.05)
+                if ((s.klineDay[alertIndex + 1].settle - s.klineDay[alertIndex].settle) / s.klineDay[alertIndex].settle > -0.05)
                 {
                     continue;
                 }
