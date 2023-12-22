@@ -1731,7 +1731,7 @@ namespace LuqinOfficialAccount.Controllers
                     .AsNoTracking().ToListAsync();
                 double totalSelling = 0;
                 double totalBuying = 0;
-                for (int k = 0; k > bakL.Count; k++)
+                for (int k = 0; k < bakL.Count; k++)
                 {
                     totalBuying += bakL[k].buying;
                     totalSelling += bakL[k].selling;
