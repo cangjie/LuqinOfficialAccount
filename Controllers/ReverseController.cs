@@ -1198,6 +1198,7 @@ namespace LuqinOfficialAccount.Controllers
                 {
                     continue;
                 }
+               
                 if (s.klineDay[alertIndex + 1].open <= s.klineDay[alertIndex].settle)
                 {
                     continue;
@@ -1215,7 +1216,15 @@ namespace LuqinOfficialAccount.Controllers
                 dr["日期"] = s.klineDay[alertIndex + 1].settleTime.Date;
                 dr["代码"] = s.gid.Trim();
                 dr["名称"] = s.name.Trim();
-                dr["信号"] = "";//KLine.IsLimitUp(s.klineDay, s.gid, alertIndex + 2) ? "📈" : "";
+                if ((s.klineDay[alertIndex + 1].settle - s.klineDay[alertIndex].settle) / s.klineDay[alertIndex].settle < -0.095)
+                {
+                    dr["信号"] = "📉";
+                }
+                else
+                {
+                    dr["信号"] = "";
+                }
+                //dr["信号"] = "";//KLine.IsLimitUp(s.klineDay, s.gid, alertIndex + 2) ? "📈" : "";
                 dr["买入"] = s.klineDay[alertIndex + 1].settle;
                 dt.Rows.Add(dr);
             }

@@ -508,7 +508,7 @@
     },
     {
         'name': '反包后，阴线下跌',
-        'description': '',
+        'description': '📉表示跌停',
         'url': '/api/Reverse/OpenHighWithBigGreen',
         'defaultCountDays': 15,
         'defaultSort': '代码 desc'
