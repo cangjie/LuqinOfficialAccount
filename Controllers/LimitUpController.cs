@@ -1195,18 +1195,19 @@ namespace LuqinOfficialAccount.Controllers
                     }
                 }
                 */
-
-                var bakList = await _db.bakDaily.Where(b => b.gid.Trim().Equals(s.gid.Trim())
-                    && b.alert_date.Date == s.klineDay[alertIndex].settleTime.Date)
-                    .AsNoTracking().ToListAsync();
-                if (bakList.Count > 0)
+                if (alertIndex + 1 < s.klineDay.Length)
                 {
-                    if (bakList[0].selling < bakList[0].buying)
+                    var bakList = await _db.bakDaily.Where(b => b.gid.Trim().Equals(s.gid.Trim())
+                        && b.alert_date.Date == s.klineDay[alertIndex + 1].settleTime.Date)
+                        .AsNoTracking().ToListAsync();
+                    if (bakList.Count > 0)
                     {
-                        dr["信号"] = dr["信号"].ToString() + "🔥";
+                        if (bakList[0].selling < bakList[0].buying)
+                        {
+                            dr["信号"] = dr["信号"].ToString() + "🔥";
+                        }
                     }
                 }
-
                 dt.Rows.Add(dr);
 
             }
