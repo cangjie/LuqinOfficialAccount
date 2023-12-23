@@ -1,0 +1,68 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <link rel="stylesheet" href="css/table.css" />
+    <link rel="stylesheet" href="css/bootstrap.css" />
+    <link rel="stylesheet" href="css/bootstrap-grid.css" />
+    <link rel="stylesheet" href="css/bootstrap-reboot.css" />
+    <script type="text/javascript" src="js/jquery-3.6.1.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="js/Util.js"></script>
+    <script type="text/javascript" src="js/api_description.js"></script>
+</head>
+<body>
+    <div>
+        <h1 id="gid" ></h1>
+
+    </div>
+    <table style="width:100%">
+        <thead>
+            <tr>
+                <td class="table_head">日期</td>
+                <td class="table_head">比例</td>    
+            </tr>
+        </thead>
+        <tbody id="count_table">
+        </tbody>
+    </table>
+</body>
+</html>
+<script type="text/javascript" >
+    var gid = getUrlParameter('gid');
+    var gidDiv = document.getElementById('gid')
+    gidDiv.innerText = gid;
+    var ajaxUrl = '/api/BakDaily/GetFlow/' + gid;
+    $.ajax({
+        url: ajaxUrl,
+        type: 'GET',
+        success: function (msg, status) {
+            if (status != 'success') {
+                return;
+            }
+            var tbody = document.getElementById('count_table');
+            for (var i = 0; i < msg.length; i++) {
+                var buying = msg[i].buying;
+                var selling = msg[i].selling;
+                var rate = selling == 0 ? 1 : buying / selling;
+                var tr = document.createElement('tr');
+                var trClass = document.createAttribute('class');
+
+                trClass.value = 'table_body_row';
+                tr.attributes.setNamedItem(trClass);
+
+                var td = document.createElement('td');
+                td.innerText = msg[i].alert_date.toString().split('T')[0];
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.innerText = rate;
+                tr.appendChild(td);
+
+                tbody.appendChild(tr);
+            }
+
+            //console.log('get daily', msg);
+        }
+    });
+</script>

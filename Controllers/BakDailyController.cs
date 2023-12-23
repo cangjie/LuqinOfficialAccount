@@ -45,6 +45,14 @@ namespace LuqinOfficialAccount.Controllers
             _settings = Settings.GetSettings(_config);
         }
 
+        [HttpGet("{gid}")]
+        public async Task<IEnumerable<bak_daily>> GetFlow(string gid)
+        {
+            return await _db.bakDaily.Where(b => b.gid.Trim().Equals(gid.Trim()))
+                .OrderByDescending(b => b.alert_date).AsNoTracking().ToListAsync();
+        }
+
+
         [HttpGet("{days}")]
         public async Task<ActionResult<List<Inflow>>> GetDailyInflow(DateTime date, int days)
         {
@@ -74,6 +82,7 @@ namespace LuqinOfficialAccount.Controllers
             dt.Columns.Add("信号", Type.GetType("System.String"));
             dt.Columns.Add("流入", Type.GetType("System.Double"));
             dt.Columns.Add("买入", Type.GetType("System.Double"));
+            
 
             int inFlowDays = 10;
             int adjustDays = 3;
@@ -114,8 +123,10 @@ namespace LuqinOfficialAccount.Controllers
                 }
 
                 bool haveLimitUpBefore = false;
+                
                 for (int j = alertIndex - 1; j >= 0 && j >= alertIndex - 20; j--)
                 {
+                    //tTrunover += s.klineDay[j].turnOver;
                     if (KLine.IsLimitUp(s.klineDay, j))
                     {
                         haveLimitUpBefore = true;
@@ -161,7 +172,7 @@ namespace LuqinOfficialAccount.Controllers
                 dr["日期"] = s.klineDay[buyIndex].settleTime.Date;
                 dr["代码"] = s.gid.Trim();
                 dr["名称"] = s.name.Trim();
-
+                //dr["均还手"] = tTrunover / alertIndex - pre
                 //dr["信号"] = "";
                 dr["买入"] = s.klineDay[buyIndex].settle;
                 dr["流入"] = inflow;

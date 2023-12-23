@@ -512,5 +512,12 @@
         'url': '/api/Reverse/OpenHighWithBigGreen',
         'defaultCountDays': 15,
         'defaultSort': '代码 desc'
+    },
+    {
+        'name': '反包后调整过程中资金出入',
+        'description': '经过测试，没有意义',
+        'url': '/api/Reverse/ViewAdjust',
+        'defaultCountDays': 15,
+        'defaultSort': '均换手'
     }
 ];
