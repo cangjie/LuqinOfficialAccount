@@ -402,7 +402,7 @@
                     txt = item.alertDate.toString().split('T')[0].trim();
                     break;
                 case 1:
-                    txt = item.gid;
+                    txt = '<a href="flow.html?gid=' + item.gid + '" target="_blank" >' + item.gid + '</a>';
                     break;
                 case 2:
                     txt = item.name;
@@ -479,7 +479,8 @@
                 td.attributes.setNamedItem(tdStyle);
             }
 
-            td.innerText = txt;
+            td.innerHTML = txt;
+
             tr.appendChild(td);
         }
         tbody.appendChild(tr);
