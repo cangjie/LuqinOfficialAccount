@@ -100,8 +100,8 @@ namespace LuqinOfficialAccount.Controllers
                 }
 
                 var bakL = await _db.bakDaily.Where(b => b.gid.Trim().Equals(s.gid.Trim())
-                    && b.alert_date > s.klineDay[prevIndex].settleTime
-                    && b.alert_date < s.klineDay[alertIndex].settleTime)
+                    //&& b.alert_date > s.klineDay[prevIndex].settleTime
+                    && b.alert_date == s.klineDay[alertIndex].settleTime.Date)
                     .AsNoTracking().ToListAsync();
                 double tBuying = 0;
                 double tSelling = 0;

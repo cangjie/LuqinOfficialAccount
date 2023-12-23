@@ -519,5 +519,19 @@
         'url': '/api/Reverse/ViewAdjust',
         'defaultCountDays': 15,
         'defaultSort': '均换手'
+    },
+    {
+        'name': '突破',
+        'description': '经过测试，没有意义',
+        'url': '/api/BakDaily/BreakOut',
+        'defaultCountDays': 15,
+        'defaultSort': '代码'
+    },
+    {
+        'name': '二连板后大阴',
+        'description': '经过测试，没有意义',
+        'url': '/api/LimitUp/BigGreenAfterLimitupTwice',
+        'defaultCountDays': 15,
+        'defaultSort': '代码'
     }
 ];
