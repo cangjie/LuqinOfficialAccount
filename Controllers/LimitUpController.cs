@@ -3104,7 +3104,7 @@ namespace LuqinOfficialAccount.Controllers
                     dr["信号"] = "📈";
                 }
                 //dr["信号"] = "";//KLine.IsLimitUp(s.klineDay, s.gid, alertIndex + 2) ? "📈" : "";
-                dr["买入"] = s.klineDay[alertIndex + 1].settle;
+                dr["买入"] = s.klineDay[alertIndex + 2].settle;
                 dt.Rows.Add(dr);
             }
             StockFilter sf = StockFilter.GetResult(dt.Select("", "日期 desc, " + sort), days);
