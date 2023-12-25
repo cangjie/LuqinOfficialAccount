@@ -533,5 +533,19 @@
         'url': '/api/LimitUp/BigGreenAfterLimitupTwice',
         'defaultCountDays': 15,
         'defaultSort': '代码'
+    },
+    {
+        'name': '反包低开高走',
+        'description': '第一天低开，收于反包涨停之上；第二天，无论高低开，依然收于涨停之上，收盘买',
+        'url': '/api/Reverse/OpenLowSettleHighTwice',
+        'defaultCountDays': 15,
+        'defaultSort': '代码'
+    },
+    {
+        'name': '二连板低开高走',
+        'description': '第一天低开，收于反包涨停之上；第二天，无论高低开，依然收于涨停之上，收盘买',
+        'url': '/api/LimitUp/OpenLowSettleHighTwice',
+        'defaultCountDays': 15,
+        'defaultSort': '代码'
     }
 ];
