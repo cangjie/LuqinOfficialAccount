@@ -27,6 +27,16 @@ namespace LuqinOfficialAccount.Models
         public double strength {get; set;}
         public double activity {get; set;}
 
+        [NotMapped]
+        public double ma5Buying { get; set; } = 0;
+
+        [NotMapped]
+        public double ma5Selling { get; set; } = 0;
+
+        [NotMapped]
+        public double ma5BSRate { get; set; } = 0;
+
+
     }
 }
 

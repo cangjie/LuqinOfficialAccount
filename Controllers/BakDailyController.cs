@@ -46,10 +46,33 @@ namespace LuqinOfficialAccount.Controllers
         }
 
         [HttpGet("{gid}")]
-        public async Task<IEnumerable<bak_daily>> GetFlow(string gid)
+        public async Task<ActionResult<IEnumerable<bak_daily>>> GetFlow(string gid)
         {
-            return await _db.bakDaily.Where(b => b.gid.Trim().Equals(gid.Trim()))
+            var l = await _db.bakDaily.Where(b => b.gid.Trim().Equals(gid.Trim()))
                 .OrderByDescending(b => b.alert_date).AsNoTracking().ToListAsync();
+
+            for (int i = 0; i < l.Count; i++)
+            {
+                double totalB = 0;
+                double totalS = 0;
+                int j = 0;
+                for (; j < 5 && i + j < l.Count; j++)
+                {
+                    totalB += l[i + j].buying;
+                    totalS += l[i + j].selling;
+                }
+                l[i].ma5Buying = totalB / (j + 1);
+                l[i].ma5Selling = totalS / (j + 1);
+                if (l[i].ma5Selling > 0)
+                {
+                    l[i].ma5BSRate = l[i].ma5Buying / l[i].ma5Selling;
+                }
+                else
+                {
+                    l[i].ma5BSRate = 1;
+                }
+            }
+            return Ok(l);
         }
 
 

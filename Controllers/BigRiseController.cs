@@ -35,10 +35,10 @@ namespace LuqinOfficialAccount.Controllers
             conceptCtrl = new ConceptController(context, config);
         }
 
-        
+
 
         [HttpGet]
-        public  ActionResult<int> SearchDays(DateTime start, DateTime end)
+        public ActionResult<int> SearchDays(DateTime start, DateTime end)
         {
             for (DateTime i = start; i.Date <= end.Date; i = i.AddDays(1))
             {
@@ -83,7 +83,7 @@ namespace LuqinOfficialAccount.Controllers
         }
 
         [NonAction]
-        public  void Search(DateTime date)
+        public void Search(DateTime date)
         {
             Stock[] stockArr = Util.stockList;
 
@@ -157,7 +157,7 @@ namespace LuqinOfficialAccount.Controllers
                         chipBottom = (chip.cost_95pct - chip.cost_5pct) / (chip.cost_95pct + chip.cost_5pct);
                     }
 
-                    
+
 
 
                     BigRise bigRise = new BigRise()
@@ -184,7 +184,7 @@ namespace LuqinOfficialAccount.Controllers
                     {
 
                     }
-                    
+
                 }
                 else
                 {
@@ -215,19 +215,19 @@ namespace LuqinOfficialAccount.Controllers
                         {
 
                         }
-                        
+
                     }
                 }
             }
 
 
-            
+
         }
 
         [HttpGet("{days}")]
         public async Task<ActionResult<CountResult>> CountKDJ(int days, DateTime startDate)
         {
-            
+
             var bigRiseList = _context.BigRise.Where(b => (b.limit_up_twice_num > 0
             && b.alert_date <= DateTime.Now.AddDays(-15)
             && b.alert_date >= startDate.Date))
@@ -250,7 +250,7 @@ namespace LuqinOfficialAccount.Controllers
                 {
                     continue;
                 }
-                
+
 
                 for (int j = alertIndex; j < s.klineDay.Length && buyIndex == -1; j++)
                 {
@@ -293,7 +293,7 @@ namespace LuqinOfficialAccount.Controllers
                         chipBuy = (chip.cost_95pct - chip.cost_5pct) / (chip.cost_95pct + chip.cost_5pct);
                     }
 
-                    
+
                     /*
                     DateTime startDateChip = bigRiseList[i].start_date;
                     int startIndex = s.GetItemIndex(startDateChip);
@@ -308,7 +308,7 @@ namespace LuqinOfficialAccount.Controllers
                         }
                     }
                     */
-                    if (chipTop <=  chipBuy || chipBuy >= 0.15)
+                    if (chipTop <= chipBuy || chipBuy >= 0.15)
                     {
                         continue;
                     }
@@ -341,7 +341,7 @@ namespace LuqinOfficialAccount.Controllers
             dt.Columns.Add("MACD", Type.GetType("System.Double"));
             dt.Columns.Add("筹码", Type.GetType("System.Double"));
             dt.Columns.Add("买入", Type.GetType("System.Double"));
-            
+
             var bigRiseList = await _context.BigRise.Where(b => b.alert_date >= currentDate.AddDays(-60))
                 .OrderByDescending(b => b.alert_date).ToListAsync();
 
@@ -354,7 +354,7 @@ namespace LuqinOfficialAccount.Controllers
                 }
                 s.RefreshKLine();
                 int currentIndex = s.GetItemIndex(currentDate.Date);
-                
+
                 if (currentIndex <= 0 || currentIndex >= s.klineDay.Length)
                 {
                     continue;
@@ -384,7 +384,7 @@ namespace LuqinOfficialAccount.Controllers
 
                 bool kdGold = true;
                 int buyIndex = 0;
-                for (int j = topIndex;  j < currentIndex; j++)
+                for (int j = topIndex; j < currentIndex; j++)
                 {
                     if (kdGold && s.klineDay[j].k < s.klineDay[j].d)
                     {
@@ -401,7 +401,7 @@ namespace LuqinOfficialAccount.Controllers
                     continue;
                 }
 
-                
+
                 ActionResult<Chip> chipResult = (await chipCtrl.GetChip(s.gid.Trim(), currentDate));
                 double chipValue = 0;
                 if (chipResult.Result.GetType().Name.Trim().Equals("OkObjectResult"))
@@ -409,8 +409,8 @@ namespace LuqinOfficialAccount.Controllers
                     Chip chip = (Chip)((OkObjectResult)chipResult.Result).Value;
                     chipValue = chip.chipDistribute90;
                 }
-                
-                
+
+
                 //Chip chip = (Chip)((OkObjectResult)chipResult.Result).Value;
                 double buyPrice = s.klineDay[currentIndex].settle;
                 DataRow dr = dt.NewRow();
@@ -425,7 +425,7 @@ namespace LuqinOfficialAccount.Controllers
 
                 dt.Rows.Add(dr);
             }
-            StockFilter sf = StockFilter.GetResult(dt.Select("", sort ), 15);
+            StockFilter sf = StockFilter.GetResult(dt.Select("", sort), 15);
             return Ok(sf);
         }
 
@@ -448,7 +448,7 @@ namespace LuqinOfficialAccount.Controllers
             dt.Columns.Add("筹码", Type.GetType("System.Double"));
             dt.Columns.Add("放量", Type.GetType("System.Double"));
             dt.Columns.Add("买入", Type.GetType("System.Double"));
-            
+
 
             var bigRiseList = await _context.BigRise.Where(b => b.alert_date >= startDate.AddDays(-60)
                 && b.alert_date.Date < endDate
@@ -473,7 +473,7 @@ namespace LuqinOfficialAccount.Controllers
                 int buyIndex = -1;
 
                 if (startIndex <= 0 || startIndex >= s.klineDay.Length || topIndex >= endIndex
-                    || endIndex < startIndex  || endIndex >= s.klineDay.Length )
+                    || endIndex < startIndex || endIndex >= s.klineDay.Length)
                 {
                     continue;
                 }
@@ -481,7 +481,7 @@ namespace LuqinOfficialAccount.Controllers
                 double minJ = double.MaxValue;
                 for (int j = topIndex; j <= endIndex && j < s.klineDay.Length; j++)
                 {
-                    
+
                     KLine k = s.klineDay[j];
                     if (k.k < k.d)
                     {
@@ -509,9 +509,9 @@ namespace LuqinOfficialAccount.Controllers
                         lastKDGoldIndex = j;
                         kdGold = true;
                     }
-                    
 
-                    
+
+
                 }
                 if (buyIndex == -1 || buyIndex < startIndex || buyIndex > endIndex)
                 {
@@ -527,7 +527,7 @@ namespace LuqinOfficialAccount.Controllers
                 double chipValue = 0;
 
                 ActionResult<Chip> chipResult = (await chipCtrl.GetChip(s.gid.Trim(), s.klineDay[buyIndex - 1].settleTime.Date));
-                
+
                 if (chipResult.Result.GetType().Name.Trim().Equals("OkObjectResult"))
                 {
                     Chip chip = (Chip)((OkObjectResult)chipResult.Result).Value;
@@ -555,7 +555,7 @@ namespace LuqinOfficialAccount.Controllers
                 dr["买入"] = buyPrice;
                 double volumeDiff = (double)(s.klineDay[buyIndex].volume - s.klineDay[buyIndex - 1].volume) / (double)s.klineDay[buyIndex - 1].volume;
                 dr["放量"] = volumeDiff;
-               
+
                 if (chipValue > 0 && chipValue < 0.15 && Math.Abs(s.klineDay[buyIndex].macd) < 0.5)
                 {
                     dr["信号"] = "📈 ";
@@ -564,13 +564,13 @@ namespace LuqinOfficialAccount.Controllers
                 {
                     dr["信号"] = "";
                 }
-                
+
                 if (minJ <= 0)
                 {
                     string sig = dr["信号"].ToString().Trim();
                     dr["信号"] = sig + (sig.Trim().Equals("") ? "" : " ") + "🛍";
                 }
-                
+
                 if (dr["信号"].ToString().IndexOf("🛍") >= 0 && dr["信号"].ToString().IndexOf("📈") >= 0 && volumeDiff > 0)
                 {
                     dr["信号"] = "🔥";
@@ -580,7 +580,7 @@ namespace LuqinOfficialAccount.Controllers
             }
             StockFilter sf = StockFilter.GetResult(dt.Select("", "日期 desc, " + sort), days);
             return Ok(sf);
-           
+
         }
 
 
@@ -618,7 +618,7 @@ namespace LuqinOfficialAccount.Controllers
                     continue;
                 }
 
-                
+
 
                 try
                 {
@@ -636,7 +636,7 @@ namespace LuqinOfficialAccount.Controllers
                 {
 
                 }
-                
+
                 //int lastKDGoldIndex = -5;
                 int startIndex = s.GetItemIndex(startDate);
                 int endIndex = s.GetItemIndex(endDate);
@@ -664,18 +664,18 @@ namespace LuqinOfficialAccount.Controllers
                 double minJ = double.MaxValue;
                 double macd = double.MaxValue;
                 double buyPrice = double.MaxValue;
-                
+
                 for (int j = alertIndexHour; j < s.klineHour.Length; j++)
                 {
                     minJ = Math.Min(s.klineHour[j].j, minJ);
                     if (minJ < 20 && s.klineHour[j - 1].k < s.klineHour[j - 1].d && s.klineHour[j].k > s.klineHour[j].d && s.klineHour[j].d <= 50)
                     {
-                        
+
                         for (int m = j - 2; m >= 1 && m <= j + 2 && m < s.klineHour.Length; m++)
                         {
                             if (s.klineHour[m].macd > -0.1 && s.klineHour[m].macd > s.klineHour[m - 1].macd && s.klineHour[m].macd < 0.1)
                             {
-                                
+
                                 buyIndex = s.GetItemIndex(s.klineHour[Math.Max(m, j)].settleTime.Date);
                                 //buyPrice = s.klineHour[Math.Max(m, j)].settle;
                                 if (buyIndex < 0)
@@ -687,9 +687,9 @@ namespace LuqinOfficialAccount.Controllers
                                 break;
                             }
                         }
-                       
+
                     }
-                    
+
                     if (s.klineHour[j - 1].k > s.klineHour[j - 1].d && s.klineHour[j].k < s.klineHour[j].d)
                     {
                         minJ = double.MaxValue;
@@ -795,7 +795,7 @@ namespace LuqinOfficialAccount.Controllers
 
                 if (s.klineDay[buyIndex].macd > 0 && s.klineDay[buyIndex].k > s.klineDay[buyIndex].j)
                 {
-                    dr["信号"] = ((!dr["信号"].ToString().Equals(""))? " " : "") + "🔥";
+                    dr["信号"] = ((!dr["信号"].ToString().Equals("")) ? " " : "") + "🔥";
                 }
 
                 int kdjHighIndex = buyIndex;
@@ -880,7 +880,7 @@ namespace LuqinOfficialAccount.Controllers
                 {
                     continue;
                 }
-                
+
                 int alertIndex = s.GetItemIndex(alertDate);
                 int prevAlertIndex = s.GetItemIndex(prevAlertDate);
                 int prevStartIndex = s.GetItemIndex(prevStartDate);
@@ -935,7 +935,7 @@ namespace LuqinOfficialAccount.Controllers
                 dr["名称"] = s.name.Trim();
                 dr["信号"] = "";
                 dr["筹码"] = chip;
-                
+
                 if (buyIndex > alertIndex
                     && (s.klineDay[buyIndex].open - s.klineDay[alertIndex].settle) / s.klineDay[alertIndex].settle > 0.07)
                 {
@@ -955,7 +955,7 @@ namespace LuqinOfficialAccount.Controllers
                 return NotFound();
 
             }
-        
+
         }
 
         [HttpGet("{days}")]
@@ -1071,6 +1071,169 @@ namespace LuqinOfficialAccount.Controllers
             }
 
         }
+
+
+        [NonAction]
+        public async Task<DataTable> BreakMa(DateTime startDate, DateTime endDate, int maDays)
+        {
+            DataTable dt = new DataTable();
+            dt.Columns.Add("日期", Type.GetType("System.DateTime"));
+            dt.Columns.Add("代码", Type.GetType("System.String"));
+            dt.Columns.Add("名称", Type.GetType("System.String"));
+            dt.Columns.Add("信号", Type.GetType("System.String"));
+           
+            dt.Columns.Add("买入", Type.GetType("System.Double"));
+            var bigList = await _context.BigRise.Where(b => b.alert_date >= Util.GetLastTransactDate(startDate, 60, _context)
+                && b.alert_date <= endDate.Date
+                //&& b.gid.Equals("sz301013")
+                ).AsNoTracking().ToListAsync();
+
+            for (int i = 0; i < bigList.Count; i++)
+            {
+                Stock s = Stock.GetStock(bigList[i].gid);
+                try
+                {
+                    if (s.klineDay == null || s.klineDay.Length == 0)
+                    {
+                        s.ForceRefreshKLineDay();
+                    }
+                }
+                catch
+                {
+                    continue;
+                }
+                int alertIndex = s.GetItemIndex(bigList[i].alert_date.Date);
+                if (alertIndex <= maDays || alertIndex >= s.klineDay.Length)
+                {
+                    continue;
+                }
+                double maAlert5 = KLine.GetAverageSettlePrice(s.klineDay, alertIndex, 5, 0);
+                double maAlert10 = KLine.GetAverageSettlePrice(s.klineDay, alertIndex, 10, 0);
+                double maAlert20 = KLine.GetAverageSettlePrice(s.klineDay, alertIndex, 20, 0);
+                double maAlert60 = KLine.GetAverageSettlePrice(s.klineDay, alertIndex, 60, 0);
+                if (!(maAlert5 > maAlert10 && maAlert10 > maAlert20 && maAlert20 > maAlert60))
+                {
+                    continue;
+                }
+
+
+                int startIndex = s.GetItemIndex(bigList[i].start_date.Date);
+                if (startIndex <= maDays || startIndex >= alertIndex)
+                {
+                    continue;
+                }
+
+                int buyIndex = -1;
+                double maStart = KLine.GetAverageSettlePrice(s.klineDay, startIndex, maDays, 0);
+
+                for (int j = alertIndex + 1; j < s.klineDay.Length; j++)
+                {
+                    bool valid = false;
+                    double ma = KLine.GetAverageSettlePrice(s.klineDay, j, maDays, 0);
+                    if (ma <= maStart)
+                    {
+                        break;
+                    }
+                    if (s.klineDay[j].low < ma && s.klineDay[j].high > ma && s.klineDay[j].open < s.klineDay[j].settle)
+                    {
+                        valid = true;
+                    }
+                    if (s.klineDay[j - 1].settle < ma && s.klineDay[j].settle > ma)
+                    {
+                        valid = true;
+                    }
+                    if (!valid)
+                    {
+                        continue;
+                    }
+                    buyIndex = j;
+                    break;
+                }
+
+                if (buyIndex <= 0)
+                {
+                    continue;
+                }
+
+                if (s.klineDay[buyIndex].settleTime < startDate || s.klineDay[buyIndex].settleTime > endDate)
+                {
+                    continue;
+                }
+
+                if (dt.Select(" 代码 = '" + s.gid + "' and 日期 = '" + s.klineDay[buyIndex].settleTime.ToShortDateString() + "' ").Length > 0)
+                {
+                    continue;
+                }
+                int sellDayCount = 0;
+                var bakL = await _context.bakDaily.Where(b => b.gid.Trim().Equals(s.gid)
+                    && b.alert_date <= s.klineDay[buyIndex].settleTime.Date)
+                    .OrderByDescending(b => b.alert_date).AsNoTracking().ToListAsync();
+                string sig = "";
+                for (int k = 0; k < bakL.Count && sellDayCount <= 5; k++)
+                {
+                    if (bakL[k].alert_date == s.klineDay[buyIndex].settleTime.Date)
+                    {
+                        if (bakL[k].buying > bakL[k].selling)
+                        {
+                            sig = "📈";
+                        }
+                    }
+                    else
+                    {
+                        if (bakL[k].buying > bakL[k].selling)
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            sellDayCount++;
+                        }
+                    }
+                }
+
+                if (sellDayCount >= 2)
+                {
+                    sig += "🔥";
+                }
+
+                if (sig.Trim().Equals(""))
+                {
+                    sig = "🔥";
+                }
+                else
+                {
+                    sig = "";
+                }
+                
+                
+                DataRow dr = dt.NewRow();
+                dr["代码"] = s.gid;
+                dr["日期"] = s.klineDay[buyIndex].settleTime.ToShortDateString();
+                dr["名称"] = s.name.Trim();
+                dr["信号"] = sig;
+                dr["买入"] = s.klineDay[buyIndex].settle;
+                dt.Rows.Add(dr);
+            }
+
+            return dt;
+        }
+
+        [HttpGet("{days}")]
+        public async Task<ActionResult<StockFilter>> BreakMa60(int days, DateTime startDate, DateTime endDate, string sort = "代码")
+        {
+            DataTable dt = await BreakMa(startDate, endDate, 60);
+            StockFilter sf = StockFilter.GetResult(dt.Select("", "日期 desc, " + sort), days);
+            try
+            {
+                return Ok(sf);
+            }
+            catch
+            {
+                return NotFound();
+
+            }
+        }
+
 
         [HttpGet("{days}")]
         public async Task<ActionResult<StockFilter>> LowRiseRateWithDoubleVolume(int days, DateTime startDate, DateTime endDate, string sort = "放量")

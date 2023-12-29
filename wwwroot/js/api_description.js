@@ -547,5 +547,12 @@
         'url': '/api/LimitUp/OpenLowSettleHighTwice',
         'defaultCountDays': 15,
         'defaultSort': '代码'
+    },
+    {
+        'name': '大涨幅后，收复60日均线',
+        'description': '',
+        'url': '/api/BigRise/BreakMa60',
+        'defaultCountDays': 15,
+        'defaultSort': '代码'
     }
 ];
