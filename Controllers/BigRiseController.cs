@@ -1164,6 +1164,7 @@ namespace LuqinOfficialAccount.Controllers
                 {
                     continue;
                 }
+               
                 int sellDayCount = 0;
                 var bakL = await _context.bakDaily.Where(b => b.gid.Trim().Equals(s.gid)
                     && b.alert_date <= s.klineDay[buyIndex].settleTime.Date)
@@ -1204,7 +1205,11 @@ namespace LuqinOfficialAccount.Controllers
                 {
                     sig = "";
                 }
-                
+
+                if (KLine.GetAverageSettlePrice(s.klineDay, buyIndex, maDays, 0) < maStart)
+                {
+                    continue;
+                }
                 
                 DataRow dr = dt.NewRow();
                 dr["代码"] = s.gid;
@@ -1222,6 +1227,22 @@ namespace LuqinOfficialAccount.Controllers
         public async Task<ActionResult<StockFilter>> BreakMa60(int days, DateTime startDate, DateTime endDate, string sort = "代码")
         {
             DataTable dt = await BreakMa(startDate, endDate, 60);
+            StockFilter sf = StockFilter.GetResult(dt.Select("", "日期 desc, " + sort), days);
+            try
+            {
+                return Ok(sf);
+            }
+            catch
+            {
+                return NotFound();
+
+            }
+        }
+
+        [HttpGet("{days}")]
+        public async Task<ActionResult<StockFilter>> BreakMa30(int days, DateTime startDate, DateTime endDate, string sort = "代码")
+        {
+            DataTable dt = await BreakMa(startDate, endDate, 30);
             StockFilter sf = StockFilter.GetResult(dt.Select("", "日期 desc, " + sort), days);
             try
             {

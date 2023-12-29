@@ -1208,6 +1208,20 @@ namespace LuqinOfficialAccount.Controllers
                         }
                     }
                 }
+                if (alertIndex + 1 < s.klineDay.Length)
+                {
+                    var bakL = await _db.bakDaily.Where(b => b.gid.Equals(s.gid)
+                        && b.alert_date.Date == s.klineDay[alertIndex + 1].settleTime.Date)
+                        .AsNoTracking().ToListAsync();
+                    if (bakL.Count > 0)
+                    {
+                        if (bakL[0].buying > bakL[0].selling)
+                        {
+                            dr["信号"] = "🌞";
+                        }
+                    }
+
+                }
                 dt.Rows.Add(dr);
 
             }
@@ -1701,9 +1715,7 @@ namespace LuqinOfficialAccount.Controllers
                     continue;
                 }
                 */
-
                 
-                  
 
 
                 DataRow dr = dt.NewRow();
@@ -1787,6 +1799,20 @@ namespace LuqinOfficialAccount.Controllers
 
                
                 dr["买入"] = s.klineDay[alertIndex].settle;
+                if (alertIndex + 1 < s.klineDay.Length)
+                {
+                    var bakL = await _db.bakDaily.Where(b => b.gid.Equals(s.gid)
+                        && b.alert_date.Date == s.klineDay[alertIndex + 1].settleTime.Date)
+                        .AsNoTracking().ToListAsync();
+                    if (bakL.Count > 0)
+                    {
+                        if (bakL[0].buying > bakL[0].selling)
+                        {
+                            dr["信号"] = "🌞";
+                        }
+                    }
+                    
+                }
                 dt.Rows.Add(dr);
                 await resultHelper.AddNew("/api/LimitUp/Reverse",
                     s.klineDay[alertIndex].settleTime.Date, s.gid.Trim());
