@@ -14,7 +14,6 @@ namespace LuqinOfficialAccount
             redis = ConnectionMultiplexer.Connect(address);
             redisDb = redis.GetDatabase();
         }
-
     }
 }
 

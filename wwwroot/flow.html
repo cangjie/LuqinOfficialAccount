@@ -21,7 +21,8 @@
         <thead>
             <tr>
                 <td class="table_head">日期</td>
-                <td class="table_head">比例</td>    
+                <td class="table_head">比例</td>
+                <td class="table_head">5日平均比</td>
             </tr>
         </thead>
         <tbody id="count_table">
@@ -46,6 +47,7 @@
                 var buying = msg[i].buying;
                 var selling = msg[i].selling;
                 var rate = selling == 0 ? 1 : buying / selling;
+                var aRate = msg[i].ma5BSRate;
                 var tr = document.createElement('tr');
                 var trClass = document.createAttribute('class');
 
@@ -57,6 +59,9 @@
                 tr.appendChild(td);
                 td = document.createElement('td');
                 td.innerText = rate;
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.innerText = aRate;
                 tr.appendChild(td);
 
                 tbody.appendChild(tr);
