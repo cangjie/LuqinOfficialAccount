@@ -1217,7 +1217,7 @@ namespace LuqinOfficialAccount.Controllers
                     {
                         if (bakL[0].buying > bakL[0].selling)
                         {
-                            dr["信号"] = "🌞";
+                            dr["信号"] += "🌞";
                         }
                     }
 
@@ -1808,7 +1808,7 @@ namespace LuqinOfficialAccount.Controllers
                     {
                         if (bakL[0].buying > bakL[0].selling)
                         {
-                            dr["信号"] = "🌞";
+                            dr["信号"] += "🌞";
                         }
                     }
                     
