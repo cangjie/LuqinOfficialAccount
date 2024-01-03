@@ -1054,7 +1054,9 @@ namespace LuqinOfficialAccount.Controllers
             startDate = Util.GetLastTransactDate(startDate, 2, _db);
             endDate = Util.GetLastTransactDate(endDate, 2, _db);
             StockFilter reverseList = (StockFilter)((OkObjectResult)(await limitUpHelper.Reverse(1, startDate, endDate, sort)).Result).Value;
-            for (int i = 0; i < reverseList.itemList.Count; i++)
+            for (int i = 0; reverseList  != null
+                && reverseList.itemList != null
+                && i < reverseList.itemList.Count ; i++)
             {
                 Stock s = Stock.GetStock(reverseList.itemList[i].gid);
                 try
