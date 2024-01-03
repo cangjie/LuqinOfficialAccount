@@ -22,7 +22,7 @@
     },
     {
         'name': '二连板查看所属概念',
-        'description': '',
+        'description': '🌞表示第二天为资金流入。',
         'url': '/api/LimitUp/GetLinitUpTwiceWithConcept',
         'defaultCountDays': 15,
         'defaultSort': '缩量'
@@ -318,7 +318,7 @@
     },
     {
         'name': '反包',
-        'description': '📈表示第三天涨停；🔥表示创新高的反包；',
+        'description': '📈表示第三天涨停；🔥表示创新高的反包；🌞表示第二天为资金流入',
         'url': '/api/LimitUp/Reverse',
         'defaultCountDays': 15,
         'defaultSort': '代码'
@@ -552,6 +552,13 @@
         'name': '大涨幅后，收复60日均线',
         'description': '',
         'url': '/api/BigRise/BreakMa60',
+        'defaultCountDays': 15,
+        'defaultSort': '代码'
+    },
+    {
+        'name': '大涨幅后，收复30日均线',
+        'description': '',
+        'url': '/api/BigRise/BreakMa30',
         'defaultCountDays': 15,
         'defaultSort': '代码'
     }
