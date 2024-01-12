@@ -1174,6 +1174,10 @@ namespace LuqinOfficialAccount.Controllers
                 {
                     dr["信号"] = "📈";
                 }
+                if (alertIndex + 1 < s.klineDay.Length && s.klineDay[alertIndex].settle < s.klineDay[alertIndex + 1].open)
+                {
+                    dr["信号"] = dr["信号"].ToString() + "🌟";
+                }
 
                 dr["流入日期"] = "--";
                 dr["流入天数"] = "--";
@@ -1736,6 +1740,12 @@ namespace LuqinOfficialAccount.Controllers
                 {
                     dr["信号"] = dr["信号"].ToString() + "🔥";
                 }
+
+                if (alertIndex + 1 < s.klineDay.Length && s.klineDay[alertIndex].settle < s.klineDay[alertIndex + 1].open)
+                {
+                    dr["信号"] = dr["信号"].ToString() + "🌟";
+                }
+
                 /*
                 var bakL = await _db.bakDaily.Where(b => b.gid.Trim().Equals(s.gid.Trim())
                     && b.alert_date > s.klineDay[prevLimitUpIndex].settleTime
