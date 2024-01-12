@@ -20,6 +20,7 @@ namespace LuqinOfficialAccount.Controllers
             _settings = Settings.GetSettings(_config);
         }
 
+        [HttpGet]
         public async Task<ActionResult<int>> UpdateBigDeal(string gid, DateTime alertDate,
             double bigDealVol, double totalVol, double bigDealAmount, double totalAmount,
             double bigDealAvaragePrice, double uVol, double dVol, double eVol)
