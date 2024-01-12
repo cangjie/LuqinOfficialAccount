@@ -26,6 +26,7 @@ namespace LuqinOfficialAccount
             modelBuilder.Entity<Demark>().HasKey(m => new { m.gid, m.alert_time });
             modelBuilder.Entity<BuyingAlert>().HasNoKey();
             modelBuilder.Entity<FlowList>().HasNoKey();
+            modelBuilder.Entity<BigDeal>().HasKey(b => new { b.gid, b.alert_date });
         }
 
 
@@ -99,5 +100,7 @@ namespace LuqinOfficialAccount
         public DbSet<Inflow> inflow { get; set; }
 
         public DbSet<FlowList> flowList { get; set; }
+
+        public DbSet<BigDeal> bigDeal { get; set; }
     }
 }
