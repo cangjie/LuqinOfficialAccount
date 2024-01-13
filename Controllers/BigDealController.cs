@@ -3,22 +3,33 @@ using System.Threading.Tasks;
 using LuqinOfficialAccount.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using System.Collections.Generic;
+using System.Linq;
+using Microsoft.EntityFrameworkCore;
 
 namespace LuqinOfficialAccount.Controllers
 {
     [Route("api/[controller]/[action]")]
     [ApiController]
-    public class BigDealController:ControllerBase
-	{
+    public class BigDealController : ControllerBase
+    {
         private readonly AppDBContext _db;
         private readonly IConfiguration _config;
         private readonly Settings _settings;
         public BigDealController(AppDBContext context, IConfiguration config)
-		{
+        {
             _db = context;
             _config = config;
             _settings = Settings.GetSettings(_config);
         }
+
+        [HttpGet("{gid}")]
+        public async Task<ActionResult<IEnumerable<BigDeal>>> GetBigDeal(string gid)
+        {
+            return await _db.bigDeal.Where(b => b.gid.Trim().Equals(gid.Trim()))
+                .OrderByDescending(b => b.alert_date).AsNoTracking().ToListAsync();
+        }
+           
 
         [HttpGet]
         public async Task<ActionResult<int>> UpdateBigDeal(string gid, DateTime alertDate,
