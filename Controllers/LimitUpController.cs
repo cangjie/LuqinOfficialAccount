@@ -40,6 +40,25 @@ namespace LuqinOfficialAccount.Controllers
             _db.Database.SetCommandTimeout(999);
         }
 
+        [HttpGet("{gid}")]
+        public  ActionResult<List<DateTime>> GetLimitUpDays(string gid)
+        {
+            List<DateTime> dateList = new List<DateTime>();
+            Stock s = Stock.GetStock(gid);
+            if (s.klineDay == null || s.klineDay.Length == 0)
+            {
+                s.ForceRefreshKLineDay();
+            }
+            for (int i = s.klineDay.Length - 1; i >= 1; i--)
+            {
+                if (KLine.IsLimitUp(s.klineDay, s.gid, i))
+                {
+                    dateList.Add(s.klineDay[i].settleTime.Date);
+                }
+            }
+            return Ok(dateList);
+        }
+
         [HttpGet]
         public async Task<ActionResult<int>> SearchTodayLimitUp()
         {
