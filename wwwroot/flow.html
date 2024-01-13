@@ -21,6 +21,7 @@
         <thead>
             <tr>
                 <td class="table_head">日期</td>
+                <td class="table_head">涨停</td>
                 <td class="table_head">比例</td>
                 <td class="table_head">5日平均比</td>
             </tr>
@@ -39,6 +40,11 @@
         url: ajaxUrl,
         type: 'GET',
         success: function (msg, status) {
+
+            
+
+
+
             if (status != 'success') {
                 return;
             }
@@ -57,14 +63,39 @@
                 var td = document.createElement('td');
                 td.innerText = msg[i].alert_date.toString().split('T')[0];
                 tr.appendChild(td);
+
                 td = document.createElement('td');
-                td.innerText = rate;
+                td.id = msg[i].alert_date.toString().split('T')[0];
+                td.innerText = '';
+                tr.appendChild(td);
+
+                td = document.createElement('td');
+                td.innerText = Math.round(rate*100, 2)/100;
                 tr.appendChild(td);
                 td = document.createElement('td');
-                td.innerText = aRate;
+                td.innerText = Math.round(aRate*100, 2)/100;
                 tr.appendChild(td);
 
                 tbody.appendChild(tr);
+
+                ajaxUrl = '/api/LimitUp/GetLimitUpDays/' + gid
+
+                $.ajax({
+                    url: ajaxUrl,
+                    type: 'GET',
+                    success: function (msg, status) {
+                        if (status != 'success') {
+                            return;
+                        }
+                        for (var i = 0; i < msg.length; i++) {
+                            var date = msg[i]
+                            var td = document.getElementById(msg[i].split('T')[0]);
+                            if (td != null) {
+                                td.innerText = '📈';
+                            }
+                        }
+                    }
+                })
             }
 
             //console.log('get daily', msg);
