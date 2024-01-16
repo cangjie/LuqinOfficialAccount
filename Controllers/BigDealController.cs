@@ -20,6 +20,51 @@ namespace LuqinOfficialAccount.Controllers
             _settings = Settings.GetSettings(_config);
         }
 
+        [HttpGet("{gid}")]
+        public async Task<ActionResult<int>> UpdateFund(string gid, DateTime alertDate,
+            double settle, double rate, double flow_amount, double flow_amount_5_avarage,
+            double big_flow_amout, double big_percent, double mid_flow_amount,
+            double mid_percent, double small_flow_amount, double small_percent)
+        {
+            Fund? f = await _db.fund.FindAsync(new object[] { gid, alertDate });
+            if (f == null)
+            {
+                f = new Fund()
+                {
+                    gid = gid,
+                    alert_date = alertDate,
+                    settle = settle,
+                    rate = rate,
+                    flow_amount = flow_amount,
+                    flow_amount_5_avarage = flow_amount_5_avarage,
+                    big_flow_amount = big_flow_amout,
+                    big_percent = big_percent,
+                    mid_flow_amount = mid_flow_amount,
+                    mid_percent = mid_percent,
+                    small_flow_amount = small_flow_amount,
+                    small_percent = small_percent
+                };
+                await _db.fund.AddAsync(f);
+            }
+            else
+            {
+                f.settle = settle;
+                f.rate = rate;
+                f.flow_amount = flow_amount;
+                f.flow_amount_5_avarage = flow_amount_5_avarage;
+                f.big_flow_amount = big_flow_amout;
+                f.big_percent = big_percent;
+                f.mid_flow_amount = mid_flow_amount;
+                f.mid_percent = mid_percent;
+                f.small_flow_amount = small_flow_amount;
+                f.small_percent = small_percent;
+                _db.fund.Entry(f).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+            }
+            int i = await _db.SaveChangesAsync();
+            return Ok(i);
+        }
+
+
         [HttpGet]
         public async Task<ActionResult<int>> UpdateBigDeal(string gid, DateTime alertDate,
             double bigDealVol, double totalVol, double bigDealAmount, double totalAmount,
