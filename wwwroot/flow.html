@@ -36,10 +36,11 @@
 <script type="text/javascript" >
     var gid = getUrlParameter('gid');
     var url = 'https://stockpage.10jqka.com.cn/' + gid.substring(2, 6) + '/funds/'
-    window.location.href = url;
+    //window.location.href = url;
+    
     
     var gidDiv = document.getElementById('gid')
-    gidDiv.innerText = gid;
+    gidDiv.innerText = gid + ' ' + url;
     var ajaxUrl = '/api/BakDaily/GetFlow/' + gid;
     $.ajax({
         url: ajaxUrl,
