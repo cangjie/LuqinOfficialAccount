@@ -67,7 +67,7 @@ namespace LuqinOfficialAccount.Controllers
             return Ok(i);
         }
 
-
+        [HttpGet]
         public async Task<ActionResult<IEnumerable<BigDeal>>> GetBigDeal(string gid)
         {
             return await _db.bigDeal.Where(b => b.gid.Trim().Equals(gid.Trim()))

@@ -1207,6 +1207,89 @@ namespace LuqinOfficialAccount.Controllers
             }
         }
 
+        
+        [HttpGet("{days}")]
+        public async Task<ActionResult<StockFilter>> OverHighTomorrow(int days, DateTime startDate, DateTime endDate, string sort = "代码")
+        {
+            DataTable dt = new DataTable();
+            dt.Columns.Add("日期", Type.GetType("System.DateTime"));
+            dt.Columns.Add("代码", Type.GetType("System.String"));
+            dt.Columns.Add("名称", Type.GetType("System.String"));
+            dt.Columns.Add("信号", Type.GetType("System.String"));
+            dt.Columns.Add("买入", Type.GetType("System.Double"));
+           
+            startDate = Util.GetLastTransactDate(startDate, 2, _db);
+            endDate = Util.GetLastTransactDate(endDate, 2, _db);
+            StockFilter reverseList = (StockFilter)((OkObjectResult)(await limitUpHelper.Reverse(1, startDate, endDate, sort)).Result).Value;
+            for (int i = 0; i < reverseList.itemList.Count; i++)
+            {
+                Stock s = Stock.GetStock(reverseList.itemList[i].gid);
+                try
+                {
+                    s.ForceRefreshKLineDay();
+                }
+                catch
+                {
+                    continue;
+                }
+                int alertIndex = s.GetItemIndex(reverseList.itemList[i].alertDate.Date);
+                if (alertIndex < 3 || alertIndex >= s.klineDay.Length - 3)
+                {
+                    continue;
+                }
+                double settlePrice = s.klineDay[alertIndex].settle;
+                if (settlePrice >= s.klineDay[alertIndex + 2].settle)
+                {
+                    continue;
+                }
+                if (KLine.IsLimitUp(s.klineDay, s.gid, alertIndex + 2))
+                {
+                    continue;
+                }
+                double highPrice = s.klineDay[alertIndex + 2].settle;
+                int limitUpTimes = 0;
+                for (int j = 1; alertIndex + 2 - j >= 0 && limitUpTimes <= 2 ; j++)
+                {
+                    if (KLine.IsLimitUp(s.klineDay, s.gid, alertIndex + 2 - j))
+                    {
+                        limitUpTimes++;
+                    }
+                    if (highPrice <= s.klineDay[alertIndex + 2 - j].high)
+                    {
+                        highPrice = 0;
+                        break;
+                    }
+                }
+               
+
+                DataRow dr = dt.NewRow();
+                dr["日期"] = s.klineDay[alertIndex + 1].settleTime.Date;
+                dr["代码"] = s.gid.Trim();
+                dr["名称"] = s.name.Trim();
+                if (highPrice > 0)
+                {
+                    dr["信号"] = "🔥";
+                }
+                else
+                {
+                    dr["信号"] = "";
+                }
+                dr["买入"] = s.klineDay[alertIndex + 2].settle;
+                
+                dt.Rows.Add(dr);
+            }
+            StockFilter sf = StockFilter.GetResult(dt.Select("", "日期 desc, " + sort), days);
+            try
+            {
+                return Ok(sf);
+            }
+            catch
+            {
+                return NotFound();
+
+            }
+        }
+        
         [HttpGet("{days}")]
         public async Task<ActionResult<StockFilter>> OpenLowLimitUp(int days, DateTime startDate, DateTime endDate, string sort = "代码")
         {

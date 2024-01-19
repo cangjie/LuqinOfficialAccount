@@ -561,5 +561,12 @@
         'url': '/api/BigRise/BreakMa30',
         'defaultCountDays': 15,
         'defaultSort': '代码'
+    },
+    {
+        'name': '反包后第二天过第二个涨停',
+        'description': '🔥代表创新高',
+        'url': '/api/Reverse/OverHighTomorrow',
+        'defaultCountDays': 15,
+        'defaultSort': '代码'
     }
 ];
