@@ -1242,7 +1242,7 @@ namespace LuqinOfficialAccount.Controllers
                 {
                     continue;
                 }
-                if (KLine.IsLimitUp(s.klineDay, s.gid, alertIndex + 2))
+                if (KLine.IsLimitUp(s.klineDay, s.gid, alertIndex + 2) || KLine.IsLimitUp(s.klineDay, s.gid, alertIndex + 1))
                 {
                     continue;
                 }
