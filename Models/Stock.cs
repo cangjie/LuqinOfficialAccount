@@ -97,8 +97,10 @@ namespace LuqinOfficialAccount.Models
                 {
                     k.turnOver = double.Parse(rvItems[8].Trim());
                 }
-
-                klineList.Add(k);
+                if (klineList[klineList.Count - 1].settleTime.Date < k.settleTime.Date)
+                {
+                    klineList.Add(k);
+                }
             }
             this.klineDay = klineList.ToArray<KLine>();
             
