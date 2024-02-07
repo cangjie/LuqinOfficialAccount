@@ -90,7 +90,7 @@ namespace LuqinOfficialAccount.Models
                     settle = double.Parse(rvItems[3].Trim()),
                     high = double.Parse(rvItems[4].Trim()),
                     low = double.Parse(rvItems[5].Trim()),
-                    volume = long.Parse(rvItems[6].Trim()),
+                    volume = (long)double.Parse(rvItems[6].Trim()),
                     turnOver = 0//double.Parse(rvItems[7].Trim())
                 };
                 if (rvItems.Length == 9)
