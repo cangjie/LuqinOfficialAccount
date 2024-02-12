@@ -176,8 +176,9 @@ namespace LuqinOfficialAccount.Controllers
             }
         }
         [HttpGet]
-        public async Task SearchMoneyFlow(DateTime startDate, DateTime endDate, string gid = "")
+        public async Task<ActionResult<int>> SearchMoneyFlow(DateTime startDate, DateTime endDate, string gid = "")
         {
+            int count = 0;
             Stock[] sArr = Util.stockList;
             for (int i = 0; i < sArr.Length; i++)
             {
@@ -224,8 +225,10 @@ namespace LuqinOfficialAccount.Controllers
                     {
                         try
                         {
+                            
                             await _db.moneyFlow.AddAsync(ml);
                             await _db.SaveChangesAsync();
+                            count++;
                         }
                         catch
                         {
@@ -238,9 +241,11 @@ namespace LuqinOfficialAccount.Controllers
                         {
                             try
                             {
+                                
                                 mList[0].flow_percent = ml.flow_percent;
                                 _db.moneyFlow.Entry(mList[0]).State = EntityState.Modified;
                                 await _db.SaveChangesAsync();
+                                count++;
                             }
                             catch
                             {
@@ -250,6 +255,7 @@ namespace LuqinOfficialAccount.Controllers
                     }
                 }
             }
+            return Ok(count);
         }
 
     }
