@@ -218,16 +218,30 @@ namespace LuqinOfficialAccount.Controllers
                         .ToListAsync();
                     if (mList == null || mList.Count <= 0)
                     {
-                        await _db.moneyFlow.AddAsync(ml);
-                        await _db.SaveChangesAsync();
+                        try
+                        {
+                            await _db.moneyFlow.AddAsync(ml);
+                            await _db.SaveChangesAsync();
+                        }
+                        catch
+                        {
+
+                        }
                     }
                     else
                     {
                         if (mList[0].flow_percent != ml.flow_percent)
                         {
-                            mList[0].flow_percent = ml.flow_percent;
-                            _db.moneyFlow.Entry(mList[0]).State = EntityState.Modified;
-                            await _db.SaveChangesAsync();
+                            try
+                            {
+                                mList[0].flow_percent = ml.flow_percent;
+                                _db.moneyFlow.Entry(mList[0]).State = EntityState.Modified;
+                                await _db.SaveChangesAsync();
+                            }
+                            catch
+                            {
+
+                            }
                         }
                     }
                 }
