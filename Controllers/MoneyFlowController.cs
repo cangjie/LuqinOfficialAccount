@@ -176,11 +176,15 @@ namespace LuqinOfficialAccount.Controllers
             }
         }
         [HttpGet]
-        public async Task SearchMoneyFlow(DateTime startDate, DateTime endDate)
+        public async Task SearchMoneyFlow(DateTime startDate, DateTime endDate, string gid = "")
         {
             Stock[] sArr = Util.stockList;
             for (int i = 0; i < sArr.Length; i++)
             {
+                if (sArr[i].gid.IndexOf(gid) <= 0)
+                {
+                    continue;
+                }
                 Stock s = sArr[i];
                 s.ForceRefreshKLineDay();
                 int startIndex = s.GetItemIndex(startDate.Date);
