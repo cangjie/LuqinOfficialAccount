@@ -181,7 +181,7 @@ namespace LuqinOfficialAccount.Controllers
             Stock[] sArr = Util.stockList;
             for (int i = 0; i < sArr.Length; i++)
             {
-                if (sArr[i].gid.IndexOf(gid) <= 0)
+                if (!sArr[i].gid.StartsWith(gid))
                 {
                     continue;
                 }
