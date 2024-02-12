@@ -568,5 +568,19 @@
         'url': '/api/Reverse/OverHighTomorrow',
         'defaultCountDays': 15,
         'defaultSort': '代码'
+    },
+    {
+        'name': '涨停呈资金流入',
+        'description': '',
+        'url': '/api/MoneyFlow/GetLimitUp',
+        'defaultCountDays': 15,
+        'defaultSort': '流入率'
+    },
+    {
+        'name': '马头呈资金流入',
+        'description': '',
+        'url': '/api/MoneyFlow/HorseHead',
+        'defaultCountDays': 15,
+        'defaultSort': '流入率'
     }
 ];

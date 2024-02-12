@@ -93,11 +93,29 @@ namespace LuqinOfficialAccount.Models
                     volume = (long)double.Parse(rvItems[6].Trim()),
                     turnOver = 0//double.Parse(rvItems[7].Trim())
                 };
-                if (rvItems.Length == 9)
+                if (rvItems.Length  == 9)
                 {
                     k.turnOver = double.Parse(rvItems[8].Trim());
                 }
-                if (klineList.Count == 0 || klineList[klineList.Count - 1].settleTime.Date < k.settleTime.Date)
+
+                if (rvItems.Length == 21)
+                {
+                    k.pe = double.Parse(rvItems[9].Trim());
+                    k.float_share = double.Parse(rvItems[10].Trim()) * 1000000;
+                    k.holder_num = int.Parse(rvItems[11].Trim());
+                    k.buy_sm_vol = double.Parse(rvItems[12].Trim()) * 100;
+                    k.sell_sm_vol = double.Parse(rvItems[13].Trim()) * 100;
+                    k.buy_md_vol = double.Parse(rvItems[14].Trim()) * 100;
+                    k.sell_md_vol = double.Parse(rvItems[15].Trim()) * 100;
+                    k.buy_lg_vol = double.Parse(rvItems[16].Trim()) * 100;
+                    k.sell_lg_vol = double.Parse(rvItems[17].Trim()) * 100;
+                    k.buy_elg_vol = double.Parse(rvItems[18].Trim()) * 100;
+                    k.sell_elg_vol = double.Parse(rvItems[19].Trim()) * 100;
+                    k.net_mf_vol = double.Parse(rvItems[20].Trim()) * 100;
+                    k.turnOver = Math.Round((double)k.volume / k.float_share, 2);
+                }
+
+                if (klineList.Count == 0 || (klineList[klineList.Count - 1].settleTime.Date < k.settleTime.Date) )
                 {
                     klineList.Add(k);
                 }

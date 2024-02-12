@@ -20,6 +20,22 @@ namespace LuqinOfficialAccount.Models
         public double dea { get; set; } = 0;
         public double macd { get; set; } = 0;
         public double turnOver { get; set; } = 0;
+        public double pe { get; set; } = 0;
+        public double float_share { get; set; } = 0;
+        public int holder_num { get; set; } = 0;
+
+        public double buy_sm_vol { get; set; } = 0;
+        public double sell_sm_vol { get; set; } = 0;
+        public double buy_md_vol { get; set; } = 0;
+        public double sell_md_vol { get; set; } = 0;
+        public double buy_lg_vol { get; set; } = 0;
+        public double sell_lg_vol { get; set; } = 0;
+        public double buy_elg_vol { get; set; } = 0;
+        public double sell_elg_vol { get; set; } = 0;
+        public double net_mf_vol { get; set; } = 0;
+
+
+
 
 
 
