@@ -128,7 +128,7 @@ namespace LuqinOfficialAccount.Controllers
                     continue;
                 }
                 int alertIndex = s.GetItemIndex(limitUpList[i].alert_date.Date);
-                if (alertIndex < 1 || alertIndex >= s.klineDay.Length - 2)
+                if (alertIndex < 1 || alertIndex > s.klineDay.Length - 2)
                 {
                     continue;
                 }
@@ -175,6 +175,83 @@ namespace LuqinOfficialAccount.Controllers
 
             }
         }
+
+        [HttpGet("{days}")]
+        public async Task<ActionResult<StockFilter>> HorseHeadAll(int days, DateTime startDate, DateTime endDate, string sort = "流入率 desc")
+        {
+            startDate = Util.GetLastTransactDate(startDate, 1, _db);
+            endDate = Util.GetLastTransactDate(endDate, 1, _db);
+            List<MoneyFlow> limitUpList = await LimitUp(startDate, endDate);
+            DataTable dt = new DataTable();
+            dt.Columns.Add("日期", Type.GetType("System.DateTime"));
+            dt.Columns.Add("代码", Type.GetType("System.String"));
+            dt.Columns.Add("名称", Type.GetType("System.String"));
+            dt.Columns.Add("信号", Type.GetType("System.String"));
+            dt.Columns.Add("买入", Type.GetType("System.Double"));
+            dt.Columns.Add("流入率", Type.GetType("System.Double"));
+            dt.Columns.Add("换手率", Type.GetType("System.Double"));
+            dt.Columns.Add("流换比", Type.GetType("System.Double"));
+            for (int i = 0; i < limitUpList.Count; i++)
+            {
+                Stock s = Stock.GetStock(limitUpList[i].gid);
+                try
+                {
+                    s.ForceRefreshKLineDay();
+                }
+                catch
+                {
+                    continue;
+                }
+                int alertIndex = s.GetItemIndex(limitUpList[i].alert_date.Date);
+                if (alertIndex < 1 || alertIndex > s.klineDay.Length - 2)
+                {
+                    continue;
+                }
+                if (!KLine.IsLimitUp(s.klineDay, s.gid, alertIndex))
+                {
+                    continue;
+                }
+                if (KLine.IsLimitUp(s.klineDay, alertIndex + 1))
+                {
+                    continue;
+                }
+                if (s.klineDay[alertIndex].net_mf_vol <= 0)
+                {
+                    continue;
+                }
+
+                if (s.klineDay[alertIndex + 1].open <= s.klineDay[alertIndex].settle
+                    || s.klineDay[alertIndex + 1].settle <= s.klineDay[alertIndex].settle
+                    || s.klineDay[alertIndex + 1].open > s.klineDay[alertIndex + 1].settle)
+                {
+                    continue;
+                }
+
+                DataRow dr = dt.NewRow();
+                dr["日期"] = s.klineDay[alertIndex + 1].settleTime.Date;
+                dr["代码"] = s.gid.Trim();
+                dr["名称"] = s.name.Trim();
+                dr["信号"] = "";
+                dr["买入"] = s.klineDay[alertIndex + 1].settle;
+                double tShare = s.klineDay[alertIndex].float_share;
+                dr["流入率"] = (tShare == 0) ? 0 : s.klineDay[alertIndex].net_mf_vol / tShare;
+                dr["换手率"] = s.klineDay[alertIndex].turnOver;
+                dr["流换比"] = (double)dr["流入率"] * 100 / (double)dr["换手率"];
+                dt.Rows.Add(dr);
+            }
+            StockFilter sf = StockFilter.GetResult(dt.Select("", "日期 desc, " + sort), days);
+            try
+            {
+                return Ok(sf);
+            }
+            catch
+            {
+                return NotFound();
+
+            }
+        }
+
+
         [HttpGet]
         public async Task<ActionResult<int>> SearchMoneyFlow(DateTime startDate, DateTime endDate, string gid = "")
         {

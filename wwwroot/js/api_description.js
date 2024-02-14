@@ -582,5 +582,12 @@
         'url': '/api/MoneyFlow/HorseHead',
         'defaultCountDays': 15,
         'defaultSort': '流入率'
+    },
+    {
+        'name': '马头涨停日呈资金流入',
+        'description': '',
+        'url': '/api/MoneyFlow/HorseHeadAll',
+        'defaultCountDays': 15,
+        'defaultSort': '流入率'
     }
 ];
