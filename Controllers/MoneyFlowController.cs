@@ -20,6 +20,8 @@ namespace LuqinOfficialAccount.Controllers
 
         private readonly Settings _settings;
 
+        
+
         public MoneyFlowController(AppDBContext context, IConfiguration config)
 		{
             _db = context;
@@ -84,6 +86,17 @@ namespace LuqinOfficialAccount.Controllers
                 dr["代码"] = s.gid.Trim();
                 dr["名称"] = s.name.Trim();
                 dr["信号"] = "";
+                if (Util.IsTwice(s, alertIndex))
+                {
+                    dr["信号"] += "📈";
+                }
+
+                if (Util.IsReverse(s, alertIndex))
+                {
+                    dr["信号"] += "🔥";
+                }
+
+                
                 dr["买入"] = s.klineDay[alertIndex].settle;
                 dr["流入率"] = limitUpList[i].flow_percent;
                 dr["换手率"] = s.klineDay[alertIndex].turnOver;
@@ -157,6 +170,15 @@ namespace LuqinOfficialAccount.Controllers
                 dr["代码"] = s.gid.Trim();
                 dr["名称"] = s.name.Trim();
                 dr["信号"] = "";
+                if (Util.IsTwice(s, alertIndex))
+                {
+                    dr["信号"] += "📈";
+                }
+
+                if (Util.IsReverse(s, alertIndex))
+                {
+                    dr["信号"] += "🔥";
+                }
                 dr["买入"] = s.klineDay[alertIndex + 1].settle;
                 double tShare = s.klineDay[alertIndex + 1].float_share;
                 dr["流入率"] = (tShare == 0) ? 0 : s.klineDay[alertIndex + 1].net_mf_vol / tShare;
@@ -232,6 +254,15 @@ namespace LuqinOfficialAccount.Controllers
                 dr["代码"] = s.gid.Trim();
                 dr["名称"] = s.name.Trim();
                 dr["信号"] = "";
+                if (Util.IsTwice(s, alertIndex))
+                {
+                    dr["信号"] += "📈";
+                }
+
+                if (Util.IsReverse(s, alertIndex))
+                {
+                    dr["信号"] += "🔥";
+                }
                 dr["买入"] = s.klineDay[alertIndex + 1].settle;
                 double tShare = s.klineDay[alertIndex].float_share;
                 dr["流入率"] = (tShare == 0) ? 0 : s.klineDay[alertIndex].net_mf_vol / tShare;
