@@ -93,9 +93,11 @@ namespace LuqinOfficialAccount.Models
                     volume = (long)double.Parse(rvItems[6].Trim()),
                     turnOver = 0//double.Parse(rvItems[7].Trim())
                 };
-                if (rvItems.Length  == 9)
+
+                if (rvItems.Length  <= 9 && klineList.Count > 0)
                 {
-                    k.turnOver = double.Parse(rvItems[8].Trim());
+                    k.net_mf_vol = klineList[klineList.Count - 1].net_mf_vol;
+                    k.turnOver = Math.Round((double)k.volume / k.float_share, 2);
                 }
 
                 if (rvItems.Length == 21)

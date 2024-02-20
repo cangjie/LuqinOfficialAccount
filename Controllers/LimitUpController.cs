@@ -1133,8 +1133,8 @@ namespace LuqinOfficialAccount.Controllers
             dt.Columns.Add("缩量", Type.GetType("System.Double"));
 
             dt.Columns.Add("开盘", Type.GetType("System.Double"));
-            dt.Columns.Add("流入日期", Type.GetType("System.String"));
-            dt.Columns.Add("流入天数", Type.GetType("System.String"));
+            dt.Columns.Add("换手", Type.GetType("System.String"));
+            dt.Columns.Add("成交(手)", Type.GetType("System.String"));
 
             var list = await _db.LimitUpTwice.Where(l => l.alert_date >= startDate.Date && l.alert_date <= endDate.Date).ToListAsync();
 
@@ -1171,6 +1171,8 @@ namespace LuqinOfficialAccount.Controllers
 
                 dr["缩量"] = 100 * (s.klineDay[alertIndex].volume - s.klineDay[alertIndex - 1].volume) / s.klineDay[alertIndex - 1].volume;
 
+                dr["成交(手)"] = ((double)s.klineDay[alertIndex].volume)/100;
+
                 if (alertIndex < s.klineDay.Length - 1)
                 {
                     dr["开盘"] = (s.klineDay[alertIndex + 1].open - s.klineDay[alertIndex].settle) / s.klineDay[alertIndex].settle;
@@ -1198,8 +1200,8 @@ namespace LuqinOfficialAccount.Controllers
                     dr["信号"] = dr["信号"].ToString() + "🌟";
                 }
 
-                dr["流入日期"] = "--";
-                dr["流入天数"] = "--";
+                dr["换手"] = s.klineDay[alertIndex].turnOver;
+                //dr["流入天数"] = "--";
                 /*
                 for (int j = 0; j < buyingList.Count; j++)
                 {
@@ -1666,9 +1668,13 @@ namespace LuqinOfficialAccount.Controllers
             dt.Columns.Add("名称", Type.GetType("System.String"));
             dt.Columns.Add("信号", Type.GetType("System.String"));
             dt.Columns.Add("买入", Type.GetType("System.Double"));
+            dt.Columns.Add("成交(手)", Type.GetType("System.Double"));
+
+            dt.Columns.Add("换手", Type.GetType("System.Double"));
+
             //dt.Columns.Add("流入日期", Type.GetType("System.String"));
             //dt.Columns.Add("流入天数", Type.GetType("System.String"));
-           
+
             //dt.Columns.Add("换手比", Type.GetType("System.Double"));
 
             for (int i = 0; i < l.Count; i++)
@@ -1745,7 +1751,8 @@ namespace LuqinOfficialAccount.Controllers
                 dr["日期"] = s.klineDay[alertIndex].settleTime.Date;
                 dr["代码"] = s.gid.Trim();
                 dr["名称"] = s.name.Trim();
-                //dr["换手比"] = (double)ajustVolume / (s.klineDay[alertIndex].volume + s.klineDay[prevLimitUpIndex].volume);
+                dr["换手"] = s.klineDay[alertIndex].turnOver;
+                dr["成交(手)"] = (double)s.klineDay[alertIndex].volume / 100;
                 if (KLine.IsLimitUp(s.klineDay, alertIndex + 2))
                 {
                     dr["信号"] = "📈";
