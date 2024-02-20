@@ -185,5 +185,45 @@ namespace LuqinOfficialAccount
             return "";
         }
 
+        public static bool IsTwice(Stock s, int index)
+        {
+           
+            if (index < 1 && index > s.klineDay.Length - 1)
+            {
+                return false;
+            }
+            if (KLine.IsLimitUp(s.klineDay, s.gid, index - 1)
+                && KLine.IsLimitUp(s.klineDay, s.gid, index))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public static bool IsReverse(Stock s, int index)
+        {
+            if (index < 2 || index > s.klineDay.Length - 1)
+            {
+                return false;
+            }
+            if (!KLine.IsLimitUp(s.klineDay, s.gid, index))
+            {
+                return false;
+            }
+            if (KLine.IsLimitUp(s.klineDay, s.gid, index - 1))
+            {
+                return false;
+            }
+
+            for (int i = index - 2; i >= index - 5 && i > 0; i--)
+            {
+                if (KLine.IsLimitUp(s.klineDay, s.gid, i))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
     }
 }

@@ -571,21 +571,21 @@
     },
     {
         'name': '涨停呈资金流入',
-        'description': '',
+        'description': '📈表示二连板  🔥表示反包',
         'url': '/api/MoneyFlow/GetLimitUp',
         'defaultCountDays': 15,
         'defaultSort': '流入率'
     },
     {
         'name': '马头呈资金流入',
-        'description': '',
+        'description': '📈表示二连板  🔥表示反包',
         'url': '/api/MoneyFlow/HorseHead',
         'defaultCountDays': 15,
         'defaultSort': '流入率'
     },
     {
         'name': '马头涨停日呈资金流入',
-        'description': '',
+        'description': '📈表示二连板  🔥表示反包',
         'url': '/api/MoneyFlow/HorseHeadAll',
         'defaultCountDays': 15,
         'defaultSort': '流入率'
