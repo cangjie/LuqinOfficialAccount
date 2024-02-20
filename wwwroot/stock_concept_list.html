@@ -20,6 +20,7 @@
         var decription = '';
         var inited = false;
         var countTable = [{ signal: '总计', countNum: 0, down: 0, notRise: 0, rise: 0, bigRise: 0 }];
+        var csv = '';
 
         var rnd = (new Date()).valueOf();
 
@@ -57,7 +58,7 @@
     <div id="description"></div>
     <hr />
     <div>
-        日期：从 <input type="date" id="date_from" oninput="setDate()" /> 到 <input type="date" id="date_to" oninput="setDate()" /> <button id="btn" onclick="getData()"> 查 询 </button>
+        日期：从 <input type="date" id="date_from" oninput="setDate()" /> 到 <input type="date" id="date_to" oninput="setDate()" /> <button id="btn" onclick="getData()"> 查 询 </button> <button id="btnDwn" onclick="downloadCsv()" disabled> 下 载 </button>
     </div>
     <hr />
     <div>
@@ -150,6 +151,9 @@
     var conceptList = [];
 
     function getData() {
+        var btnDwn = document.getElementById('btnDwn');
+        btnDwn.disabled = true;
+        csv = '';
         conceptList = [];
         var tbody = document.getElementById('table_body');
 
@@ -231,6 +235,7 @@
                         DisplayConcept();
                     }
                     FillCount();
+                    btnDwn.disabled = false;
                 }
             },
             complete: function (msg, status) {
@@ -403,6 +408,7 @@
                     break;
                 case 1:
                     txt = '<a href="flow.html?gid=' + item.gid + '" target="_blank" >' + item.gid + '</a>';
+                    csv += item.gid.substr(2, 6) + '\r\n';
                     break;
                 case 2:
                     txt = item.name;
@@ -605,6 +611,18 @@
         //getData();
 
 
+    }
+
+    function downloadCsv() {
+        csv = csv.trim();
+        var link = document.createElement('a');
+        link.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+        link.download = encodeURIComponent(apiDescription.url) + '.csv';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        
     }
 </script>
 
