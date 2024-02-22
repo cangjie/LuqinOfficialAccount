@@ -97,7 +97,21 @@ namespace LuqinOfficialAccount.Models
                 if (rvItems.Length  <= 9 && klineList.Count > 0)
                 {
                     k.net_mf_vol = klineList[klineList.Count - 1].net_mf_vol;
-                    k.turnOver = Math.Round((double)k.volume / k.float_share, 2);
+                    
+
+                    double floatShare = 0;
+
+                    for (int j = klineList.Count - 1; j >= 0; j--)
+                    {
+                        if (klineList[j].float_share > 0)
+                        {
+                            floatShare = klineList[j].float_share;
+                            break;
+                        }
+                    }
+
+                    
+                    k.turnOver = floatShare == 0? 0 : Math.Round((double)k.volume / floatShare, 2);
                 }
 
                 if (rvItems.Length == 21)
