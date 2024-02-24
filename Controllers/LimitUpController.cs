@@ -3201,7 +3201,7 @@ namespace LuqinOfficialAccount.Controllers
                 dr["代码"] = l[i].gid;
                 dr["名称"] = "";
                 dr["信号"] = "";
-                dr["买入"] = 0;
+                dr["买入"] = 10;
                 dt.Rows.Add(dr);
             }
             StockFilter sf = StockFilter.GetResult(dt.Select("", "日期 desc "), 0);
@@ -3239,7 +3239,7 @@ namespace LuqinOfficialAccount.Controllers
                     dr["代码"] = l[i].gid;
                     dr["名称"] = "";
                     dr["信号"] = "";
-                    dr["买入"] = 0;
+                    dr["买入"] = 10;
                     dt.Rows.Add(dr);
                 }
             }
@@ -3279,7 +3279,7 @@ namespace LuqinOfficialAccount.Controllers
                     dr["代码"] = l[i].gid;
                     dr["名称"] = "";
                     dr["信号"] = "";
-                    dr["买入"] = 0;
+                    dr["买入"] = 10;
                     dt.Rows.Add(dr);
                 }
             }
