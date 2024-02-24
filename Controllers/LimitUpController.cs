@@ -3182,6 +3182,120 @@ namespace LuqinOfficialAccount.Controllers
 
         }
 
+        [HttpGet]
+        public async Task<ActionResult<StockFilter>> GetYesterdayLimitUp()
+        {
+            DateTime lastDate = Util.GetLastTransactDate(DateTime.Now.Date, 1, _db);
+            DataTable dt = new DataTable();
+            dt.Columns.Add("日期", Type.GetType("System.DateTime"));
+            dt.Columns.Add("代码", Type.GetType("System.String"));
+            dt.Columns.Add("名称", Type.GetType("System.String"));
+            dt.Columns.Add("信号", Type.GetType("System.String"));
+            dt.Columns.Add("买入", Type.GetType("System.Double"));
+            var l = await _db.LimitUp.Where(l => l.alert_date.Date == lastDate.Date)
+                .ToListAsync();
+            for (int i = 0; i < l.Count; i++)
+            {
+                DataRow dr = dt.NewRow();
+                dr["日期"] = lastDate.Date;
+                dr["代码"] = l[i].gid;
+                dr["名称"] = "";
+                dr["信号"] = "";
+                dr["买入"] = 0;
+                dt.Rows.Add(dr);
+            }
+            StockFilter sf = StockFilter.GetResult(dt.Select("", "日期 desc "), 0);
+            try
+            {
+                return Ok(sf);
+            }
+            catch
+            {
+                return NotFound();
+
+            }
+
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<StockFilter>> GetLastWeekLimitUp()
+        {
+            DateTime lastDateEnd = Util.GetLastTransactDate(DateTime.Now.Date, 2, _db);
+            DateTime lastDateStart = Util.GetLastTransactDate(lastDateEnd, 5, _db);
+            DataTable dt = new DataTable();
+            dt.Columns.Add("日期", Type.GetType("System.DateTime"));
+            dt.Columns.Add("代码", Type.GetType("System.String"));
+            dt.Columns.Add("名称", Type.GetType("System.String"));
+            dt.Columns.Add("信号", Type.GetType("System.String"));
+            dt.Columns.Add("买入", Type.GetType("System.Double"));
+            var l = await _db.LimitUp.Where(l => (l.alert_date.Date >= lastDateStart.Date
+            && l.alert_date.Date <= lastDateEnd.Date)).OrderByDescending(l => l.alert_date).ToListAsync();
+            for (int i = 0; i < l.Count; i++)
+            {
+                if (dt.Select(" 代码 = '" + l[i].gid + "' ").Length <= 0)
+                {
+                    DataRow dr = dt.NewRow();
+                    dr["日期"] = l[i].alert_date.Date;
+                    dr["代码"] = l[i].gid;
+                    dr["名称"] = "";
+                    dr["信号"] = "";
+                    dr["买入"] = 0;
+                    dt.Rows.Add(dr);
+                }
+            }
+            StockFilter sf = StockFilter.GetResult(dt.Select("", "日期 desc "), 0);
+            try
+            {
+                return Ok(sf);
+            }
+            catch
+            {
+                return NotFound();
+
+            }
+
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<StockFilter>> GetLastHalfMonthLimitUp()
+        {
+            DateTime lastDateEnd = Util.GetLastTransactDate(DateTime.Now.Date, 2, _db);
+            lastDateEnd = Util.GetLastTransactDate(lastDateEnd, 6, _db);
+            DateTime lastDateStart = Util.GetLastTransactDate(lastDateEnd, 5, _db);
+            DataTable dt = new DataTable();
+            dt.Columns.Add("日期", Type.GetType("System.DateTime"));
+            dt.Columns.Add("代码", Type.GetType("System.String"));
+            dt.Columns.Add("名称", Type.GetType("System.String"));
+            dt.Columns.Add("信号", Type.GetType("System.String"));
+            dt.Columns.Add("买入", Type.GetType("System.Double"));
+            var l = await _db.LimitUp.Where(l => (l.alert_date.Date >= lastDateStart.Date
+            && l.alert_date.Date <= lastDateEnd.Date)).OrderByDescending(l => l.alert_date).ToListAsync();
+            for (int i = 0; i < l.Count; i++)
+            {
+                if (dt.Select(" 代码 = '" + l[i].gid + "' ").Length <= 0)
+                {
+                    DataRow dr = dt.NewRow();
+                    dr["日期"] = l[i].alert_date.Date;
+                    dr["代码"] = l[i].gid;
+                    dr["名称"] = "";
+                    dr["信号"] = "";
+                    dr["买入"] = 0;
+                    dt.Rows.Add(dr);
+                }
+            }
+            StockFilter sf = StockFilter.GetResult(dt.Select("", "日期 desc "), 0);
+            try
+            {
+                return Ok(sf);
+            }
+            catch
+            {
+                return NotFound();
+
+            }
+
+        }
+
 
 
         private bool LimitUpExists(string id)
