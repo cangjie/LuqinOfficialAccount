@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+
 namespace LuqinOfficialAccount.Models
 {
 	
@@ -34,9 +36,15 @@ namespace LuqinOfficialAccount.Models
         public double sell_elg_vol { get; set; } = 0;
         public double net_mf_vol { get; set; } = 0;
 
+        public DealCount? currentDealCount { get; set; }
+
+        public List<DealCount> dealCount30Min { get; set; } = new List<DealCount>();
+
+        
 
 
 
+        
 
 
         public static double GetAverageSettlePrice(KLine[] kArr, int index, int itemsCount, int displacement)

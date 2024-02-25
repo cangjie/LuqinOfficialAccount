@@ -858,6 +858,7 @@ namespace LuqinOfficialAccount.Controllers
             dt.Columns.Add("信号", Type.GetType("System.String"));
             dt.Columns.Add("买入", Type.GetType("System.Double"));
             dt.Columns.Add("流入", Type.GetType("System.Double"));
+            dt.Columns.Add("大单流入", Type.GetType("System.Double"));
 
             for (int i = 0; i < limL.Count; i++)
             {
@@ -865,6 +866,7 @@ namespace LuqinOfficialAccount.Controllers
                 try
                 {
                     s.ForceRefreshKLineDay();
+                    s.LoadDealCount();
                 }
                 catch
                 {
@@ -897,18 +899,21 @@ namespace LuqinOfficialAccount.Controllers
                     continue;
                 }
 
-                double selling = 0;
-                double buying = 0;
-                var flowL = await _db.bakDaily.Where(b => b.gid.Trim().Equals(s.gid)
-                    && b.alert_date.Date >= s.klineDay[alertIndex + 1].settleTime.Date
-                    && b.alert_date.Date <= s.klineDay[alertIndex + horseNum].settleTime.Date)
-                    .AsNoTracking().ToListAsync();
-                for (int j = 0; j < flowL.Count; j++)
-                {
-                    selling += flowL[j].selling;
-                    buying += flowL[j].buying;
-                }
+                
                 int buyIndex = alertIndex + horseNum;
+
+                double bigBuying = 0;
+                double buying = 0;
+
+                if (s.klineDay[buyIndex].currentDealCount != null)
+                {
+                    bigBuying = s.klineDay[buyIndex].currentDealCount.net_huge_volume
+                        + s.klineDay[buyIndex].currentDealCount.net_big_volume;
+                    buying = bigBuying + s.klineDay[buyIndex].currentDealCount.net_mid_volume
+                        + s.klineDay[buyIndex].currentDealCount.net_small_volume;
+
+
+                }
 
                 DataRow dr = dt.NewRow();
                 dr["日期"] = s.klineDay[buyIndex].settleTime.Date;
@@ -916,19 +921,20 @@ namespace LuqinOfficialAccount.Controllers
                 dr["名称"] = s.name.Trim();
                 dr["信号"] = "";
                 dr["买入"] = s.klineDay[buyIndex].settle;
-                if (selling == 0)
+                if (bigBuying > 0)
                 {
-                    dr["流入"] = 0;
+                    dr["信号"] = "📈";
                 }
-                else
+                if (bigBuying == 0 && buying == 0)
                 {
-                    double flowNum = buying / selling;
-                    dr["流入"] = flowNum;
-                    if (flowNum < 1)
-                    {
-                        dr["信号"] = "📈";
-                    }
+                    buying = s.klineDay[buyIndex].net_mf_vol / 100;
                 }
+                if (bigBuying > 0)
+                {
+                    dr["信号"] = "📈";
+                }
+                dr["大单流入"] = 10000 * bigBuying / s.klineDay[buyIndex].volume;
+                dr["流入"] = 10000 * buying / s.klineDay[buyIndex].volume;
                 dt.Rows.Add(dr);
             }
             return dt;
@@ -953,6 +959,7 @@ namespace LuqinOfficialAccount.Controllers
             dt.Columns.Add("信号", Type.GetType("System.String"));
             dt.Columns.Add("买入", Type.GetType("System.Double"));
             dt.Columns.Add("流入", Type.GetType("System.Double"));
+            dt.Columns.Add("大单流入", Type.GetType("System.Double"));
 
             for (int i = 0; i < limL.Count; i++)
             {
@@ -960,6 +967,7 @@ namespace LuqinOfficialAccount.Controllers
                 try
                 {
                     s.ForceRefreshKLineDay();
+                    s.LoadDealCount();
                 }
                 catch
                 {
@@ -991,38 +999,56 @@ namespace LuqinOfficialAccount.Controllers
                     continue;
                 }
 
-                double selling = 0;
-                double buying = 0;
+                
+                
+                /*
                 var flowL = await _db.bakDaily.Where(b => b.gid.Trim().Equals(s.gid)
                     && b.alert_date.Date >= s.klineDay[alertIndex + 1].settleTime.Date
                     && b.alert_date.Date <= s.klineDay[alertIndex + horseNum].settleTime.Date)
                     .AsNoTracking().ToListAsync();
-                for (int j = 0; j < flowL.Count; j++)
-                {
-                    selling += flowL[j].selling;
-                    buying += flowL[j].buying;
-                }
+                */
+                
                 int buyIndex = alertIndex + horseNum;
+
+                double bigBuying = 0;
+                double buying = 0;
+
+                if (s.klineDay[buyIndex].currentDealCount != null)
+                {
+                    bigBuying = s.klineDay[buyIndex].currentDealCount.net_huge_volume
+                        + s.klineDay[buyIndex].currentDealCount.net_big_volume;
+                    buying = bigBuying + s.klineDay[buyIndex].currentDealCount.net_mid_volume
+                        + s.klineDay[buyIndex].currentDealCount.net_small_volume;
+
+
+                }
+
 
                 DataRow dr = dt.NewRow();
                 dr["日期"] = s.klineDay[buyIndex].settleTime.Date;
                 dr["代码"] = s.gid.Trim();
                 dr["名称"] = s.name.Trim();
                 dr["信号"] = "";
+
+                if (bigBuying > 0)
+                {
+                    dr["信号"] = "📈";
+                }
+                if (bigBuying == 0 && buying == 0)
+                {
+                    buying = s.klineDay[buyIndex].net_mf_vol/100;
+                }
+                if (bigBuying > 0)
+                {
+                    dr["信号"] = "📈";
+                }
+
+
                 dr["买入"] = s.klineDay[buyIndex].settle;
-                if (selling == 0)
-                {
-                    dr["流入"] = 0;
-                }
-                else
-                {
-                    double flowNum = buying / selling;
-                    dr["流入"] = flowNum;
-                    if (flowNum < 1)
-                    {
-                        dr["信号"] = "📈";
-                    }
-                }
+                dr["大单流入"] = 10000* bigBuying / s.klineDay[buyIndex].volume;
+                dr["流入"] = 10000 * buying / s.klineDay[buyIndex].volume;
+                
+                
                 dt.Rows.Add(dr);
             }
             return dt;

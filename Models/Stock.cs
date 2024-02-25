@@ -68,6 +68,75 @@ namespace LuqinOfficialAccount.Models
             }
         }
 
+
+        public void LoadDealCount()
+        {
+            string key = gid + "_money";
+            if (klineDay == null || klineDay.Length <= 0)
+            {
+                return;
+            }
+            try
+            {
+                StackExchange.Redis.RedisValue[] rvArr = RedisClient.redisDb.SortedSetRangeByScore((StackExchange.Redis.RedisKey)key);
+               
+                for (int i = 0; i < rvArr.Length; i++)
+                {
+                    string[] rvItems = rvArr[i].ToString().Trim().Split(',');
+                    
+                    DealCount dc = new DealCount();
+                    dc.settleTime = DateTime.Parse(rvItems[0]);
+
+                    dc.huge_volume = long.Parse(rvItems[1]);
+                    dc.net_huge_volume = long.Parse(rvItems[2]);
+
+                    dc.big_volume = long.Parse(rvItems[3]);
+                    dc.net_big_volume = long.Parse(rvItems[4]);
+
+                    dc.mid_volume = long.Parse(rvItems[5]);
+                    dc.net_mid_volume = long.Parse(rvItems[6]);
+
+                    dc.small_volume = long.Parse(rvItems[7]);
+                    dc.net_small_volume = long.Parse(rvItems[8]);
+
+                    int itemIndex = GetItemIndex(dc.settleTime.Date);
+                    if (itemIndex < 0 || itemIndex >= klineDay.Length)
+                    {
+                        continue;
+                    }
+                    klineDay[itemIndex].dealCount30Min.Add(dc);
+
+                }
+
+                for (int i = 0; i < klineDay.Length; i++)
+                {
+                    KLine k = klineDay[i];
+                    if (k.dealCount30Min.Count > 0)
+                    {
+                        DealCount d = new DealCount();
+                        d.settleTime = k.settleTime;
+                        for (int j = 0; j < k.dealCount30Min.Count; j++)
+                        {
+                            d.huge_volume += k.dealCount30Min[j].huge_volume;
+                            d.net_huge_volume += k.dealCount30Min[j].net_huge_volume;
+                            d.big_volume += k.dealCount30Min[j].big_volume;
+                            d.net_big_volume += k.dealCount30Min[j].net_big_volume;
+                            d.mid_volume += k.dealCount30Min[j].mid_volume;
+                            d.net_mid_volume += k.dealCount30Min[j].net_mid_volume;
+                            d.small_volume += k.dealCount30Min[j].small_volume;
+                            d.net_small_volume += k.dealCount30Min[j].net_small_volume;
+
+                        }
+                        k.currentDealCount = d;
+                    }
+                }
+            }
+            catch
+            {
+
+            }
+
+        }
         public void ForceRefreshKLineDay()
         {
             string key = gid + "_kline_day";
