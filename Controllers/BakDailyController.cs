@@ -934,7 +934,12 @@ namespace LuqinOfficialAccount.Controllers
                     dr["信号"] = "📈";
                 }
                 dr["大单流入"] = 10000 * bigBuying / s.klineDay[buyIndex].volume;
-                dr["流入"] = 10000 * buying / s.klineDay[buyIndex].volume;
+                double flowIn = 10000 * buying / s.klineDay[buyIndex].volume;
+                dr["流入"] = flowIn;
+                if (Math.Abs(flowIn) >= 10)
+                {
+                    dr["信号"] = dr["信号"] + "🔥";
+                }
                 dt.Rows.Add(dr);
             }
             return dt;
@@ -1045,10 +1050,15 @@ namespace LuqinOfficialAccount.Controllers
 
 
                 dr["买入"] = s.klineDay[buyIndex].settle;
+                double flowIn = 10000 * buying / s.klineDay[buyIndex].volume;
                 dr["大单流入"] = 10000* bigBuying / s.klineDay[buyIndex].volume;
-                dr["流入"] = 10000 * buying / s.klineDay[buyIndex].volume;
-                
-                
+                dr["流入"] = flowIn;
+                if (Math.Abs(flowIn) >= 10)
+                {
+                    dr["信号"] = dr["信号"] + "🔥";
+                }
+
+
                 dt.Rows.Add(dr);
             }
             return dt;
