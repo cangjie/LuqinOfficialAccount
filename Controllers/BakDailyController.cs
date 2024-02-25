@@ -936,7 +936,7 @@ namespace LuqinOfficialAccount.Controllers
                 dr["大单流入"] = 10000 * bigBuying / s.klineDay[buyIndex].volume;
                 double flowIn = 10000 * buying / s.klineDay[buyIndex].volume;
                 dr["流入"] = flowIn;
-                if (Math.Abs(flowIn) >= 10)
+                if (flowIn >= 5)
                 {
                     dr["信号"] = dr["信号"] + "🔥";
                 }
