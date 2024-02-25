@@ -523,6 +523,9 @@ namespace LuqinOfficialAccount.Controllers
             dt.Columns.Add("名称", Type.GetType("System.String"));
             dt.Columns.Add("信号", Type.GetType("System.String"));
             dt.Columns.Add("买入", Type.GetType("System.Double"));
+            dt.Columns.Add("流入", Type.GetType("System.Double"));
+            dt.Columns.Add("大单流入", Type.GetType("System.Double"));
+
 
             StockFilter reverseList = (StockFilter)((OkObjectResult)(await limitUpHelper.Reverse(days, startDate, endDate, sort)).Result).Value;
             for (int i = 0; reverseList != null && i < reverseList.itemList.Count; i++)
@@ -531,22 +534,23 @@ namespace LuqinOfficialAccount.Controllers
                 try
                 {
                     s.ForceRefreshKLineDay();
+                    s.LoadDealCount();
                 }
                 catch
                 {
                     continue;
                 }
                 int alertIndex = s.GetItemIndex(reverseList.itemList[i].alertDate.Date);
-                if (alertIndex < 2 || alertIndex >= s.klineDay.Length - 1)
+                if (alertIndex < 2 || alertIndex >= s.klineDay.Length - 2)
                 {
                     continue;
                 }
 
-                if (!KLine.IsLimitUp(s.klineDay, alertIndex - 2))
+                if (!KLine.IsLimitUp(s.klineDay, s.gid, alertIndex))
                 {
                     continue;
                 }
-                if (s.klineDay[alertIndex - 2].settle >= Math.Min(s.klineDay[alertIndex - 1].settle, s.klineDay[alertIndex - 1].open))
+                if (s.klineDay[alertIndex].settle >= Math.Min(s.klineDay[alertIndex + 1].settle, s.klineDay[alertIndex + 1].open))
                 {
                     continue;
                 }
@@ -555,12 +559,47 @@ namespace LuqinOfficialAccount.Controllers
                 {
                     continue;
                 }
+
+                double bigBuying = 0;
+                double buying = 0;
+                int buyIndex = alertIndex + 1;
+                if (s.klineDay[buyIndex].currentDealCount != null)
+                {
+                    bigBuying = s.klineDay[buyIndex].currentDealCount.net_huge_volume
+                        + s.klineDay[buyIndex].currentDealCount.net_big_volume;
+                    buying = bigBuying + s.klineDay[buyIndex].currentDealCount.net_mid_volume
+                        + s.klineDay[buyIndex].currentDealCount.net_small_volume;
+
+
+                }
+
                 DataRow dr = dt.NewRow();
                 dr["日期"] = s.klineDay[alertIndex + 1].settleTime.Date;
                 dr["代码"] = s.gid.Trim();
                 dr["名称"] = s.name.Trim();
                 dr["信号"] = "";
                 dr["买入"] = s.klineDay[alertIndex + 1].open;
+
+                if (bigBuying > 0)
+                {
+                    dr["信号"] = "📈";
+                }
+                if (bigBuying == 0 && buying == 0)
+                {
+                    buying = s.klineDay[buyIndex].net_mf_vol / 100;
+                }
+                if (bigBuying > 0)
+                {
+                    dr["信号"] = "📈";
+                }
+                double flowIn = 10000 * buying / s.klineDay[buyIndex].volume;
+                dr["大单流入"] = 10000 * bigBuying / s.klineDay[buyIndex].volume;
+                dr["流入"] = flowIn;
+                if (Math.Abs(flowIn) >= 10)
+                {
+                    dr["信号"] = dr["信号"] + "🔥";
+                }
+
                 dt.Rows.Add(dr);
             }
 
