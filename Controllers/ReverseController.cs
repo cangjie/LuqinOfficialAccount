@@ -569,8 +569,6 @@ namespace LuqinOfficialAccount.Controllers
                         + s.klineDay[buyIndex].currentDealCount.net_big_volume;
                     buying = bigBuying + s.klineDay[buyIndex].currentDealCount.net_mid_volume
                         + s.klineDay[buyIndex].currentDealCount.net_small_volume;
-
-
                 }
 
                 DataRow dr = dt.NewRow();
