@@ -550,6 +550,12 @@ namespace LuqinOfficialAccount.Controllers
                 {
                     continue;
                 }
+
+                if (KLine.IsLimitUp(s.klineDay, s.gid, alertIndex+1))
+                {
+                    continue;
+                }
+
                 if (s.klineDay[alertIndex].settle >= Math.Min(s.klineDay[alertIndex + 1].settle, s.klineDay[alertIndex + 1].open))
                 {
                     continue;
