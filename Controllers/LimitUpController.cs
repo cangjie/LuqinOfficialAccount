@@ -3194,17 +3194,20 @@ namespace LuqinOfficialAccount.Controllers
             dt.Columns.Add("买入", Type.GetType("System.Double"));
             var l = await _db.LimitUp.Where(l => l.alert_date.Date == lastDate.Date)
                 .ToListAsync();
+
+            
+            StockFilter sf = new StockFilter();
+            sf.itemList = new List<StockFilter.Item>();
+
             for (int i = 0; i < l.Count; i++)
             {
-                DataRow dr = dt.NewRow();
-                dr["日期"] = lastDate.Date;
-                dr["代码"] = l[i].gid;
-                dr["名称"] = "";
-                dr["信号"] = "";
-                dr["买入"] = 10;
-                dt.Rows.Add(dr);
+                StockFilter.Item item = new StockFilter.Item();
+
+                item.gid = l[i].gid;
+                sf.itemList.Add(item);
+
             }
-            StockFilter sf = StockFilter.GetResult(dt.Select("", "日期 desc "), 0);
+
             try
             {
                 return Ok(sf);
@@ -3230,20 +3233,23 @@ namespace LuqinOfficialAccount.Controllers
             dt.Columns.Add("买入", Type.GetType("System.Double"));
             var l = await _db.LimitUp.Where(l => (l.alert_date.Date >= lastDateStart.Date
             && l.alert_date.Date <= lastDateEnd.Date)).OrderByDescending(l => l.alert_date).ToListAsync();
+
+            
+            StockFilter sf = new StockFilter();
+            sf.itemList = new List<StockFilter.Item>();
+
             for (int i = 0; i < l.Count; i++)
             {
-                if (dt.Select(" 代码 = '" + l[i].gid + "' ").Length <= 0)
-                {
-                    DataRow dr = dt.NewRow();
-                    dr["日期"] = l[i].alert_date.Date;
-                    dr["代码"] = l[i].gid;
-                    dr["名称"] = "";
-                    dr["信号"] = "";
-                    dr["买入"] = 10;
-                    dt.Rows.Add(dr);
-                }
+                StockFilter.Item item = new StockFilter.Item();
+
+                item.gid = l[i].gid;
+                sf.itemList.Add(item);
+
             }
-            StockFilter sf = StockFilter.GetResult(dt.Select("", "日期 desc "), 0);
+
+
+
+
             try
             {
                 return Ok(sf);
@@ -3270,20 +3276,19 @@ namespace LuqinOfficialAccount.Controllers
             dt.Columns.Add("买入", Type.GetType("System.Double"));
             var l = await _db.LimitUp.Where(l => (l.alert_date.Date >= lastDateStart.Date
             && l.alert_date.Date <= lastDateEnd.Date)).OrderByDescending(l => l.alert_date).ToListAsync();
+
+            StockFilter sf = new StockFilter();
+            sf.itemList = new List<StockFilter.Item>();
+
             for (int i = 0; i < l.Count; i++)
             {
-                if (dt.Select(" 代码 = '" + l[i].gid + "' ").Length <= 0)
-                {
-                    DataRow dr = dt.NewRow();
-                    dr["日期"] = l[i].alert_date.Date;
-                    dr["代码"] = l[i].gid;
-                    dr["名称"] = "";
-                    dr["信号"] = "";
-                    dr["买入"] = 10;
-                    dt.Rows.Add(dr);
-                }
+                StockFilter.Item item = new StockFilter.Item();
+
+                item.gid = l[i].gid;
+                sf.itemList.Add(item);
+
             }
-            StockFilter sf = StockFilter.GetResult(dt.Select("", "日期 desc "), 0);
+
             try
             {
                 return Ok(sf);
