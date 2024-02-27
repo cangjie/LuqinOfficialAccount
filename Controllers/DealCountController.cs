@@ -49,6 +49,12 @@ namespace LuqinOfficialAccount.Controllers
 
                 }
                 int buyIndex = s.GetItemIndex(item.alertDate) + 1;
+
+                if (KLine.IsLimitUp(s.klineDay, s.gid, buyIndex))
+                {
+                    continue;
+                }
+
                 if (buyIndex < 0 || buyIndex >= s.klineDay.Length)
                 {
                     continue;
