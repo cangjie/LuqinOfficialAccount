@@ -589,5 +589,19 @@
         'url': '/api/MoneyFlow/HorseHeadAll',
         'defaultCountDays': 15,
         'defaultSort': '流入率'
+    },
+    {
+        'name': '反包观察次日资金流入',
+        'description': '',
+        'url': '/api/DealCount/Reverse',
+        'defaultCountDays': 15,
+        'defaultSort': '大单流入'
+    },
+    {
+        'name': '二连板观察次日资金流入',
+        'description': '',
+        'url': '/api/DealCount/LimitUpTwice',
+        'defaultCountDays': 15,
+        'defaultSort': '大单流入'
     }
 ];
