@@ -59,6 +59,7 @@ namespace LuqinOfficialAccount.Controllers
                 {
                     continue;
                 }
+                
                 double bigBuying = 0;
                 double buying = 0;
 
@@ -77,11 +78,11 @@ namespace LuqinOfficialAccount.Controllers
                 }
 
                 DataRow dr = dt.NewRow();
-                dr["日期"] = item.alertDate;
+                dr["日期"] = s.klineDay[buyIndex].settleTime.Date;
                 dr["代码"] = item.gid;
                 dr["名称"] = item.name.Trim();
                 dr["信号"] = item.signal;
-                dr["买入"] = item.buyPrice;
+                dr["买入"] = s.klineDay[buyIndex].settle;
                 dr["大单流入"] = 10000 * bigBuying / s.klineDay[buyIndex].volume;
                 double flowIn = 10000 * buying / s.klineDay[buyIndex].volume;
                 dr["流入"] = flowIn;
