@@ -595,13 +595,13 @@
         'description': '',
         'url': '/api/DealCount/Reverse',
         'defaultCountDays': 15,
-        'defaultSort': '大单流入 desc'
+        'defaultSort': '流入 desc'
     },
     {
         'name': '二连板观察次日资金流入',
         'description': '',
         'url': '/api/DealCount/LimitUpTwice',
         'defaultCountDays': 15,
-        'defaultSort': '大单流入 desc'
+        'defaultSort': '流入 desc'
     }
 ];
