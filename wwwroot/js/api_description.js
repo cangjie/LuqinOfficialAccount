@@ -603,5 +603,12 @@
         'url': '/api/DealCount/LimitUpTwice',
         'defaultCountDays': 15,
         'defaultSort': '流入 desc'
+    },
+    {
+        'name': '反包后两个马头创新高',
+        'description': '📈表示二马头创新高。',
+        'url': '/api/Reverse/HorseHead2',
+        'defaultCountDays': 15,
+        'defaultSort': '大单流入 desc'
     }
 ];
