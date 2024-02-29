@@ -408,7 +408,7 @@ namespace LuqinOfficialAccount.Controllers
             dt.Columns.Add("名称", Type.GetType("System.String"));
             dt.Columns.Add("信号", Type.GetType("System.String"));
             dt.Columns.Add("买入", Type.GetType("System.Double"));
-            dt.Columns.Add("流入", Type.GetType("System.Double"));
+            //dt.Columns.Add("流入", Type.GetType("System.Double"));
             StockFilter reverseList = (StockFilter)((OkObjectResult)(await limitUpHelper.Reverse(days, startDate, endDate, sort)).Result).Value;
             for (int i = 0; reverseList != null && i < reverseList.itemList.Count; i++)
             {
@@ -447,18 +447,7 @@ namespace LuqinOfficialAccount.Controllers
                     continue;
                 }
                 bool allHorseHead = true;
-                double flowRate = 0;
-                double selling = 0;
-                double buying = 0;
-                var l = await _db.bakDaily.Where(b => b.gid.Trim().Equals(s.gid.Trim())
-                    && b.alert_date.Date >= s.klineDay[prevLimIndex].settleTime.Date
-                    && b.alert_date.Date <= s.klineDay[alertIndex].settleTime.Date)
-                    .AsNoTracking().ToListAsync();
-                for (int j = 0; j < l.Count; j++)
-                {
-                    buying += l[j].buying;
-                    selling += l[j].selling;
-                }
+                
 
                 for (int j = alertIndex - 1; j > prevLimIndex; j--)
                 {
@@ -478,19 +467,7 @@ namespace LuqinOfficialAccount.Controllers
                 dr["名称"] = s.name.Trim();
                 dr["信号"] = "";
                 dr["买入"] = s.klineDay[alertIndex + 1].open;
-                if (selling > 0)
-                {
-                    flowRate = buying / selling;
-                    dr["流入"] = flowRate;
-                    if (flowRate < 1)
-                    {
-                        dr["信号"] = "📈";
-                    }
-                }
-                else
-                {
-                    dr["流入"] = 0;
-                }
+                
                 dt.Rows.Add(dr);
 
             }
@@ -506,6 +483,105 @@ namespace LuqinOfficialAccount.Controllers
             }
         }
 
+        [HttpGet("{days}")]
+        public async Task<ActionResult<StockFilter>> HorseHead2(int days, DateTime startDate, DateTime endDate, string sort = "代码")
+        {
+            startDate = Util.GetLastTransactDate(startDate, 2, _db);
+            endDate = Util.GetLastTransactDate(endDate, 2, _db);
+
+            DataTable dt = new DataTable();
+            dt.Columns.Add("日期", Type.GetType("System.DateTime"));
+            dt.Columns.Add("代码", Type.GetType("System.String"));
+            dt.Columns.Add("名称", Type.GetType("System.String"));
+            dt.Columns.Add("信号", Type.GetType("System.String"));
+            dt.Columns.Add("买入", Type.GetType("System.Double"));
+            dt.Columns.Add("流入", Type.GetType("System.Double"));
+            dt.Columns.Add("大单流入", Type.GetType("System.Double"));
+
+
+            StockFilter reverseList = (StockFilter)((OkObjectResult)(await limitUpHelper.Reverse(days, startDate, endDate, "代码")).Result).Value;
+            for (int i = 0; reverseList != null && i < reverseList.itemList.Count; i++)
+            {
+                Stock s = Stock.GetStock(reverseList.itemList[i].gid);
+                try
+                {
+                    s.ForceRefreshKLineDay();
+                    s.LoadDealCount();
+                }
+                catch
+                {
+                    continue;
+                }
+                int alertIndex = s.GetItemIndex(reverseList.itemList[i].alertDate.Date);
+                if (alertIndex < 2 || alertIndex >= s.klineDay.Length - 2)
+                {
+                    continue;
+                }
+
+                if (!KLine.IsLimitUp(s.klineDay, s.gid, alertIndex))
+                {
+                    continue;
+                }
+
+                if (KLine.IsLimitUp(s.klineDay, s.gid, alertIndex + 1)
+                    || KLine.IsLimitUp(s.klineDay, s.gid, alertIndex + 2) )
+                {
+                    continue;
+                }
+
+                if (s.klineDay[alertIndex].settle >= Math.Min(s.klineDay[alertIndex + 1].settle, s.klineDay[alertIndex + 1].open))
+                {
+                    continue;
+                }
+                if (s.klineDay[alertIndex].settle >= Math.Min(s.klineDay[alertIndex + 2].settle, s.klineDay[alertIndex + 2].open))
+                {
+                    continue;
+                }
+
+                
+
+                double bigBuying = 0;
+                double buying = 0;
+                int buyIndex = alertIndex + 2;
+                if (s.klineDay[buyIndex].currentDealCount != null)
+                {
+                    bigBuying = s.klineDay[buyIndex].currentDealCount.net_huge_volume
+                        + s.klineDay[buyIndex].currentDealCount.net_big_volume;
+                    buying = bigBuying + s.klineDay[buyIndex].currentDealCount.net_mid_volume
+                        + s.klineDay[buyIndex].currentDealCount.net_small_volume;
+                }
+
+                DataRow dr = dt.NewRow();
+                dr["日期"] = s.klineDay[alertIndex + 2].settleTime.Date;
+                dr["代码"] = s.gid.Trim();
+                dr["名称"] = s.name.Trim();
+                dr["信号"] = "";
+                dr["买入"] = s.klineDay[alertIndex + 2].settle;
+
+               
+                double flowIn = 10000 * buying / s.klineDay[buyIndex].volume;
+                dr["大单流入"] = 10000 * bigBuying / s.klineDay[buyIndex].volume;
+                dr["流入"] = flowIn;
+
+                if (s.klineDay[buyIndex].settle > s.klineDay[buyIndex - 1].settle)
+                {
+                    dr["信号"] = "📈";
+                }
+
+                dt.Rows.Add(dr);
+            }
+
+            StockFilter sf = StockFilter.GetResult(dt.Select("", "日期 desc, " + sort), days);
+            try
+            {
+                return Ok(sf);
+            }
+            catch
+            {
+                return NotFound();
+
+            }
+        }
 
 
 
