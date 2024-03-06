@@ -30,6 +30,9 @@ namespace LuqinOfficialAccount.Controllers
             Util._db = context;
         }
 
+
+        
+
         [HttpGet("{days}")]
         public async Task<ActionResult<List<Inflow>>> GetMoneyFlow(DateTime date, int days)
         {
