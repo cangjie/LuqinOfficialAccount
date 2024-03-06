@@ -25,6 +25,7 @@
                 <td class="table_head">大</td>
                 <td class="table_head">中</td>
                 <td class="table_head">小</td>
+                <td class="table_head">总计</td>
             </tr>
         </thead>
         <tbody id="count_table">
@@ -56,9 +57,11 @@
             var msgFlow = msg
             var tbody = document.getElementById('count_table');
             var total = 0;
+            var volume = 0;
             for (var i = 0; i < msg.length; i++) {
 
                 total = msgFlow[i].total == 0 ? total : msgFlow[i].total;
+                volume = msgFlow[i].volume == 0 ? volume : msgFlow[i].volume;
                 var huge = msgFlow[i].net_huge_volume;
                 var big = msgFlow[i].net_big_volume;
                 var mid = msgFlow[i].net_mid_volume;
@@ -81,11 +84,13 @@
                 var txtBig = '-';
                 var txtMid = '-';
                 var txtSmall = '-';
-                if (total > 0) {
-                    txtHuge = Math.round(10000 * parseFloat(huge) / parseFloat(total), 2);
-                    txtBig = Math.round(10000 * parseFloat(big) / parseFloat(total), 2);
-                    txtMid = Math.round(10000 * parseFloat(mid) / parseFloat(total), 2);
-                    txtSmall = Math.round(10000 * parseFloat(small) / parseFloat(total), 2);
+                var txtTotal = '-';
+                if (volume > 0) {
+                    txtHuge = Math.round(1000000 * parseFloat(huge) / parseFloat(volume), 2)/100;
+                    txtBig = Math.round(1000000 * parseFloat(big) / parseFloat(volume), 2)/100;
+                    txtMid = Math.round(1000000 * parseFloat(mid) / parseFloat(volume), 2)/100;
+                    txtSmall = Math.round(1000000 * parseFloat(small) / parseFloat(volume), 2)/100;
+                    txtTotal = Math.round(1000000 * parseFloat(small + mid + big + huge) / parseFloat(volume), 2)/100;
                 }
 
                 td = document.createElement('td');
@@ -105,7 +110,9 @@
                 td.innerText = txtSmall;
                 tr.appendChild(td);
 
-
+                td = document.createElement('td');
+                td.innerText = txtTotal;
+                tr.appendChild(td);
 
                 tbody.appendChild(tr);
 
