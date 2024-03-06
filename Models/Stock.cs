@@ -141,6 +141,7 @@ namespace LuqinOfficialAccount.Models
 
                         }
                         d.total = total;
+                        d.volume = k.volume;
                         k.currentDealCount = d;
                         
                     }
