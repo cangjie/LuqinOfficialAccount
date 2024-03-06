@@ -85,6 +85,7 @@ namespace LuqinOfficialAccount.Models
                     string[] rvItems = rvArr[i].ToString().Trim().Split(',');
                     
                     DealCount dc = new DealCount();
+                    dc.type = "30min";
                     dc.settleTime = DateTime.Parse(rvItems[0]);
 
                     dc.huge_volume = long.Parse(rvItems[1]);
@@ -104,6 +105,7 @@ namespace LuqinOfficialAccount.Models
                     {
                         continue;
                     }
+                    dc.total = klineDay[itemIndex].float_share;
                     klineDay[itemIndex].dealCount30Min.Add(dc);
 
                 }
@@ -115,7 +117,7 @@ namespace LuqinOfficialAccount.Models
                     {
                         DealCount d = new DealCount();
                         d.settleTime = k.settleTime;
-                        for (int j = 0; j < k.dealCount30Min.Count; j++)
+                        for (int j = 0; j < k.dealCount30Min.Count ; j++)
                         {
                             d.huge_volume += k.dealCount30Min[j].huge_volume;
                             d.net_huge_volume += k.dealCount30Min[j].net_huge_volume;
@@ -125,9 +127,22 @@ namespace LuqinOfficialAccount.Models
                             d.net_mid_volume += k.dealCount30Min[j].net_mid_volume;
                             d.small_volume += k.dealCount30Min[j].small_volume;
                             d.net_small_volume += k.dealCount30Min[j].net_small_volume;
+                            
 
                         }
+                        double total = 0;
+                        for(int j = i; j >= 0; j--)
+                        {
+                            if (klineDay[j].float_share > 0)
+                            {
+                                total = klineDay[j].float_share;
+                                break;
+                            }
+
+                        }
+                        d.total = total;
                         k.currentDealCount = d;
+                        
                     }
                 }
             }

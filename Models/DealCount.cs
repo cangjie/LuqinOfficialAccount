@@ -17,7 +17,7 @@ namespace LuqinOfficialAccount.Models
         public long net_mid_volume { get; set; } = 0;
         public long small_volume { get; set; } = 0;
         public long net_small_volume { get; set; } = 0;
-
+		public double total { get; set; } = 0;
     }
 }
 

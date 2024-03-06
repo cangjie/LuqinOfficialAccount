@@ -21,11 +21,10 @@
         <thead>
             <tr>
                 <td class="table_head">日期</td>
-                <td class="table_head">涨停</td>
-                <td class="table_head">比例</td>
-                <td class="table_head">5日平均比</td>
-                <td class="table_head">大单占比</td>
-                <td class="table_head">大单流入比</td>
+                <td class="table_head">特</td>
+                <td class="table_head">大</td>
+                <td class="table_head">中</td>
+                <td class="table_head">小</td>
             </tr>
         </thead>
         <tbody id="count_table">
@@ -35,13 +34,13 @@
 </html>
 <script type="text/javascript" >
     var gid = getUrlParameter('gid');
-    var url = 'https://stockpage.10jqka.com.cn/' + gid.substring(2, 8) + '/funds/'
-    window.location.href = url;
+    //var url = 'https://stockpage.10jqka.com.cn/' + gid.substring(2, 8) + '/funds/'
+    //window.location.href = url;
     
     
     var gidDiv = document.getElementById('gid')
-    gidDiv.innerText = gid + ' ' + url;
-    var ajaxUrl = '/api/BakDaily/GetFlow/' + gid;
+    gidDiv.innerText = gid;// + ' ' + url;
+    var ajaxUrl = '/api/DealCount/GetDealCount/' + gid;
     $.ajax({
         url: ajaxUrl,
         type: 'GET',
@@ -56,38 +55,57 @@
             }
             var msgFlow = msg
             var tbody = document.getElementById('count_table');
+            var total = 0;
             for (var i = 0; i < msg.length; i++) {
-                var buying = msgFlow[i].buying;
-                var selling = msgFlow[i].selling;
-                var rate = selling == 0 ? 1 : buying / selling;
-                var aRate = msgFlow[i].ma5BSRate;
+
+                total = msgFlow[i].total == 0 ? total : msgFlow[i].total;
+                var huge = msgFlow[i].net_huge_volume;
+                var big = msgFlow[i].net_big_volume;
+                var mid = msgFlow[i].net_mid_volume;
+                var small = msgFlow[i].net_small_volume;
+
+                var dayTime = (msgFlow[i].type == 'day') ?
+                    formatDate(new Date(msgFlow[i].settleTime))
+                    : formatTime(new Date(msgFlow[i].settleTime));
+
                 var tr = document.createElement('tr');
                 var trClass = document.createAttribute('class');
-
-                trClass.value = 'table_body_row';
+                trClass.value = (msgFlow[i].type == 'day') ? 'table_body_row_day' : 'table_body_row';
                 tr.attributes.setNamedItem(trClass);
 
                 var td = document.createElement('td');
-                td.innerText = msgFlow[i].alert_date.toString().split('T')[0];
+                td.innerText = dayTime;
+                tr.appendChild(td);
+
+                var txtHuge = '-';
+                var txtBig = '-';
+                var txtMid = '-';
+                var txtSmall = '-';
+                if (total > 0) {
+                    txtHuge = Math.round(10000 * parseFloat(huge) / parseFloat(total), 2);
+                    txtBig = Math.round(10000 * parseFloat(big) / parseFloat(total), 2);
+                    txtMid = Math.round(10000 * parseFloat(mid) / parseFloat(total), 2);
+                    txtSmall = Math.round(10000 * parseFloat(small) / parseFloat(total), 2);
+                }
+
+                td = document.createElement('td');
+                //td.id = msgFlow[i].alert_date.toString().split('T')[0];
+                td.innerText = txtHuge;
                 tr.appendChild(td);
 
                 td = document.createElement('td');
-                td.id = msgFlow[i].alert_date.toString().split('T')[0];
-                td.innerText = '';
+                td.innerText = txtBig;
                 tr.appendChild(td);
 
                 td = document.createElement('td');
-                td.innerText = Math.round(rate*100, 2)/100;
+                td.innerText = txtMid;
                 tr.appendChild(td);
+
                 td = document.createElement('td');
-                td.innerText = Math.round(aRate*100, 2)/100;
+                td.innerText = txtSmall;
                 tr.appendChild(td);
-                td = document.createElement('td');
-                td.innerText = '';
-                tr.appendChild(td);
-                td = document.createElement('td');
-                td.innerText = '';
-                tr.appendChild(td);
+
+
 
                 tbody.appendChild(tr);
 
@@ -99,57 +117,8 @@
 
                 
             }
-            ajaxUrl = '/api/LimitUp/GetLimitUpDays/' + gid
+           
 
-            $.ajax({
-                url: ajaxUrl,
-                type: 'GET',
-                success: function (msg, status) {
-                    if (status != 'success') {
-                        return;
-                    }
-                    for (var i = 0; i < msg.length; i++) {
-                        var date = msg[i]
-                        var td = document.getElementById(msg[i].split('T')[0]);
-                        if (td != null) {
-                            td.innerText = '📈';
-                        }
-                    }
-                }
-            })
-
-            var bigDealUrl = '/api/BigDeal/GetBigDeal/' + gid
-            $.ajax({
-                url: bigDealUrl,
-                type: 'GET',
-                success: function (msg, status) {
-                    if (status != 'success') {
-                        return
-                    }
-                    var tbody = document.getElementById('count_table');
-                    for (var i = 0; i < msg.length; i++) {
-                        var date = msg[i].alert_date.toString().split('T')[0]
-                        for (var j = 0; j < tbody.childNodes.length; j++) {
-                            var tr = tbody.childNodes[j]
-                            if (tr.childNodes.length > 0) {
-                                var tableDate = tr.childNodes[0].innerText
-                                if (tableDate == date) {
-                                    var bigDealVol = msg[i].big_deal_vol;
-                                    var totalVol = msg[i].total_vol;
-                                    var uVol = msg[i].u_vol;
-                                    var dVol = msg[i].d_vol;
-                                    var bigVolRate = (totalVol == 0) ? 0 : (bigDealVol / totalVol)
-                                    var uRate = (dVol == 0) ? 0 : (uVol / dVol);
-                                    tr.childNodes[4].innerText = Math.round(bigVolRate * 100) / 100
-                                    tr.childNodes[5].innerText = Math.round(uRate * 100) / 100
-                                }
-                            }
-                            
-                            console.log(tableDate)
-                        }
-                    }
-                }
-            })
             //console.log('get daily', msg);
         }
     });

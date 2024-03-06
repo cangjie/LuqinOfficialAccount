@@ -4,6 +4,8 @@ using LuqinOfficialAccount.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System.Data;
+using System.Collections.Generic;
+
 namespace LuqinOfficialAccount.Controllers
 {
     [Route("api/[controller]/[action]")]
@@ -24,6 +26,29 @@ namespace LuqinOfficialAccount.Controllers
             Util._db = context;
         }
 
+
+        [HttpGet("{gid}")]
+        public ActionResult<List<DealCount>> GetDealCount(string gid)
+        {
+            List<DealCount> dArr = new List<DealCount>();
+            Stock s = Stock.GetStock(gid);
+            s.ForceRefreshKLineDay();
+            s.LoadDealCount();
+            for (int i = s.klineDay.Length - 1; i >= 0; i--)
+            {
+                if (s.klineDay[i].currentDealCount != null)
+                {
+                    DealCount d = s.klineDay[i].currentDealCount;
+                    d.settleTime = d.settleTime.Date;
+                    dArr.Add(d);
+                    for (int j = s.klineDay[i].dealCount30Min.Count - 1; j >= 0; j--)
+                    {
+                        dArr.Add(s.klineDay[i].dealCount30Min[j]);
+                    }
+                }
+            }
+            return Ok(dArr);
+        }
 
         private StockFilter AddDealCount(StockFilter sf, string sort, int days)
         {
