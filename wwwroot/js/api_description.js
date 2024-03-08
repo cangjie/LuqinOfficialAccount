@@ -610,5 +610,12 @@
         'url': '/api/Reverse/HorseHead2',
         'defaultCountDays': 15,
         'defaultSort': '大单流入 desc'
+    },
+    {
+        'name': '面包流入',
+        'description': '',
+        'url': '/api/DealCount/Bread',
+        'defaultCountDays': 15,
+        'defaultSort': '大单流入 desc'
     }
 ];
