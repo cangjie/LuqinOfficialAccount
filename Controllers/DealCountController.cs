@@ -197,8 +197,11 @@ namespace LuqinOfficialAccount.Controllers
                         || (s.klineDay[j].currentDealCount.net_big_volume + s.klineDay[j].currentDealCount.net_huge_volume
                             + s.klineDay[j].currentDealCount.net_mid_volume + s.klineDay[j].currentDealCount.net_small_volume > 0))
                     {
-                        
 
+                        if (j <= 0 || (s.klineDay[j].settle - s.klineDay[j - 1].settle) / s.klineDay[j - 1].settle <= -0.09)
+                        {
+                            continue;
+                        }
                         DataRow dr = dt.NewRow();
                         dr["日期"] = s.klineDay[j].settleTime.Date;
                         dr["代码"] = s.gid;
