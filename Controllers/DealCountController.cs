@@ -202,6 +202,11 @@ namespace LuqinOfficialAccount.Controllers
                         {
                             continue;
                         }
+
+                        if (KLine.IsLimitUp(s.klineDay,j))
+                        {
+                            continue;
+                        }
                         DataRow dr = dt.NewRow();
                         dr["日期"] = s.klineDay[j].settleTime.Date;
                         dr["代码"] = s.gid;
