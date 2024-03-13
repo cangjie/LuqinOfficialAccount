@@ -5,6 +5,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System.Data;
 using System.Collections.Generic;
+using System.Linq;
+using Microsoft.EntityFrameworkCore;
+using static LuqinOfficialAccount.Models.StockFilter;
 
 namespace LuqinOfficialAccount.Controllers
 {
@@ -119,6 +122,155 @@ namespace LuqinOfficialAccount.Controllers
             }
             StockFilter newSf = StockFilter.GetResult(dt.Select("", "日期 desc, " + sort), days);
             return newSf;
+        }
+        [HttpGet("{days}")]
+        public async Task<ActionResult<StockFilter>> DoubleVolumeContinurous(int days, DateTime startDate, DateTime endDate, string sort = "代码")
+        {
+            DataTable dt = new DataTable();
+            dt.Columns.Add("日期", Type.GetType("System.DateTime"));
+            dt.Columns.Add("代码", Type.GetType("System.String"));
+            dt.Columns.Add("名称", Type.GetType("System.String"));
+            dt.Columns.Add("信号", Type.GetType("System.String"));
+            dt.Columns.Add("买入", Type.GetType("System.Double"));
+            dt.Columns.Add("流入", Type.GetType("System.Double"));
+            dt.Columns.Add("大单流入", Type.GetType("System.Double"));
+
+            StockFilter sf = (StockFilter)(((OkObjectResult)((await DoubleVolume(days, Util.GetLastTransactDate(startDate, 1, _db),
+                Util.GetLastTransactDate(endDate, 1, _db), "代码")).Result)).Value);
+            for (int i = 0; i < sf.itemList.Count; i++)
+            {
+                Stock s = Stock.GetStock(sf.itemList[i].gid);
+                try
+                {
+                    s.RefreshKLineDay();
+                    s.LoadDealCount();
+                }
+                catch
+                {
+                    continue;
+                }
+                int alertIndex = s.GetItemIndex(sf.itemList[i].alertDate);
+                if (alertIndex <= 0 || alertIndex >= s.klineDay.Length - 1)
+                {
+                    continue;
+
+                }
+                if (s.klineDay[alertIndex].currentDealCount == null)
+                {
+                    continue;
+                }
+                int buyIndex = alertIndex+1;
+                DealCount d = s.klineDay[buyIndex].currentDealCount;
+                if (d == null)
+                {
+                    continue;
+                }
+                if (d.net_huge_volume + d.net_big_volume + d.net_mid_volume + d.net_small_volume <= 0)
+                {
+                    continue;
+                }
+
+                double bigBuying = s.klineDay[buyIndex].currentDealCount.net_huge_volume
+                        + s.klineDay[buyIndex].currentDealCount.net_big_volume;
+                double buying = bigBuying + s.klineDay[buyIndex].currentDealCount.net_mid_volume
+                    + s.klineDay[buyIndex].currentDealCount.net_small_volume;
+                DataRow dr = dt.NewRow();
+                dr["日期"] = s.klineDay[buyIndex].settleTime.Date;
+                dr["代码"] = s.gid;
+                dr["名称"] = s.name.Trim();
+                dr["信号"] = "";
+                dr["买入"] = s.klineDay[buyIndex].settle;
+                dr["大单流入"] = 10000 * bigBuying / s.klineDay[buyIndex].volume;
+                double flowIn = 10000 * buying / s.klineDay[buyIndex].volume;
+                dr["流入"] = flowIn;
+                dt.Rows.Add(dr);
+            }
+
+            StockFilter sfNew = StockFilter.GetResult(dt.Select("", "日期 desc, " + sort), days);
+            try
+            {
+                return Ok(sfNew);
+            }
+            catch
+            {
+                return NotFound();
+
+            }
+        }
+
+
+        [HttpGet("{days}")]
+        public async Task<ActionResult<StockFilter>> DoubleVolume(int days, DateTime startDate, DateTime endDate, string sort = "代码")
+        {
+            DataTable dt = new DataTable();
+            dt.Columns.Add("日期", Type.GetType("System.DateTime"));
+            dt.Columns.Add("代码", Type.GetType("System.String"));
+            dt.Columns.Add("名称", Type.GetType("System.String"));
+            dt.Columns.Add("信号", Type.GetType("System.String"));
+            dt.Columns.Add("买入", Type.GetType("System.Double"));
+            dt.Columns.Add("流入", Type.GetType("System.Double"));
+            dt.Columns.Add("大单流入", Type.GetType("System.Double"));
+
+            var l = await _db.DoubleVolume.Where(d => (d.alert_date >= startDate.Date
+                && d.alert_date <= endDate.Date  && d.price_increase > -0.05))
+                .AsNoTracking().ToListAsync();
+            for (int i = 0; i < l.Count; i++)
+            {
+                Stock s = Stock.GetStock(l[i].gid);
+                try
+                {
+                    s.ForceRefreshKLineDay();
+                    s.LoadDealCount();
+                }
+                catch
+                {
+                    continue;
+                }
+                int alertIndex = s.GetItemIndex(l[i].alert_date);
+                if (alertIndex <= 0 || alertIndex >= s.klineDay.Length)
+                {
+                    continue;
+
+                }
+                if (s.klineDay[alertIndex].currentDealCount == null)
+                {
+                    continue;
+                }
+                DealCount d = s.klineDay[alertIndex].currentDealCount;
+                if (d.net_huge_volume + d.net_big_volume + d.net_mid_volume + d.net_small_volume <= 0)
+                {
+                    continue;
+                }
+                int buyIndex = alertIndex;
+                double bigBuying = s.klineDay[buyIndex].currentDealCount.net_huge_volume
+                        + s.klineDay[buyIndex].currentDealCount.net_big_volume;
+                double buying = bigBuying + s.klineDay[buyIndex].currentDealCount.net_mid_volume
+                    + s.klineDay[buyIndex].currentDealCount.net_small_volume;
+                DataRow dr = dt.NewRow();
+                dr["日期"] = s.klineDay[buyIndex].settleTime.Date;
+                dr["代码"] = s.gid;
+                dr["名称"] = s.name.Trim();
+                dr["信号"] = "";
+                dr["买入"] = s.klineDay[buyIndex].settle;
+                dr["大单流入"] = 10000 * bigBuying / s.klineDay[buyIndex].volume;
+                double flowIn = 10000 * buying / s.klineDay[buyIndex].volume;
+                dr["流入"] = flowIn;
+                dt.Rows.Add(dr);
+
+            }
+                
+
+            StockFilter sfNew = StockFilter.GetResult(dt.Select("", "日期 desc, " + sort), days);
+            try
+            {
+                return Ok(sfNew);
+            }
+            catch
+            {
+                return NotFound();
+
+            }
+
         }
 
 
