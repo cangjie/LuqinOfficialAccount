@@ -764,9 +764,9 @@ namespace LuqinOfficialAccount.Controllers
                 DataRow dr = dt.NewRow();
                 dr["日期"] = l[i].alert_date.ToShortDateString();
                 dr["代码"] = l[i].gid;
-                dr["名称"] = "";
+                dr["名称"] = "无名";
                 dr["信号"] = "";
-                dr["买入"] = 0;
+                dr["买入"] = 10;
                 dt.Rows.Add(dr);
             }
             StockFilter sf = StockFilter.GetResult(dt.Select("", "日期 desc "), 1);
