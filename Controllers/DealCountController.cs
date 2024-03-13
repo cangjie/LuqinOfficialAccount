@@ -283,7 +283,8 @@ namespace LuqinOfficialAccount.Controllers
             dt.Columns.Add("名称", Type.GetType("System.String"));
             dt.Columns.Add("信号", Type.GetType("System.String"));
             dt.Columns.Add("买入", Type.GetType("System.Double"));
-            dt.Columns.Add("调整天数", Type.GetType("System.Int32"));
+            dt.Columns.Add("放量", Type.GetType("System.Double"));
+            dt.Columns.Add("调整天数", Type.GetType("System.String"));
             dt.Columns.Add("流入", Type.GetType("System.Double"));
             dt.Columns.Add("大单流入", Type.GetType("System.Double"));
 
@@ -313,6 +314,7 @@ namespace LuqinOfficialAccount.Controllers
                 }
                 int highIndex = alertIndex;
                 bool below3Line = false;
+                int under3Line = 0;
                 for (int j = alertIndex; j < s.klineDay.Length - 1; j++)
                 {
                     if (s.klineDay[j].high > s.klineDay[highIndex].high)
@@ -322,8 +324,15 @@ namespace LuqinOfficialAccount.Controllers
                     }
                     if (s.klineDay[j].settle < KLine.GetAverageSettlePrice(s.klineDay, j, 3, 3))
                     {
-                        below3Line = true;
-                        break;
+                        if (under3Line > 0)
+                        {
+                            below3Line = true;
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        under3Line++;
                     }
                 }
                 if (!below3Line)
@@ -354,6 +363,12 @@ namespace LuqinOfficialAccount.Controllers
                         {
                             continue;
                         }
+
+                        if (KLine.IsLimitUp(s.klineDay,j))
+                        {
+                            continue;
+                        }
+                        
                         DataRow dr = dt.NewRow();
                         dr["日期"] = s.klineDay[j].settleTime.Date;
                         dr["代码"] = s.gid;
@@ -361,6 +376,7 @@ namespace LuqinOfficialAccount.Controllers
                         dr["信号"] = "";
                         dr["买入"] = s.klineDay[j].settle;
                         dr["调整天数"] = j - highIndex;
+                        dr["放量"] = 100 * (s.klineDay[j].volume - s.klineDay[j - 1].volume) / s.klineDay[j - 1].volume;
                         if (s.klineDay[j].volume == 0)
                         {
                             continue;
