@@ -617,5 +617,19 @@
         'url': '/api/DealCount/Bread',
         'defaultCountDays': 15,
         'defaultSort': '大单流入 desc'
+    },
+    {
+        'name': '放量资金流入',
+        'description': '',
+        'url': '/api/DealCount/DoubleVolume',
+        'defaultCountDays': 15,
+        'defaultSort': '大单流入 desc'
+    },
+    {
+        'name': '放量资金持续流入',
+        'description': '',
+        'url': '/api/DealCount/DoubleVolumeContinurous',
+        'defaultCountDays': 15,
+        'defaultSort': '大单流入 desc'
     }
 ];

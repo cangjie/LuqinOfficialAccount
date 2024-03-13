@@ -746,6 +746,42 @@ namespace LuqinOfficialAccount.Controllers
             }
         }
 
+
+        [HttpGet]
+        public async Task<ActionResult<StockFilter>> GetLastDoubleVolume()
+        {
+            DataTable dt = new DataTable();
+            dt.Columns.Add("日期", Type.GetType("System.DateTime"));
+            dt.Columns.Add("代码", Type.GetType("System.String"));
+            dt.Columns.Add("名称", Type.GetType("System.String"));
+            dt.Columns.Add("信号", Type.GetType("System.String"));
+            dt.Columns.Add("买入", Type.GetType("System.Double"));
+            DateTime alertDate = Util.GetLastTransactDate(DateTime.Now, 1, _context);
+            var l = await _context.DoubleVolume.Where(d => (d.alert_date == alertDate.Date
+                && d.price_increase >= -0.05)).AsNoTracking().ToListAsync();
+            for (int i = 0; i < l.Count; i++)
+            {
+                DataRow dr = dt.NewRow();
+                dr["日期"] = l[i].alert_date.ToShortDateString();
+                dr["代码"] = l[i].gid;
+                dr["名称"] = "";
+                dr["信号"] = "";
+                dr["买入"] = 0;
+                dt.Rows.Add(dr);
+            }
+            StockFilter sf = StockFilter.GetResult(dt.Select("", "日期 desc "), 1);
+            try
+            {
+                return Ok(sf);
+            }
+            catch
+            {
+                return NotFound();
+
+            }
+
+        }
+
         /*
         // GET: api/DoubleVolume
         [HttpGet]
