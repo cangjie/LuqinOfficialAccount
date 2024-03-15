@@ -113,9 +113,14 @@ namespace LuqinOfficialAccount.Controllers
                 dr["名称"] = item.name.Trim();
                 dr["信号"] = item.signal;
                 dr["买入"] = s.klineDay[buyIndex].settle;
-                dr["大单流入"] = 10000 * bigBuying / s.klineDay[buyIndex].volume;
+                double bigFlowIn = 10000 * bigBuying / s.klineDay[buyIndex].volume;
+                dr["大单流入"] = bigFlowIn;
                 double flowIn = 10000 * buying / s.klineDay[buyIndex].volume;
                 dr["流入"] = flowIn;
+                if (bigFlowIn > flowIn && bigFlowIn > 0 && flowIn < 0)
+                {
+                    dr["信号"] = dr["信号"].ToString() + "🌞";
+                }
                 dt.Rows.Add(dr);
 
 
@@ -174,15 +179,44 @@ namespace LuqinOfficialAccount.Controllers
                         + s.klineDay[buyIndex].currentDealCount.net_big_volume;
                 double buying = bigBuying + s.klineDay[buyIndex].currentDealCount.net_mid_volume
                     + s.klineDay[buyIndex].currentDealCount.net_small_volume;
+                double flowIn = 10000 * buying / s.klineDay[buyIndex].volume;
+                double bigFlowIn = 10000 * bigBuying / s.klineDay[buyIndex].volume;
+
+                double lastFlowIn = 0;
+                double lastBigFlowin = 0;
+                
+
+                if (buyIndex > 0 && s.klineDay[buyIndex - 1].currentDealCount != null)
+                {
+                    double lastBuying  = s.klineDay[buyIndex - 1].currentDealCount.net_huge_volume
+                        + s.klineDay[buyIndex - 1].currentDealCount.net_big_volume;
+                    double lastBigBuying = lastBuying + s.klineDay[buyIndex - 1].currentDealCount.net_mid_volume
+                        + s.klineDay[buyIndex - 1].currentDealCount.net_small_volume;
+                    lastFlowIn = 10000 * lastBuying / s.klineDay[buyIndex - 1].volume;
+                    lastBigFlowin = 10000 * lastBigBuying / s.klineDay[buyIndex - 1].volume;
+                }
+
                 DataRow dr = dt.NewRow();
                 dr["日期"] = s.klineDay[buyIndex].settleTime.Date;
                 dr["代码"] = s.gid;
                 dr["名称"] = s.name.Trim();
-                dr["信号"] = "";
+                //dr["信号"] = "";
                 dr["买入"] = s.klineDay[buyIndex].settle;
-                dr["大单流入"] = 10000 * bigBuying / s.klineDay[buyIndex].volume;
-                double flowIn = 10000 * buying / s.klineDay[buyIndex].volume;
+                dr["大单流入"] = bigFlowIn ;
+                
                 dr["流入"] = flowIn;
+
+                if (bigFlowIn > 10 && bigFlowIn > flowIn)
+                {
+                    dr["信号"] = "📈";
+
+                    if (lastBigFlowin > 10 && lastBigFlowin > lastFlowIn )
+                    {
+                        dr["信号"] = "🔥";
+                    }
+                }
+
+
                 dt.Rows.Add(dr);
             }
 
@@ -392,6 +426,10 @@ namespace LuqinOfficialAccount.Controllers
                         }
                         dr["流入"] = flowIn;
                         dr["大单流入"] = bigFlowIn;
+                        if (bigFlowIn > 10 && bigFlowIn > flowIn)
+                        {
+                            dr["信号"] = "📈";
+                        }
                         dt.Rows.Add(dr);
                         break;
                     }
