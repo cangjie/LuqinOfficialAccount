@@ -38,6 +38,73 @@ namespace LuqinOfficialAccount.Models
             return index;
         }
 
+        public int macdDays(int index)
+        {
+            int days = -1;
+            ComputeMACD(klineDay);
+            for (int i = index; i > 0; i--)
+            {
+                if (klineDay[i].macd >= 0)
+                {
+                    days++;
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            return days;
+        }
+
+        public int kdjDays(int index)
+        {
+            int days = -1;
+            ComputeRSV(klineDay);
+            ComputeKDJ(klineDay);
+            for (int i = index; i > 0; i--)
+            {
+                if (IsKdjFolk(klineDay, i))
+                {
+                    days++;
+                    break;
+                }
+                else if (klineDay[i].j > klineDay[i].k && klineDay[i].k > klineDay[i].d)
+                {
+                    days++;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            return days;
+        }
+
+
+        public static bool IsMacdFolk(KLine[] kArr, int index)
+        {
+            bool ret = false;
+            if (index > 0)
+            {
+                if (kArr[index].macd > 0 && kArr[index - 1].macd < 0)
+                {
+                    ret = true;
+                }
+            }
+            return ret;
+        }
+
+        public static bool IsKdjFolk(KLine[] kArr, int index)
+        {
+            bool ret = false;
+            if (kArr[index].j >= kArr[index].k && kArr[index - 1].j <= kArr[index - 1].k && Math.Abs(kArr[index].k - 50) >= 15 && Math.Abs(kArr[index].d - 50) >= 15)
+            {
+                ret = true;
+            }
+            return ret;
+        }
+
         public void RefreshKLine()
         { 
             DateTime now = DateTime.Now;
