@@ -631,5 +631,12 @@
         'url': '/api/DealCount/DoubleVolumeContinurous',
         'defaultCountDays': 15,
         'defaultSort': '大单流入 desc'
+    },
+    {
+        'name': '红绿灯',
+        'description': '🔴：红灯量反包绿灯；🐴：双马头；🚩：红灯涨停',
+        'url': '/api/OldModel/TrafficLight',
+        'defaultCountDays': 15,
+        'defaultSort': '名称 desc'
     }
 ];

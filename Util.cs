@@ -225,5 +225,31 @@ namespace LuqinOfficialAccount
             return false;
         }
 
+        public static double GetFirstLowestPrice(KLine[] kArr, int index, out int lowestIndex)
+        {
+            double ret = double.MaxValue;
+            int find = 0;
+            lowestIndex = 0;
+            for (int i = index - 1; i > 0 && find < 2; i--)
+            {
+                double line3Pirce = KLine.GetAverageSettlePrice(kArr, i, 3, 3);
+                ret = Math.Min(ret, kArr[i].low);
+                if (ret == kArr[i].low)
+                {
+                    lowestIndex = i;
+                }
+                if (kArr[i].settle < line3Pirce)
+                {
+                    find = 1;
+                }
+                if (kArr[i].low >= line3Pirce && find == 1)
+                {
+                    find = 2;
+                }
+            }
+            return ret;
+        }
+
+
     }
 }
