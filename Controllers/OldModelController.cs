@@ -490,6 +490,197 @@ namespace LuqinOfficialAccount.Controllers
 
         }
 
+        [HttpGet("{days}")]
+        public async Task<ActionResult<StockFilter>> Railway(int days, DateTime startDate, DateTime endDate, string sort = "代码")
+        {
+            DataTable dt = new DataTable();
+            dt.Columns.Add("日期", Type.GetType("System.DateTime"));
+            dt.Columns.Add("代码", Type.GetType("System.String"));
+            dt.Columns.Add("名称", Type.GetType("System.String"));
+            dt.Columns.Add("信号", Type.GetType("System.String"));
+            dt.Columns.Add("缩量", Type.GetType("System.Double"));
+            dt.Columns.Add("板数", Type.GetType("System.Int32"));
+            dt.Columns.Add("现高", Type.GetType("System.Double"));
+            dt.Columns.Add("F3", Type.GetType("System.Double"));
+            dt.Columns.Add("F5", Type.GetType("System.Double"));
+            dt.Columns.Add("前低", Type.GetType("System.Double"));
+            dt.Columns.Add("幅度", Type.GetType("System.String"));
+            dt.Columns.Add("3线", Type.GetType("System.Double"));
+            dt.Columns.Add("今涨", Type.GetType("System.Double"));
+            dt.Columns.Add("现价", Type.GetType("System.Double"));
+            dt.Columns.Add("距F3", Type.GetType("System.Double"));
+            dt.Columns.Add("买入", Type.GetType("System.Double"));
+            dt.Columns.Add("KDJ日", Type.GetType("System.Int32"));
+            dt.Columns.Add("MACD日", Type.GetType("System.Int32"));
+
+            var limitupL = await _db.LimitUp.Where(l => l.alert_date >= startDate.Date
+                && l.alert_date.Date <= endDate.Date).AsNoTracking().ToListAsync();
+
+            for (int k = 0; k < limitupL.Count; k++)
+            {
+                Stock stock = Stock.GetStock(limitupL[k].gid);
+                stock.ForceRefreshKLineDay();
+                int currentIndex = stock.GetItemIndex(limitupL[k].alert_date.Date);
+                if (currentIndex < 3 || currentIndex >= stock.klineDay.Length) 
+                    continue;
+                if (!KLine.IsLimitUp(stock.klineDay, currentIndex))
+                {
+                    continue;
+                }
+
+                bool isRight = false;
+
+                if ((stock.klineDay[currentIndex - 1].settle - stock.klineDay[currentIndex - 2].settle) / stock.klineDay[currentIndex - 2].settle <= -0.03
+                    && stock.klineDay[currentIndex - 1].settle < KLine.GetAverageSettlePrice(stock.klineDay, currentIndex - 1, 3, 3)
+                    && stock.klineDay[currentIndex].volume >= stock.klineDay[currentIndex - 1].volume * 0.9)
+                {
+                    isRight = true;
+                }
+
+                if (stock.klineDay[currentIndex - 1].open <= stock.klineDay[currentIndex - 1].settle)
+                {
+                    continue;
+                }
+
+
+                if (!isRight)
+                {
+                    continue;
+                }
+
+
+
+                int limitUpNum = 0;
+
+                for (int i = currentIndex - 1; i > 0 && stock.klineDay[i].settle >= KLine.GetAverageSettlePrice(stock.klineDay, i, 3, 3); i--)
+                {
+                    if (KLine.IsLimitUp(stock.klineDay, i))
+                    {
+                        limitUpNum++;
+                    }
+                }
+
+                double supportSettle = stock.klineDay[currentIndex - 1].settle;
+                int highIndex = 0;
+                int lowestIndex = 0;
+                double lowest = Util.GetFirstLowestPrice(stock.klineDay, currentIndex, out lowestIndex);
+                double highest = 0;
+                for (int i = currentIndex; i < currentIndex; i++)
+                {
+                    if (highest < stock.klineDay[i].high)
+                    {
+                        highest = stock.klineDay[i].high;
+                        highIndex = i;
+                    }
+                }
+                double f3 = highest - (highest - lowest) * 0.382;
+
+                double f5 = highest - (highest - lowest) * 0.618;
+                double line3Price = KLine.GetAverageSettlePrice(stock.klineDay, currentIndex, 3, 3);
+                double currentPrice = stock.klineDay[currentIndex].settle;
+                double buyPrice = 0;
+                double f3Distance = 0.382 - (highest - stock.klineDay[currentIndex].low) / (highest - lowest);
+
+                double volumeToday = stock.klineDay[currentIndex].volume;  //Stock.GetVolumeAndAmount(stock.gid, DateTime.Parse(currentDate.ToShortDateString() + " " + DateTime.Now.Hour.ToString() + ":" + DateTime.Now.Minute.ToString()))[0];
+
+                double volumeYesterday = stock.klineDay[currentIndex - 1].volume;// Stock.GetVolumeAndAmount(stock.gid, DateTime.Parse(stock.klineDay[limitUpIndex].startDateTime.ToShortDateString() + " " + DateTime.Now.Hour.ToString() + ":" + DateTime.Now.Minute.ToString()))[0];
+
+
+                double volumeReduce = volumeToday / volumeYesterday;
+
+                if (currentIndex < stock.klineDay.Length - 1)
+                {
+                    buyPrice = stock.klineDay[currentIndex + 1].open;
+                }
+                else
+                {
+                    buyPrice = stock.klineDay[currentIndex].settle;
+                }
+                DataRow dr = dt.NewRow();
+                dr["日期"] = stock.klineDay[currentIndex + 1].settleTime.Date;
+                dr["代码"] = stock.gid.Trim();
+                dr["名称"] = stock.name.Trim();
+                dr["信号"] = "";
+
+
+
+
+                dr["板数"] = limitUpNum.ToString();
+                dr["缩量"] = volumeReduce;
+                dr["现高"] = highest;
+                dr["F3"] = f3;
+                dr["F5"] = f5;
+                dr["前低"] = lowest;
+                dr["幅度"] = Math.Round(100 * (highest - lowest) / lowest, 2).ToString() + "%";
+                dr["3线"] = line3Price;
+                dr["现价"] = currentPrice;
+                dr["距F3"] = f3Distance;
+                dr["买入"] = buyPrice;
+                dr["KDJ日"] = stock.kdjDays(currentIndex);
+                dr["MACD日"] = stock.macdDays(currentIndex);
+               
+                //dr["今涨"] = (stock.klineDay[currentIndex].endPrice - stock.klineDay[currentIndex - 1].endPrice) / stock.klineDay[currentIndex - 1].endPrice;
+                dr["今涨"] = (stock.klineDay[currentIndex].open - stock.klineDay[currentIndex - 1].settle) / stock.klineDay[currentIndex - 1].settle;
+                double maxPrice = Math.Max(highest, stock.klineDay[currentIndex].high);
+                bool lowThanF5 = false;
+                bool lowThanF3 = false;
+                bool haveLimitUp = false;
+                for (int i = 2; i <= 16; i++)
+                {
+                    if (currentIndex + i >= stock.klineDay.Length)
+                        break;
+                    double highPrice = stock.klineDay[currentIndex + i].high;
+                    if (stock.klineDay[currentIndex + i].open > maxPrice && !KLine.IsLimitUp(stock.klineDay, currentIndex) && !haveLimitUp)
+                    {
+                        dr["信号"] = dr["信号"].ToString() + "🔺";
+                    }
+
+                    if (KLine.IsLimitUp(stock.klineDay, currentIndex + i))
+                    {
+                        haveLimitUp = true;
+                    }
+                    maxPrice = Math.Max(maxPrice, highPrice);
+                    f3 = maxPrice - (maxPrice - lowest) * 0.382;
+                    f5 = maxPrice - (maxPrice - lowest) * 0.618;
+                    if (stock.klineDay[currentIndex + i].low < f3 && !lowThanF3)
+                    {
+                        dr["信号"] = dr["信号"].ToString() + "🟢";
+                        lowThanF3 = true;
+                    }
+                    if (stock.klineDay[currentIndex + i].low < f5 && !lowThanF5)
+                    {
+                        dr["信号"] = dr["信号"].ToString() + "☠️";
+                        lowThanF5 = true;
+                    }
+
+                }
+                double yesterdayVolume = stock.klineDay[currentIndex - 1].volume;
+                double beforeYesterdayVolume = stock.klineDay[currentIndex - 2].volume;
+                double volumeIncreateRate = (yesterdayVolume - beforeYesterdayVolume) / beforeYesterdayVolume;
+
+
+
+                if (!KLine.IsLimitUp(stock.klineDay, currentIndex)
+                    && stock.klineDay[currentIndex].settle > stock.klineDay[currentIndex - 1].high)
+                {
+                    dr["信号"] = dr["信号"].ToString() + "🌟";
+                }
+
+                dt.Rows.Add(dr);
+
+            }
+
+            StockFilter sf = StockFilter.GetResult(dt.Select("", "日期 desc, " + sort), days);
+            try
+            {
+                return Ok(sf);
+            }
+            catch
+            {
+                return NotFound();
+            }
+        }
+
     }
 }
 
