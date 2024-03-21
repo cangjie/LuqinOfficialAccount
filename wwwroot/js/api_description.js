@@ -161,7 +161,7 @@
     //GetLimitUpAdjustSettleOverHighestAndLimitUpAgain
     {
         'name': '反包',
-        'description': '涨停后调整收到涨停之上不超过三天再次涨停',
+        'description': '涨停后调整收到涨停之上不超过三天再次涨停 📈：反包后第二天涨停；🌟：高开；🔥：反包后一个涨停比前一个涨停高。',
         'url': '/api/LimitUp/GetLimitUpAdjustSettleOverHighestAndLimitUpAgain',
         'defaultCountDays': 15,
         'defaultSort': '代码'
