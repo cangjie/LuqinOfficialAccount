@@ -18,6 +18,8 @@ namespace LuqinOfficialAccount.Models
 		public int limit_up_num { get; set; } = 0;
 		public int limit_up_twice_num { get; set; } = 0;
 		public DateTime update_date { get; set; } = DateTime.Now;
-	}
+		public DateTime? break_3_line_date { get; set; }
+
+    }
 }
 

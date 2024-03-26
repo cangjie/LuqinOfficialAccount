@@ -652,5 +652,12 @@
         'url': '/api/OldModel/Railway',
         'defaultCountDays': 15,
         'defaultSort': '代码 desc'
+    },
+    {
+        'name': '双穿三线',
+        'description': '',
+        'url': '/api/OldModel/Break3LineTwice',
+        'defaultCountDays': 15,
+        'defaultSort': '大单流入 desc'
     }
 ];

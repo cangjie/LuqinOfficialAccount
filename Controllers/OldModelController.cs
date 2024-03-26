@@ -40,6 +40,117 @@ namespace LuqinOfficialAccount.Controllers
         }
 
         [HttpGet("{days}")]
+        public async Task<ActionResult<StockFilter>> Break3LineTwice(int days, DateTime startDate, DateTime endDate, string sort = "代码")
+        {
+            DataTable dt = new DataTable();
+            dt.Columns.Add("日期", Type.GetType("System.DateTime"));
+            dt.Columns.Add("代码", Type.GetType("System.String"));
+            dt.Columns.Add("名称", Type.GetType("System.String"));
+            dt.Columns.Add("信号", Type.GetType("System.String"));
+            dt.Columns.Add("买入", Type.GetType("System.Double"));
+            dt.Columns.Add("流入", Type.GetType("System.Double"));
+            dt.Columns.Add("大单流入", Type.GetType("System.Double"));
+            dt.Columns.Add("放量", Type.GetType("System.Double"));
+
+            var list = await _db.BigRise.Where(b => ((DateTime)b.break_3_line_date).Date >= Util.GetLastTransactDate(startDate, 20, _db).Date
+                && ((DateTime)b.break_3_line_date).Date <= Util.GetLastTransactDate(endDate, 3, _db).Date && b.limit_up_num >= 2) 
+                .AsNoTracking().ToListAsync();
+            if (list == null)
+            {
+                return NotFound();
+            }
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                Stock s = Stock.GetStock(list[i].gid);
+                try
+                {
+                    s.RefreshKLine();
+                    s.LoadDealCount();
+                }
+                catch
+                {
+                    continue;
+                }
+                int alertIndex = s.GetItemIndex(((DateTime)list[i].break_3_line_date).Date);
+                if (alertIndex < 5 || alertIndex >= s.klineDay.Length)
+                {
+                    continue;
+                }
+                int cross3LineTimes = 0;
+                //bool valid = false;
+                int buyIndex = -1;
+                for (int j = alertIndex + 1; j < s.klineDay.Length && s.klineDay[j].settleTime.Date <= endDate.Date && cross3LineTimes < 3; j++)
+                {
+                    if (s.klineDay[j].settle > KLine.GetAverageSettlePrice(s.klineDay, j, 3, 3) && cross3LineTimes == 0)
+                    {
+                        cross3LineTimes++;
+                    }
+                    if (s.klineDay[j].settle < KLine.GetAverageSettlePrice(s.klineDay, j, 3, 3) && cross3LineTimes == 1)
+                    {
+                        cross3LineTimes++;
+                    }
+                    if (s.klineDay[j].settle > KLine.GetAverageSettlePrice(s.klineDay, j, 3, 3) && cross3LineTimes == 2)
+                    {
+                        cross3LineTimes++;
+                        if (s.klineDay[j].settleTime.Date >= startDate.Date && s.klineDay[j].settleTime.Date <= endDate.Date)
+                        {
+                            buyIndex = j;
+                            break;
+                        }
+                    }
+
+                }
+                if (buyIndex == -1)
+                {
+                    continue;
+                }
+
+                DataRow dr = dt.NewRow();
+                dr["日期"] = s.klineDay[buyIndex].settleTime.Date;
+                dr["代码"] = s.gid.Trim();
+                dr["名称"] = s.name.Trim();
+                dr["信号"] = "";
+                dr["买入"] = s.klineDay[buyIndex].settle;
+                double bigBuying = 0;
+                double buying = 0;
+
+                if (s.klineDay[buyIndex].currentDealCount != null)
+                {
+                    bigBuying = s.klineDay[buyIndex].currentDealCount.net_huge_volume
+                        + s.klineDay[buyIndex].currentDealCount.net_big_volume;
+                    buying = bigBuying + s.klineDay[buyIndex].currentDealCount.net_mid_volume
+                        + s.klineDay[buyIndex].currentDealCount.net_small_volume;
+
+
+                }
+                if (bigBuying == 0 && buying == 0)
+                {
+                    buying = s.klineDay[buyIndex].net_mf_vol / 100;
+                }
+                double bigFlowIn = 10000 * bigBuying / s.klineDay[buyIndex].volume;
+                dr["大单流入"] = bigFlowIn;
+                double flowIn = 10000 * buying / s.klineDay[buyIndex].volume;
+                dr["流入"] = flowIn;
+                dr["放量"] = s.klineDay[buyIndex - 1].volume == 0 ? 0
+                    : ((s.klineDay[buyIndex].volume - s.klineDay[buyIndex - 1].volume) * 100 / s.klineDay[buyIndex - 1].volume);
+                dt.Rows.Add(dr);
+
+            }
+
+            StockFilter sf = StockFilter.GetResult(dt.Select("", "日期 desc, " + sort), days);
+            try
+            {
+                return Ok(sf);
+            }
+            catch
+            {
+                return NotFound();
+
+            }
+        }
+
+        [HttpGet("{days}")]
         public async Task<ActionResult<StockFilter>> TrafficLight(int days, DateTime startDate, DateTime endDate, string sort = "筹码")
         {
             DataTable dt = new DataTable();
