@@ -708,7 +708,7 @@ namespace LuqinOfficialAccount.Controllers
                     buyPrice = stock.klineDay[currentIndex].settle;
                 }
                 DataRow dr = dt.NewRow();
-                dr["日期"] = stock.klineDay[currentIndex + 1].settleTime.Date;
+                dr["日期"] = stock.klineDay[currentIndex].settleTime.Date;
                 dr["代码"] = stock.gid.Trim();
                 dr["名称"] = stock.name.Trim();
                 dr["信号"] = "";
