@@ -35,6 +35,49 @@ namespace LuqinOfficialAccount.Controllers
             conceptCtrl = new ConceptController(context, config);
         }
 
+        [HttpGet]
+        public async Task SearchBelow3Line()
+        {
+            var bigRiseList = await _context.BigRise.Where(b => b.break_3_line_date == null).ToListAsync();
+            for (int i = 0; i < bigRiseList.Count; i++)
+            {
+                Stock s = Stock.GetStock(bigRiseList[i].gid.Trim());
+                try
+                {
+                    s.RefreshKLineDay();
+                }
+                catch
+                {
+                    continue;
+                }
+                int alertIndex = s.GetItemIndex(bigRiseList[i].alert_date.Date);
+                if (alertIndex < 0 || alertIndex >= s.klineDay.Length - 1)
+                {
+                    continue;
+                }
+                if (s.klineDay[alertIndex].settle < KLine.GetAverageSettlePrice(s.klineDay, alertIndex, 3, 3))
+                {
+                    continue;
+                }
+                bool low = false;
+                for (int j = alertIndex + 1; j < s.klineDay.Length; j++)
+                {
+                    if (s.klineDay[j].settle < KLine.GetAverageSettlePrice(s.klineDay, j, 3, 3))
+                    {
+                        low = true;
+                        bigRiseList[i].break_3_line_date = s.klineDay[j].settleTime.Date;
+                        _context.BigRise.Entry(bigRiseList[i]).State = EntityState.Modified;
+                        await _context.SaveChangesAsync();
+                        low = true;
+                        break;
+                    }
+                }
+                if (low)
+                {
+                    continue;
+                }
+            }
+        }
 
 
         [HttpGet]
