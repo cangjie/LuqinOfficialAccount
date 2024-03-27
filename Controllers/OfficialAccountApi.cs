@@ -324,7 +324,7 @@ namespace LuqinOfficialAccount.Controllers
             GetAccessToken();
         }
 
-        [NonAction]
+        [HttpGet]
         public string GetAccessToken()
         {
             string tokenFilePath = $"{Environment.CurrentDirectory}";
