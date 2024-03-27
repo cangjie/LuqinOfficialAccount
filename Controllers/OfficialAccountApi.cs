@@ -342,17 +342,17 @@ namespace LuqinOfficialAccount.Controllers
                     {
                         token = sr.ReadLine();
                     }
-                    catch
+                    catch(Exception err)
                     {
-
+                        Console.WriteLine("read token error \r\n" + err.ToString());
                     }
                     try
                     {
                         tokenTime = sr.ReadLine();
                     }
-                    catch
+                    catch (Exception err)
                     {
-
+                        Console.WriteLine("read time error \r\n" + err.ToString());
                     }
                     sr.Close();
                 }
@@ -390,8 +390,9 @@ namespace LuqinOfficialAccount.Controllers
                     return "";
                 }
             }
-            catch
+            catch(Exception err)
             {
+                Console.WriteLine("get token error", err.ToString());
                 return "";
             }
 

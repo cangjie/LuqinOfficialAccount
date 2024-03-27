@@ -20,8 +20,7 @@
     "LuqinOfficialAccount": {
       "commandName": "Project",
       "launchBrowser": true,
-      "launchUrl": "/pages/oauth/callback",
-      "applicationUrl": "https://localhost:5001;https://localhost:5000",
+      "applicationUrl": "http://localhost:36714",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
