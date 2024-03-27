@@ -1600,6 +1600,64 @@ namespace LuqinOfficialAccount.Controllers
             }
             
         }
+
+        [HttpGet]
+        public async Task SearchLastReverseFakeLimitDown()
+        {
+            DateTime currentDate = DateTime.Now.Date;
+            if (!Util.IsTransacDay(currentDate.Date, _db))
+            {
+                return;
+            }
+            DateTime lastDate = Util.GetLastTransactDate(currentDate, 1, _db);
+            StockFilter reverseList = (StockFilter)((OkObjectResult)(await limitUpHelper.Reverse(1, lastDate, lastDate, "代码")).Result).Value;
+            for (int i = 0; i < reverseList.itemList.Count; i++)
+            {
+                Stock s = Stock.GetStock(reverseList.itemList[i].gid);
+                try
+                {
+                    s.ForceRefreshKLineDay();
+                }
+                catch
+                {
+
+                }
+                int currentIndex = s.GetItemIndex(reverseList.itemList[i].alertDate.Date);
+                if (currentIndex < 1|| currentIndex >= s.klineDay.Length - 1)
+                {
+                    continue;
+                }
+                double currentPice = s.klineDay[currentIndex].settle;
+                double lastSettle = s.klineDay[currentIndex - 1].settle;
+                double pct = (currentPice - lastSettle) / lastSettle;
+                bool fake = false;
+                if (s.gid.StartsWith("sz3"))
+                {
+                    if (pct < -0.19 && pct > -0.199)
+                    {
+                        fake = true;
+                    }
+                }
+                else
+                {
+                    if (pct < -0.09 && pct > -0.099)
+                    {
+                        fake = true;
+                    }
+                }
+                if (fake)
+                {
+                    LimitDown down = new LimitDown()
+                    {
+                        alert_date = currentDate.Date,
+                        gid = s.gid,
+                        fake = 1
+                    };
+                    await _db.limitDown.AddAsync(down);
+                    await _db.SaveChangesAsync();
+                }
+            }
+        }
     }
 }
 
