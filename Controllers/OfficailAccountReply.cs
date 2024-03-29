@@ -51,11 +51,13 @@ namespace LuqinOfficialAccount.Controllers
                 default:
                     switch (_message.Content.Trim().ToLower())
                     {
+                        /*
                         case "听课":
                             //xmlD = GetPosterMApp();
                             xmlD = SubscribePoster();
                             retStr = xmlD.InnerXml.Trim();
                             break;
+                        */
                         case "1":
                             xmlD = Help();
                             retStr = xmlD.InnerXml.Trim();
