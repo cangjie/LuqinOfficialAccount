@@ -1633,14 +1633,14 @@ namespace LuqinOfficialAccount.Controllers
                 bool fake = false;
                 if (s.gid.StartsWith("sz3"))
                 {
-                    if (pct < -0.19 && pct > -0.199)
+                    if (pct < -0.19 && pct > -0.195)
                     {
                         fake = true;
                     }
                 }
                 else
                 {
-                    if (pct < -0.09 && pct > -0.099)
+                    if (pct < -0.09 && pct > -0.095)
                     {
                         fake = true;
                     }
