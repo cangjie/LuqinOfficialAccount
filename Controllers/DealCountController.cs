@@ -128,6 +128,38 @@ namespace LuqinOfficialAccount.Controllers
             StockFilter newSf = StockFilter.GetResult(dt.Select("", "日期 desc, " + sort), days);
             return newSf;
         }
+
+        [HttpGet("{days}")]
+        public async Task<ActionResult<StockFilter>> DoubleVolumeContinurousCollection(int days, DateTime startDate, DateTime endDate, string sort = "代码")
+        {
+            StockFilter sf = (StockFilter)((OkObjectResult)(await DoubleVolumeContinurous(days, startDate, endDate, sort)).Result).Value;
+            int bigDealField = -1;
+            for (int i = 0; i < sf.fields.Length; i++)
+            {
+                if (sf.fields[i].Trim().Equals("大单流入"))
+                {
+                    bigDealField = i;
+                    break;
+                }
+            }
+            for (int i = 0; i < sf.itemList.Count; i++)
+            {
+                Item item = sf.itemList[i];
+                if ((double)item.referenceValues[bigDealField] < 10)
+                {
+                    if (i - 1 >= 0 && sf.itemList[i - 1].alertDate.Date == item.alertDate.Date
+                        && i - 2 >= 0 && sf.itemList[i - 2].alertDate.Date == item.alertDate.Date)
+                    {
+                        sf.itemList.RemoveAt(i);
+                        i--;
+                    }
+                }
+            }
+            return Ok(sf);
+        }
+
+
+
         [HttpGet("{days}")]
         public async Task<ActionResult<StockFilter>> DoubleVolumeContinurous(int days, DateTime startDate, DateTime endDate, string sort = "代码")
         {
