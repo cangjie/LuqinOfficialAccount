@@ -659,5 +659,12 @@
         'url': '/api/OldModel/Break3LineTwice',
         'defaultCountDays': 15,
         'defaultSort': '大单流入 desc'
+    },
+    {
+        'name': '放量资金持续流入精选',
+        'description': '如果大单流入低于10%，当天选出来的股票不足两个，则补齐。📈：大单流入比例大于10%，且大单流入大于总流入；🔥：连续两天大单流入大于10%，且大单流入大于总流入。',
+        'url': '/api/DealCount/DoubleVolumeContinurousCollection',
+        'defaultCountDays': 15,
+        'defaultSort': '大单流入 desc'
     }
 ];
