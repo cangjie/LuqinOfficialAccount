@@ -161,7 +161,7 @@ namespace LuqinOfficialAccount.Controllers
                 }
                 else
                 {
-                    sf.itemList[i].referenceValues[sigField] += "🌞";
+                    sf.itemList[i].referenceValues[sigField] = sf.itemList[i].referenceValues[sigField].ToString() + "🌞";
                 }
             }
             return Ok(sf);
