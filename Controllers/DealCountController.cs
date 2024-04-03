@@ -140,12 +140,9 @@ namespace LuqinOfficialAccount.Controllers
                 if (sf.fields[i].Trim().Equals("大单流入"))
                 {
                     bigDealField = i;
-                    //break;
+                    break;
                 }
-                if (sf.fields[i].Trim().Equals("信号"))
-                {
-                    sigField = i;
-                }
+               
             }
             for (int i = 0; i < sf.itemList.Count; i++)
             {
@@ -161,7 +158,7 @@ namespace LuqinOfficialAccount.Controllers
                 }
                 else
                 {
-                    sf.itemList[i].referenceValues[sigField] = sf.itemList[i].referenceValues[sigField].ToString() + "🌞";
+                    sf.itemList[i].signal = sf.itemList[i].signal + "🌞";
                 }
             }
             return Ok(sf);
