@@ -134,12 +134,17 @@ namespace LuqinOfficialAccount.Controllers
         {
             StockFilter sf = (StockFilter)((OkObjectResult)(await DoubleVolumeContinurous(days, startDate, endDate, sort)).Result).Value;
             int bigDealField = -1;
+            int sigField = -1;
             for (int i = 0; i < sf.fields.Length; i++)
             {
                 if (sf.fields[i].Trim().Equals("大单流入"))
                 {
                     bigDealField = i;
-                    break;
+                    //break;
+                }
+                if (sf.fields[i].Trim().Equals("信号"))
+                {
+                    sigField = i;
                 }
             }
             for (int i = 0; i < sf.itemList.Count; i++)
@@ -153,6 +158,10 @@ namespace LuqinOfficialAccount.Controllers
                         sf.itemList.RemoveAt(i);
                         i--;
                     }
+                }
+                else
+                {
+                    sf.itemList[i].referenceValues[sigField] += "🌞";
                 }
             }
             return Ok(sf);
