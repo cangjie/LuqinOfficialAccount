@@ -666,5 +666,19 @@
         'url': '/api/DealCount/DoubleVolumeContinurousCollection',
         'defaultCountDays': 15,
         'defaultSort': '大单流入 desc'
+    },
+    {
+        'name': '反包高开大阴',
+        'description': '',
+        'url': '/api/Reverse/OpenHighGoingDown',
+        'defaultCountDays': 15,
+        'defaultSort': '日期 desc'
+    },
+    {
+        'name': '反包低开大阴',
+        'description': '',
+        'url': '/api/Reverse/OpenLowGoingDown',
+        'defaultCountDays': 15,
+        'defaultSort': '日期 desc'
     }
 ];
