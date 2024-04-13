@@ -144,7 +144,7 @@ namespace LuqinOfficialAccount.Controllers
                 }
                
             }
-            for (int i = 0; i < sf.itemList.Count; i++)
+            for (int i = 0; sf != null && sf.itemList != null &&  i < sf.itemList.Count; i++)
             {
                 Item item = sf.itemList[i];
                 if ((double)item.referenceValues[bigDealField] < 10)
@@ -177,10 +177,11 @@ namespace LuqinOfficialAccount.Controllers
             dt.Columns.Add("买入", Type.GetType("System.Double"));
             dt.Columns.Add("流入", Type.GetType("System.Double"));
             dt.Columns.Add("大单流入", Type.GetType("System.Double"));
-
+            dt.Columns.Add("MACD", Type.GetType("System.Int32"));
+            dt.Columns.Add("KDJ", Type.GetType("System.Int32"));
             StockFilter sf = (StockFilter)(((OkObjectResult)((await DoubleVolume(days, Util.GetLastTransactDate(startDate, 1, _db),
                 Util.GetLastTransactDate(endDate, 1, _db), "代码")).Result)).Value);
-            for (int i = 0; i < sf.itemList.Count; i++)
+            for (int i = 0; sf!=null && sf.itemList != null &&  i < sf.itemList.Count; i++)
             {
                 Stock s = Stock.GetStock(sf.itemList[i].gid);
                 try
@@ -241,7 +242,8 @@ namespace LuqinOfficialAccount.Controllers
                 //dr["信号"] = "";
                 dr["买入"] = s.klineDay[buyIndex].settle;
                 dr["大单流入"] = bigFlowIn ;
-                
+                dr["MACD"] = s.macdDays(buyIndex);
+                dr["KDJ"] = s.kdjDays(buyIndex);
                 dr["流入"] = flowIn;
 
                 if (bigFlowIn > 10 && bigFlowIn > flowIn)
@@ -286,7 +288,7 @@ namespace LuqinOfficialAccount.Controllers
             var l = await _db.DoubleVolume.Where(d => (d.alert_date >= startDate.Date
                 && d.alert_date <= endDate.Date  && d.price_increase > -0.05))
                 .AsNoTracking().ToListAsync();
-            for (int i = 0; i < l.Count; i++)
+            for (int i = 0;  i < l.Count; i++)
             {
                 Stock s = Stock.GetStock(l[i].gid);
                 try
