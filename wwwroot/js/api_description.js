@@ -680,5 +680,12 @@
         'url': '/api/Reverse/OpenLowGoingDown',
         'defaultCountDays': 15,
         'defaultSort': '日期 desc'
+    },
+    {
+        'name': '放量资金持续流入涨停，次日开盘买',
+        'description': '',
+        'url': '/api/DealCount/DoubleVolumeContinurousLimitUp',
+        'defaultCountDays': 15,
+        'defaultSort': '大单流入 desc'
     }
 ];

@@ -164,7 +164,82 @@ namespace LuqinOfficialAccount.Controllers
             return Ok(sf);
         }
 
+        [HttpGet("{days}")]
+        public async Task<ActionResult<StockFilter>> DoubleVolumeContinurousLimitUp(int days, DateTime startDate, DateTime endDate, string sort = "代码")
+        {
+            DataTable dt = new DataTable();
+            dt.Columns.Add("日期", Type.GetType("System.DateTime"));
+            dt.Columns.Add("代码", Type.GetType("System.String"));
+            dt.Columns.Add("名称", Type.GetType("System.String"));
+            dt.Columns.Add("信号", Type.GetType("System.String"));
+            dt.Columns.Add("买入", Type.GetType("System.Double"));
+            dt.Columns.Add("流入", Type.GetType("System.Double"));
+            dt.Columns.Add("大单流入", Type.GetType("System.Double"));
+            dt.Columns.Add("MACD", Type.GetType("System.Int32"));
+            dt.Columns.Add("KDJ", Type.GetType("System.Int32"));
 
+            startDate = Util.GetLastTransactDate(startDate, 1, _db);
+            endDate = Util.GetLastTransactDate(endDate, 1, _db);
+            StockFilter sf = (StockFilter)(((OkObjectResult)((await DoubleVolumeContinurous(days, Util.GetLastTransactDate(startDate, 1, _db),
+                Util.GetLastTransactDate(endDate, 1, _db), "代码")).Result)).Value);
+            for (int i = 0; sf != null && sf.itemList != null && i < sf.itemList.Count; i++)
+            {
+                Stock s = Stock.GetStock(sf.itemList[i].gid);
+                try
+                {
+                    s.RefreshKLineDay();
+                    s.LoadDealCount();
+                }
+                catch
+                {
+                    continue;
+                }
+                int alertIndex = s.GetItemIndex(sf.itemList[i].alertDate);
+                if (alertIndex <= 0 || alertIndex >= s.klineDay.Length - 1)
+                {
+                    continue;
+
+                }
+                int buyIndex = alertIndex + 1;
+                if (!KLine.IsLimitUp(s.klineDay, s.gid, alertIndex))
+                {
+                    continue;
+                }
+                if (KLine.IsLimitUp(s.klineDay, s.gid, alertIndex - 1))
+                {
+                    continue;
+                }
+
+                double bigBuying = s.klineDay[alertIndex].currentDealCount.net_huge_volume
+                        + s.klineDay[alertIndex].currentDealCount.net_big_volume;
+                double buying = bigBuying + s.klineDay[alertIndex].currentDealCount.net_mid_volume
+                    + s.klineDay[alertIndex].currentDealCount.net_small_volume;
+                double flowIn = 10000 * buying / s.klineDay[alertIndex].volume;
+                double bigFlowIn = 10000 * bigBuying / s.klineDay[alertIndex].volume;
+
+                DataRow dr = dt.NewRow();
+                dr["日期"] = s.klineDay[buyIndex].settleTime.Date;
+                dr["代码"] = s.gid;
+                dr["名称"] = s.name.Trim();
+                //dr["信号"] = "";
+                dr["买入"] = s.klineDay[buyIndex].open;
+                dr["大单流入"] = bigFlowIn;
+                dr["流入"] = flowIn;
+                dr["MACD"] = s.macdDays(buyIndex);
+                dr["KDJ"] = s.kdjDays(buyIndex);
+                dt.Rows.Add(dr);
+            }
+            StockFilter sfNew = StockFilter.GetResult(dt.Select("", "日期 desc, " + sort), days);
+            try
+            {
+                return Ok(sfNew);
+            }
+            catch
+            {
+                return NotFound();
+
+            }
+        }
 
         [HttpGet("{days}")]
         public async Task<ActionResult<StockFilter>> DoubleVolumeContinurous(int days, DateTime startDate, DateTime endDate, string sort = "代码")
@@ -271,6 +346,9 @@ namespace LuqinOfficialAccount.Controllers
 
             }
         }
+
+
+
 
 
         [HttpGet("{days}")]
