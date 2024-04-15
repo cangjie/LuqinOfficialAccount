@@ -687,5 +687,12 @@
         'url': '/api/DealCount/DoubleVolumeContinurousLimitUp',
         'defaultCountDays': 15,
         'defaultSort': '大单流入 desc'
+    },
+    {
+        'name': '涨停突破F5',
+        'description': '',
+        'url': '/api/BigRise/LimitUpCrossF5',
+        'defaultCountDays': 15,
+        'defaultSort': '代码 desc'
     }
 ];

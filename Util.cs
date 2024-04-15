@@ -230,7 +230,7 @@ namespace LuqinOfficialAccount
             double ret = double.MaxValue;
             int find = 0;
             lowestIndex = 0;
-            for (int i = index - 1; i > 0 && find < 2; i--)
+            for (int i = index - 1 ; i > 0 && find < 2; i--)
             {
                 double line3Pirce = KLine.GetAverageSettlePrice(kArr, i, 3, 3);
                 ret = Math.Min(ret, kArr[i].low);
