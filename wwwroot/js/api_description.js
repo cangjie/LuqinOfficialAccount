@@ -694,5 +694,12 @@
         'url': '/api/BigRise/LimitUpCrossF5',
         'defaultCountDays': 15,
         'defaultSort': '代码 desc'
+    },
+    {
+        'name': '涨停突破F5，次日收高。',
+        'description': '',
+        'url': '/api/BigRise/LimitUpCrossF5SettleHigh',
+        'defaultCountDays': 15,
+        'defaultSort': '代码 desc'
     }
 ];

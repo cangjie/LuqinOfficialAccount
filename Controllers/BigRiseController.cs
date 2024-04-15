@@ -1532,6 +1532,62 @@ namespace LuqinOfficialAccount.Controllers
             }
         }
 
+        [HttpGet("{days}")]
+        public async Task<ActionResult<StockFilter>> LimitUpCrossF5SettleHigh(int days, DateTime startDate, DateTime endDate, string sort = "日期")
+        {
+            DataTable dt = new DataTable();
+            dt.Columns.Add("日期", Type.GetType("System.DateTime"));
+            dt.Columns.Add("代码", Type.GetType("System.String"));
+            dt.Columns.Add("名称", Type.GetType("System.String"));
+            dt.Columns.Add("信号", Type.GetType("System.String"));
+            dt.Columns.Add("买入", Type.GetType("System.Double"));
+            
+            startDate = Util.GetLastTransactDate(startDate, 1, _context);
+            endDate = Util.GetLastTransactDate(endDate, 1, _context);
+            StockFilter sf = (StockFilter)((OkObjectResult)(await LimitUpCrossF5(days, startDate, endDate, sort)).Result).Value;
+            for (int i = 0; sf != null && sf.itemList != null && i < sf.itemList.Count; i++)
+            {
+                Stock s = Stock.GetStock(sf.itemList[i].gid);
+                try
+                {
+                    s.RefreshKLineDay();
+                }
+                catch
+                {
+
+                }
+                int alertIndex = s.GetItemIndex(sf.itemList[i].alertDate.Date);
+                if (alertIndex < 0 || alertIndex >= s.klineDay.Length-1)
+                {
+                    continue;
+                }
+                if (!KLine.IsLimitUp(s.klineDay, s.gid, alertIndex)
+                    || s.klineDay[alertIndex + 1].settle < s.klineDay[alertIndex].settle)
+                {
+                    continue;
+                }
+
+                DataRow dr = dt.NewRow();
+                dr["日期"] = s.klineDay[alertIndex + 1].settleTime.Date;
+                dr["代码"] = s.gid.Trim();
+                dr["名称"] = s.name.Trim();
+                dr["买入"] = s.klineDay[alertIndex + 1].open;
+                dr["信号"] = "";
+                dt.Rows.Add(dr);
+            }
+
+            StockFilter sfNew = StockFilter.GetResult(dt.Select("", "日期 desc, " + sort), days);
+            try
+            {
+                return Ok(sfNew);
+            }
+            catch
+            {
+                return NotFound();
+
+            }
+        }
+
 
 
 
