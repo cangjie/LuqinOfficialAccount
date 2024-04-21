@@ -1308,6 +1308,10 @@ namespace LuqinOfficialAccount.Controllers
                 dr["名称"] = s.name.Trim();
                 dr["信号"] = "";
                 dr["买入"] = s.klineDay[alertIndex].settle;
+                if (s.klineDay[alertIndex].settle <= KLine.GetAverageSettlePrice(s.klineDay, alertIndex, 3, 3))
+                {
+                    dr["信号"] = "📈";
+                }
                 dt.Rows.Add(dr);
             }
             StockFilter sf = StockFilter.GetResult(dt.Select("", "日期 desc, " + sort), days);

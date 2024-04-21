@@ -711,7 +711,7 @@
     },
     {
         'name': '当日涨停',
-        'description': '',
+        'description': '📈 表示在3线下',
         'url': '/api/LimitUp/Today',
         'defaultCountDays': 15,
         'defaultSort': '代码 desc'
