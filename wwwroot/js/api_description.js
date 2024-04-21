@@ -701,5 +701,12 @@
         'url': '/api/BigRise/LimitUpCrossF5SettleHigh',
         'defaultCountDays': 15,
         'defaultSort': '代码 desc'
+    },
+    {
+        'name': '一字板后，资金流入',
+        'description': '',
+        'url': '/api/DealCount/After1',
+        'defaultCountDays': 15,
+        'defaultSort': '大单流入 desc'
     }
 ];

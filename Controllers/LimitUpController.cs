@@ -1200,6 +1200,12 @@ namespace LuqinOfficialAccount.Controllers
                     dr["信号"] = dr["信号"].ToString() + "🌟";
                 }
 
+                if (s.klineDay[alertIndex - 1].settle == s.klineDay[alertIndex - 1].open
+                    && s.klineDay[alertIndex].settle != s.klineDay[alertIndex].open)
+                {
+                    dr["信号"] = dr["信号"].ToString() + "🔥";
+                }
+
                 dr["换手"] = s.klineDay[alertIndex].turnOver;
                 //dr["流入天数"] = "--";
                 /*
