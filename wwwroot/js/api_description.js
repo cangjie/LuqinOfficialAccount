@@ -715,5 +715,12 @@
         'url': '/api/LimitUp/Today',
         'defaultCountDays': 15,
         'defaultSort': '代码 desc'
+    },
+    {
+        'name': '当日3线下涨停',
+        'description': '',
+        'url': '/api/LimitUp/Under3Line',
+        'defaultCountDays': 15,
+        'defaultSort': '代码 desc'
     }
 ];
