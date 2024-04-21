@@ -708,5 +708,12 @@
         'url': '/api/DealCount/After1',
         'defaultCountDays': 15,
         'defaultSort': '大单流入 desc'
+    },
+    {
+        'name': '当日涨停',
+        'description': '',
+        'url': '/api/LimitUp/Today',
+        'defaultCountDays': 15,
+        'defaultSort': '代码 desc'
     }
 ];
