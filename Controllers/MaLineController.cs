@@ -1,0 +1,199 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using LuqinOfficialAccount;
+using LuqinOfficialAccount.Models;
+using Microsoft.Extensions.Configuration;
+using System.Data;
+using Microsoft.AspNetCore.Mvc;
+
+namespace LuqinOfficialAccount.Controllers
+{
+    [Route("api/[controller]/[action]")]
+    [ApiController]
+    public class MaLineController:ControllerBase
+	{
+        private readonly AppDBContext _db;
+
+        private readonly IConfiguration _config;
+
+        private readonly Settings _settings;
+
+        private static readonly DateTime nowDate = DateTime.Now.Date;
+
+        public MaLineController(AppDBContext context, IConfiguration config)
+		{
+            _db = context;
+            _config = config;
+            _settings = Settings.GetSettings(_config);
+            Util._db = context;
+            _db.Database.SetCommandTimeout(999);
+        }
+        [HttpGet("{days}")]
+        public async Task<ActionResult<StockFilter>> BigRedUnder3Line(int days, DateTime startDate, DateTime endDate, string sort = "代码")
+        {
+            DataTable dt = new DataTable();
+            dt.Columns.Add("日期", Type.GetType("System.DateTime"));
+            dt.Columns.Add("代码", Type.GetType("System.String"));
+            dt.Columns.Add("名称", Type.GetType("System.String"));
+            dt.Columns.Add("信号", Type.GetType("System.String"));
+            dt.Columns.Add("买入", Type.GetType("System.Double"));
+            dt.Columns.Add("MACD", Type.GetType("System.Int32"));
+            dt.Columns.Add("KDJ", Type.GetType("System.Int32"));
+            double rate = 0.09;
+            var l = await _db.nearLine3BigRed.Where(n => (n.alert_date.Date >= startDate.Date
+                && n.alert_date.Date <= endDate && n.rate >= rate && n.low < n.line3))
+                .AsNoTracking().ToListAsync();
+            for (int i = 0; l != null && i < l.Count; i++)
+            {
+                Stock s = Stock.GetStock(l[i].gid.Trim());
+                try
+                {
+                    s.ForceRefreshKLineDay();
+                    Stock.ComputeMACD(s.klineDay);
+                    Stock.ComputeRSV(s.klineDay);
+                    Stock.ComputeKDJ(s.klineDay);
+                }
+                catch
+                {
+
+                }
+                int alertIndex = s.GetItemIndex(l[i].alert_date.Date);
+                if (alertIndex <= 0 || alertIndex >= s.klineDay.Length)
+                {
+                    continue;
+                }
+                if ((s.klineDay[alertIndex].settle - s.klineDay[alertIndex - 1].settle) / s.klineDay[alertIndex - 1].settle < rate)
+                {
+                    continue;
+                }
+                if (s.klineDay[alertIndex].settle >= l[i].line3 * 1.02)
+                {
+                    continue;
+                }
+                DataRow dr = dt.NewRow();
+                dr["日期"] = s.klineDay[alertIndex].settleTime.Date;
+                dr["代码"] = s.gid.Trim();
+                dr["名称"] = s.name.Trim();
+                dr["信号"] = "";
+                dr["买入"] = s.klineDay[alertIndex].settle;
+                int macd = s.macdDays(alertIndex);
+                int kdj = s.kdjDays(alertIndex);
+                dr["MACD"] = macd;
+                dr["KDJ"] = kdj;
+                if (macd == 0 && kdj == 0)
+                {
+                    dr["信号"] = "📈";
+                }
+                dt.Rows.Add(dr);
+            }
+            StockFilter sf = StockFilter.GetResult(dt.Select("", "日期 desc, " + sort), days);
+            try
+            {
+                return Ok(sf);
+            }
+            catch
+            {
+                return NotFound();
+
+            }
+
+        }
+
+        [HttpGet]
+        public async Task SearchNear3LineBigRedForDays(DateTime startDate, DateTime endDate)
+        {
+            await SearchNear3LineBigRed(startDate, endDate);
+        }
+
+        [NonAction]
+        public async Task SearchNear3LineBigRed(DateTime startDate, DateTime endDate)
+        {
+            Stock[] sArr = Util.stockList;
+            int k = 0;
+            foreach (Stock s in sArr)
+            {
+                var l = await _db.nearLine3BigRed.Where(g => g.gid.Trim().Equals(s.gid.Trim()))
+                    .OrderByDescending(c => c.alert_date).AsNoTracking().Take(1).ToListAsync();
+                if (l != null && l.Count > 0)
+                {
+                    continue;
+                }
+
+
+                try
+                {
+                    s.ForceRefreshKLineDay();
+                }
+                catch
+                {
+
+                }
+                k++;
+                Console.WriteLine(k.ToString() + "\t" + s.gid);
+                int startIndex = s.GetItemIndex(startDate.Date);
+                if (startIndex <= 6)
+                {
+                    continue;
+                }
+                for (int i = startIndex; i < s.klineDay.Length && s.klineDay[i].settleTime.Date <= endDate.Date; i++)
+                {
+                    double line3 = KLine.GetAverageSettlePrice(s.klineDay, i, 3, 3);
+                    double line3Prev = KLine.GetAverageSettlePrice(s.klineDay, i - 1, 3, 3);
+                    bool cross3Line = false;
+                    if (s.klineDay[i - 1].settle < line3Prev && s.klineDay[i].settle > line3)
+                    {
+                        cross3Line = true;
+                    }
+                    double rate = s.klineDay[i - 1].settle == 0? 0 :(s.klineDay[i].high - s.klineDay[i - 1].settle) / s.klineDay[i - 1].settle;
+
+                    if (!((rate > 0.06 && s.klineDay[i].low < line3) || cross3Line))
+                    {
+                        continue;
+                    }
+
+                    NearLine3BigRed n = await _db.nearLine3BigRed.FindAsync(s.gid.Trim(), s.klineDay[i].settleTime.Date);
+                    if (n != null)
+                    {
+                        n.low = s.klineDay[i].low;
+                        n.open = s.klineDay[i].open;
+                        n.high = s.klineDay[i].high;
+                        n.settle = s.klineDay[i].settle;
+                        n.line3 = line3;
+                        n.rate = rate;
+                        _db.nearLine3BigRed.Entry(n).State = EntityState.Modified;
+                    }
+                    else
+                    {
+                        n = new NearLine3BigRed()
+                        {
+                            alert_date = s.klineDay[i].settleTime.Date,
+                            gid = s.gid,
+                            open = s.klineDay[i].open,
+                            settle = s.klineDay[i].settle,
+                            low = s.klineDay[i].low,
+                            high = s.klineDay[i].high,
+                            line3 = line3,
+                            rate = rate
+                        };
+                        await _db.nearLine3BigRed.AddAsync(n);
+                    }
+                    
+
+                }
+                try
+                {
+                    await _db.SaveChangesAsync();
+                }
+                catch
+                {
+
+                }
+            }
+        }
+
+	}
+}
+
