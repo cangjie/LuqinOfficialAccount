@@ -722,5 +722,12 @@
         'url': '/api/LimitUp/Under3Line',
         'defaultCountDays': 15,
         'defaultSort': '代码 desc'
+    },
+    {
+        'name': '当日3线下涨9%',
+        'description': '📈：MACD KDJ均为0',
+        'url': '/api/MaLine/BigRedUnder3Line',
+        'defaultCountDays': 15,
+        'defaultSort': 'MACD,KDJ'
     }
 ];

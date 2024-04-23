@@ -30,6 +30,7 @@ namespace LuqinOfficialAccount
             modelBuilder.Entity<Fund>().HasKey(b => new { b.gid, b.alert_date });
             modelBuilder.Entity<MoneyFlow>().HasKey(b => new { b.gid, b.alert_date });
             modelBuilder.Entity<LimitDown>().HasKey(b => new { b.gid, b.alert_date });
+            modelBuilder.Entity<NearLine3BigRed>().HasKey(b => new { b.gid, b.alert_date });
         }
 
 
@@ -111,5 +112,7 @@ namespace LuqinOfficialAccount
         public DbSet<Models.MoneyFlow> moneyFlow { get; set; }
 
         public DbSet<Models.LimitDown> limitDown { get; set; }
+
+        public DbSet<Models.NearLine3BigRed> nearLine3BigRed { get; set; }
     }
 }
