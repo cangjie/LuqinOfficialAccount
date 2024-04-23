@@ -34,6 +34,8 @@ namespace LuqinOfficialAccount.Controllers
         [HttpGet("{days}")]
         public async Task<ActionResult<StockFilter>> BigRedUnder3Line(int days, DateTime startDate, DateTime endDate, string sort = "代码")
         {
+            startDate = Util.GetLastTransactDate(startDate, 1, _db);
+            endDate = Util.GetLastTransactDate(endDate, 1, _db);
             DataTable dt = new DataTable();
             dt.Columns.Add("日期", Type.GetType("System.DateTime"));
             dt.Columns.Add("代码", Type.GetType("System.String"));
@@ -61,7 +63,7 @@ namespace LuqinOfficialAccount.Controllers
 
                 }
                 int alertIndex = s.GetItemIndex(l[i].alert_date.Date);
-                if (alertIndex <= 0 || alertIndex >= s.klineDay.Length)
+                if (alertIndex <= 0 || alertIndex >= s.klineDay.Length - 1)
                 {
                     continue;
                 }
@@ -74,11 +76,11 @@ namespace LuqinOfficialAccount.Controllers
                     continue;
                 }
                 DataRow dr = dt.NewRow();
-                dr["日期"] = s.klineDay[alertIndex].settleTime.Date;
+                dr["日期"] = s.klineDay[alertIndex+1].settleTime.Date;
                 dr["代码"] = s.gid.Trim();
                 dr["名称"] = s.name.Trim();
                 dr["信号"] = "";
-                dr["买入"] = s.klineDay[alertIndex].settle;
+                dr["买入"] = s.klineDay[alertIndex+1].open;
                 int macd = s.macdDays(alertIndex);
                 int kdj = s.kdjDays(alertIndex);
                 dr["MACD"] = macd;
