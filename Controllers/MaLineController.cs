@@ -75,6 +75,10 @@ namespace LuqinOfficialAccount.Controllers
                 {
                     continue;
                 }
+                if (s.klineDay[alertIndex + 1].open == 0)
+                {
+                    continue;
+                }
                 DataRow dr = dt.NewRow();
                 dr["日期"] = s.klineDay[alertIndex+1].settleTime.Date;
                 dr["代码"] = s.gid.Trim();
@@ -89,7 +93,9 @@ namespace LuqinOfficialAccount.Controllers
                 {
                     dr["信号"] = "📈";
                 }
+                
                 dt.Rows.Add(dr);
+                
             }
             StockFilter sf = StockFilter.GetResult(dt.Select("", "日期 desc, " + sort), days);
             try
