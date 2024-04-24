@@ -85,9 +85,15 @@ namespace LuqinOfficialAccount.Controllers
                 if (alertIndex < s.klineDay.Length - 1)
                 {
                     buyPrice = s.klineDay[alertIndex + 1].open;
+                    if (buyPrice == 0)
+                    {
+                        continue;
+                    }
                 }
                 DataRow dr = dt.NewRow();
-                dr["日期"] = s.klineDay[alertIndex].settleTime.Date;
+                DateTime buyDate = s.klineDay[alertIndex].settleTime.Date;
+                buyDate = Util.GetLastTransactDate(buyDate, -1, _db);
+                dr["日期"] = buyDate.Date;
                 dr["代码"] = s.gid.Trim();
                 dr["名称"] = s.name.Trim();
                 dr["信号"] = "";
