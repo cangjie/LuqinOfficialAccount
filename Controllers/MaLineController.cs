@@ -63,7 +63,7 @@ namespace LuqinOfficialAccount.Controllers
 
                 }
                 int alertIndex = s.GetItemIndex(l[i].alert_date.Date);
-                if (alertIndex <= 0 || alertIndex >= s.klineDay.Length - 1)
+                if (alertIndex <= 0 || alertIndex >= s.klineDay.Length)
                 {
                     continue;
                 }
@@ -75,16 +75,29 @@ namespace LuqinOfficialAccount.Controllers
                 {
                     continue;
                 }
-                if (s.klineDay[alertIndex + 1].open == 0)
+                /*
+                if (alertIndex <= s.klineDay.Length - 1 && s.klineDay[alertIndex + 1].open == 0)
                 {
                     continue;
                 }
+                */
+                double buyPrice = -1;
+                if (alertIndex < s.klineDay.Length - 1)
+                {
+                    buyPrice = s.klineDay[alertIndex + 1].open;
+                    if (buyPrice == 0)
+                    {
+                        continue;
+                    }
+                }
                 DataRow dr = dt.NewRow();
-                dr["日期"] = s.klineDay[alertIndex+1].settleTime.Date;
+                DateTime buyDate = s.klineDay[alertIndex].settleTime.Date;
+                buyDate = Util.GetLastTransactDate(buyDate, -1, _db);
+                dr["日期"] = buyDate.Date;
                 dr["代码"] = s.gid.Trim();
                 dr["名称"] = s.name.Trim();
                 dr["信号"] = "";
-                dr["买入"] = s.klineDay[alertIndex+1].open;
+                dr["买入"] = buyPrice;
                 int macd = s.macdDays(alertIndex);
                 int kdj = s.kdjDays(alertIndex);
                 dr["MACD"] = macd;
@@ -123,12 +136,7 @@ namespace LuqinOfficialAccount.Controllers
             int k = 0;
             foreach (Stock s in sArr)
             {
-                var l = await _db.nearLine3BigRed.Where(g => g.gid.Trim().Equals(s.gid.Trim()))
-                    .OrderByDescending(c => c.alert_date).AsNoTracking().Take(1).ToListAsync();
-                if (l != null && l.Count > 0)
-                {
-                    continue;
-                }
+                
 
 
                 try
