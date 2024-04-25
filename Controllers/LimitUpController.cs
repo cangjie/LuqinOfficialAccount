@@ -1129,7 +1129,8 @@ namespace LuqinOfficialAccount.Controllers
             dt.Columns.Add("信号", Type.GetType("System.String"));
             dt.Columns.Add("概念", Type.GetType("System.String"));
             dt.Columns.Add("买入", Type.GetType("System.Double"));
-
+            dt.Columns.Add("MACD", Type.GetType("System.Int32"));
+            dt.Columns.Add("KDJ", Type.GetType("System.Int32"));
             dt.Columns.Add("缩量", Type.GetType("System.Double"));
 
             dt.Columns.Add("开盘", Type.GetType("System.Double"));
@@ -1205,7 +1206,8 @@ namespace LuqinOfficialAccount.Controllers
                 {
                     dr["信号"] = dr["信号"].ToString() + "🔥";
                 }
-
+                dr["MACD"] = s.macdDays(alertIndex);
+                dr["KDJ"] = s.kdjDays(alertIndex);
                 dr["换手"] = s.klineDay[alertIndex].turnOver;
                 //dr["流入天数"] = "--";
                 /*
@@ -1252,6 +1254,12 @@ namespace LuqinOfficialAccount.Controllers
                         }
                     }
 
+                }
+
+
+                if (s.klineDay[alertIndex].open < s.klineDay[alertIndex].settle)
+                {
+                    dr["信号"] += "👌";
                 }
                 dt.Rows.Add(dr);
 

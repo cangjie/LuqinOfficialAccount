@@ -124,6 +124,12 @@ namespace LuqinOfficialAccount.Controllers
         }
 
         [HttpGet]
+        public async Task SearchNear3LineBigRedForToday()
+        {
+            await SearchNear3LineBigRed(DateTime.Now.Date, DateTime.Now.Date);
+        }
+
+        [HttpGet]
         public async Task SearchNear3LineBigRedForDays(DateTime startDate, DateTime endDate)
         {
             await SearchNear3LineBigRed(startDate, endDate);
