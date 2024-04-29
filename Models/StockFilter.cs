@@ -69,13 +69,13 @@ namespace LuqinOfficialAccount.Models
                 int alertIndex = s.GetItemIndex(alertDate);
                 if (alertIndex < 0)
                 {
-                    continue;
+                    //continue;
                 }
                 double highPrice = 0;
                 double buyPrice = double.Parse(drArr[i]["买入"].ToString());
                 for (int j = 0; j < countDays; j++)
                 {
-                    if (alertIndex + j + 1 < s.klineDay.Length)
+                    if (alertIndex + j + 1 < s.klineDay.Length && buyPrice > 0)
                     {
                         double currentHigh = s.klineDay[alertIndex + j + 1].high;
                         highPrice = Math.Max(highPrice, currentHigh);
