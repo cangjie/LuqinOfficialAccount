@@ -245,7 +245,10 @@ namespace LuqinOfficialAccount.Models
                     volume = (long)double.Parse(rvItems[6].Trim()),
                     turnOver = 0//double.Parse(rvItems[7].Trim())
                 };
-
+                if (k.settle == 0 || k.open == 0)
+                {
+                    continue;
+                }
                 if (rvItems.Length  <= 9 && klineList.Count > 0)
                 {
                     k.net_mf_vol = klineList[klineList.Count - 1].net_mf_vol;

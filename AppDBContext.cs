@@ -31,6 +31,9 @@ namespace LuqinOfficialAccount
             modelBuilder.Entity<MoneyFlow>().HasKey(b => new { b.gid, b.alert_date });
             modelBuilder.Entity<LimitDown>().HasKey(b => new { b.gid, b.alert_date });
             modelBuilder.Entity<NearLine3BigRed>().HasKey(b => new { b.gid, b.alert_date });
+            //modelBuilder.Entity<DragonTiger>().HasKey(d => new { d.alert_date, d.gid });
+            //modelBuilder.Entity<DragonTigerDetail>().HasKey(d => new { d.alert_date, d.gid, d.exalter, d.side});
+            
         }
 
 
@@ -114,5 +117,9 @@ namespace LuqinOfficialAccount
         public DbSet<Models.LimitDown> limitDown { get; set; }
 
         public DbSet<Models.NearLine3BigRed> nearLine3BigRed { get; set; }
+
+        public DbSet<DragonTiger> dragonTiger { get; set; }
+
+        public DbSet<DragonTigerDetail> dragonTigerDetail { get; set; }
     }
 }
