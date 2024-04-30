@@ -126,7 +126,9 @@ namespace LuqinOfficialAccount.Controllers
                 dr["日期"] = s.klineDay[alertIndex+1].settleTime.Date;
                 dr["名称"] = s.name.Trim();
                 dr["信号"] = "";
+                
                 dr["理由"] = l[i].reason.Trim();
+
                 dr["买入"] = s.klineDay[alertIndex].settle;
                 double bigBuying = 0;
                 double buying = 0;
@@ -154,6 +156,13 @@ namespace LuqinOfficialAccount.Controllers
                 dr["大单流入"] = bigFlowIn;
                 dr["流入"] = flowIn;
                 dt.Rows.Add(dr);
+            }
+            for (int i = 0; i < dt.Rows.Count; i++)
+            {
+                if (dt.Rows[i]["理由"].ToString().IndexOf("三") >= 0)
+                {
+                    dt.Rows[i]["信号"] = dt.Rows[i]["信号"].ToString() + "3⃣️";
+                }
             }
             StockFilter sfNew = StockFilter.GetResult(dt.Select("", "日期 desc, " + sort), days);
             try
