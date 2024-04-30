@@ -729,5 +729,12 @@
         'url': '/api/MaLine/BigRedUnder3Line',
         'defaultCountDays': 15,
         'defaultSort': 'MACD,KDJ'
+    },
+    {
+        'name': '龙虎榜',
+        'description': '',
+        'url': '/api/DragonTiger/GetList',
+        'defaultCountDays': 15,
+        'defaultSort': '大单流入 desc'
     }
 ];
