@@ -106,7 +106,7 @@ namespace LuqinOfficialAccount.Controllers
                 {
                     continue;
                 }
-                DataRow[] drArr = dt.Select(" 代码 = '" + s.gid + "' and 日期 = '" + s.klineDay[alertIndex].settleTime.ToShortDateString() + "' ");
+                DataRow[] drArr = dt.Select(" 代码 = '" + s.gid + "' and 日期 = '" + s.klineDay[alertIndex+1].settleTime.ToShortDateString() + "' ");
                 if (drArr.Length > 0)
                 {
                     drArr[0]["理由"] = drArr[0]["理由"].ToString() + "," + l[i].reason.Trim();
