@@ -147,6 +147,10 @@ namespace LuqinOfficialAccount.Controllers
 
                 double bigFlowIn = 10000 * bigBuying / s.klineDay[alertIndex].volume;
                 double flowIn = 10000 * buying / s.klineDay[alertIndex].volume;
+                if (bigFlowIn < 0 || flowIn < 0)
+                {
+                    continue;
+                }
                 dr["大单流入"] = bigFlowIn;
                 dr["流入"] = flowIn;
                 dt.Rows.Add(dr);
