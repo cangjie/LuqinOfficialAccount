@@ -736,5 +736,19 @@
         'url': '/api/DragonTiger/GetList',
         'defaultCountDays': 15,
         'defaultSort': '大单流入 desc'
+    },
+    {
+        'name': '券商推荐涨停',
+        'description': '',
+        'url': '/api/MonthPromoteStock/LimitUp',
+        'defaultCountDays': 15,
+        'defaultSort': '代码 desc'
+    },
+    {
+        'name': '券商推荐涨停',
+        'description': '',
+        'url': '/api/MonthPromoteStock/MACD',
+        'defaultCountDays': 15,
+        'defaultSort': '大单流入 desc'
     }
 ];
