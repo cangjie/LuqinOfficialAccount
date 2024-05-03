@@ -23,14 +23,14 @@ namespace LuqinOfficialAccount.Controllers
         private readonly ConceptController _conceptCtrl;
 
         private readonly string token = "4da2fbec9c2cee373d3aace9f9e200a315a2812dc11267c425010cec";
-        private class DataStruct
+        public class DataStruct
         {
             public string[] fields { get; set; }
             public object[][] items { get; set; }
             public bool has_more { get; set; }
         }
 
-        private class TopListStruct
+        public class TopListStruct
         {
             
             public string request_id { get; set; }
@@ -120,12 +120,30 @@ namespace LuqinOfficialAccount.Controllers
                 {
                     continue;
                 }
+                bool newHigh = true;
+
+                for (int j = alertIndex; j >= alertIndex - 20 && j >= 0; j--)
+                {
+                    if (s.klineDay[j].high > s.klineDay[alertIndex].high)
+                    {
+                        newHigh = false;
+                        break;
+                    }
+                }
 
                 DataRow dr = dt.NewRow();
                 dr["代码"] = s.gid;
                 dr["日期"] = s.klineDay[alertIndex+1].settleTime.Date;
                 dr["名称"] = s.name.Trim();
-                dr["信号"] = "";
+                if (newHigh)
+                {
+                    dr["信号"] = "🔼";
+                }
+                else
+                {
+                    dr["信号"] = "🔽";
+                }
+                
                 
                 dr["理由"] = l[i].reason.Trim();
 
@@ -164,6 +182,7 @@ namespace LuqinOfficialAccount.Controllers
                     dt.Rows[i]["信号"] = dt.Rows[i]["信号"].ToString() + "3⃣️";
                 }
             }
+            
             StockFilter sfNew = StockFilter.GetResult(dt.Select("", "日期 desc, " + sort), days);
             try
             {
