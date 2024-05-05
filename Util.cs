@@ -250,6 +250,45 @@ namespace LuqinOfficialAccount
             return ret;
         }
 
+        public static double GetFirstHighestPrice(KLine[] kArr, int index, out int highestIndex)
+        {
+            highestIndex = index;
+            double ret = -1;
+            double line3 = KLine.GetAverageSettlePrice(kArr, index, 3, 3);
+            int find = 0;
+            if (line3 > kArr[index].settle)
+            {
+                find = -1;
+            }
+            for (int i = index; i < kArr.Length; i++)
+            {
+                if (ret < kArr[i].high)
+                {
+                    ret = kArr[i].high;
+                    highestIndex = i;
+                }
+                line3 = KLine.GetAverageSettlePrice(kArr, i, 3, 3);
+                switch (find)
+                {
+                    case -1:
+                        
+                        if (line3 < kArr[i].settle)
+                            find++;
+                        break;
+                    case 0:
+                        if (line3 > kArr[i].settle)
+                            find++;
+                        break;
+                    default:
+                        break;
+
+                }
+                if (find == 1)
+                    break;
+            }
+            return ret;
+        }
+
 
     }
 }
