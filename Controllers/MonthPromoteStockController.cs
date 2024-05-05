@@ -184,6 +184,7 @@ namespace LuqinOfficialAccount.Controllers
                 {
                     bread = high - (high - low) * 0.618;
                 }
+                int buyIndex = -1;
                 for (int j = alertIndex + 1; j < s.klineDay.Length; j++)
                 {
                     if (s.klineDay[j].high > high)
@@ -192,52 +193,58 @@ namespace LuqinOfficialAccount.Controllers
                     }
                     if (s.klineDay[j].low < bread * 1.01)
                     {
-                        if (s.klineDay[j].settleTime.Date < startDate.Date
-                            || s.klineDay[j].settleTime.Date > endDate.Date)
-                        {
-                            continue;
-                        }
+                        buyIndex = j;
+                        break;
+                        
+                    }
+
+                    
+                }
+                if (buyIndex > 0 && s.klineDay[buyIndex].settleTime.Date >= startDate.Date
+                        && s.klineDay[buyIndex].settleTime.Date <= endDate.Date)
+                {
+                   
+
+
                         DataRow dr = dt.NewRow();
                         dr["代码"] = s.gid;
-                        dr["日期"] = s.klineDay[j].settleTime.Date;
+                        dr["日期"] = s.klineDay[buyIndex].settleTime.Date;
                         dr["名称"] = s.name.Trim();
                         dr["信号"] = "";
-                        dr["买入"] = s.klineDay[j].settle;
+                        dr["买入"] = s.klineDay[buyIndex].settle;
 
 
                         double bigBuying = 0;
                         double buying = 0;
 
-                        if (s.klineDay[alertIndex].currentDealCount != null)
+                        if (s.klineDay[buyIndex].currentDealCount != null)
                         {
-                            bigBuying = s.klineDay[alertIndex].currentDealCount.net_huge_volume
-                                + s.klineDay[alertIndex].currentDealCount.net_big_volume;
-                            buying = bigBuying + s.klineDay[alertIndex].currentDealCount.net_mid_volume
-                                + s.klineDay[alertIndex].currentDealCount.net_small_volume;
+                            bigBuying = s.klineDay[buyIndex].currentDealCount.net_huge_volume
+                                + s.klineDay[buyIndex].currentDealCount.net_big_volume;
+                            buying = bigBuying + s.klineDay[buyIndex].currentDealCount.net_mid_volume
+                                + s.klineDay[buyIndex].currentDealCount.net_small_volume;
 
 
                         }
                         if (bigBuying == 0 && buying == 0)
                         {
-                            buying = s.klineDay[alertIndex].net_mf_vol / 100;
+                            buying = s.klineDay[buyIndex].net_mf_vol / 100;
                         }
 
-                        double bigFlowIn = 10000 * bigBuying / s.klineDay[alertIndex].volume;
-                        double flowIn = 10000 * buying / s.klineDay[alertIndex].volume;
-                        if (bigFlowIn < 0 || flowIn < 0)
-                        {
-                            continue;
-                        }
+                        double bigFlowIn = 10000 * bigBuying / s.klineDay[buyIndex].volume;
+                        double flowIn = 10000 * buying / s.klineDay[buyIndex].volume;
+                        
                         dr["大单流入"] = bigFlowIn;
                         dr["流入"] = flowIn;
                         dr["前低"] = low;
                         dr[type] = bread;
                         dr["现高"] = high;
                         dt.Rows.Add(dr);
-                        break;
-                    }
+                    
+                    
                 }
                 
+
             }
             StockFilter sfNew = StockFilter.GetResult(dt.Select("", "日期 desc, " + sort), days);
             try
