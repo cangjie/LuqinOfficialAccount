@@ -32,6 +32,7 @@ namespace LuqinOfficialAccount
             modelBuilder.Entity<LimitDown>().HasKey(b => new { b.gid, b.alert_date });
             modelBuilder.Entity<NearLine3BigRed>().HasKey(b => new { b.gid, b.alert_date });
             modelBuilder.Entity<MonthPromoteStock>().HasKey(m => new { m.gid, m.month,m.broker});
+            modelBuilder.Entity<BigRed>().HasKey(b => new { b.alert_date, b.gid });
             //modelBuilder.Entity<DragonTiger>().HasKey(d => new { d.alert_date, d.gid });
             //modelBuilder.Entity<DragonTigerDetail>().HasKey(d => new { d.alert_date, d.gid, d.exalter, d.side});
             
@@ -124,5 +125,7 @@ namespace LuqinOfficialAccount
         public DbSet<DragonTigerDetail> dragonTigerDetail { get; set; }
 
         public DbSet<MonthPromoteStock> monthStock { get; set; }
+
+        public DbSet<BigRed> bigRed { get; set; }
     }
 }

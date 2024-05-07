@@ -173,6 +173,25 @@ namespace LuqinOfficialAccount.Controllers
 
                     if (!((rate > 0.06 && s.klineDay[i].low < line3) || cross3Line))
                     {
+                        if (rate > 0.07)
+                        {
+                            BigRed br = new BigRed()
+                            {
+                                gid = s.gid,
+                                alert_date = s.klineDay[i].settleTime.Date,
+                                price = s.klineDay[i].settle,
+                                rate = rate
+                            };
+                            try
+                            {
+                                await _db.bigRed.AddAsync(br);
+                                await _db.SaveChangesAsync();
+                            }
+                            catch
+                            {
+
+                            }
+                        }
                         continue;
                     }
 

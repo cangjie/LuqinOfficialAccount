@@ -65,6 +65,103 @@ namespace LuqinOfficialAccount.Controllers
         }
 
         [HttpGet("{days}")]
+        public async Task<ActionResult<StockFilter>> BigRed(int days, DateTime startDate, DateTime endDate, string sort = "放量 desc")
+        {
+            var l = await _db.bigRed.FromSqlRaw(" select * from big_red where alert_date >= '"
+                + startDate.ToShortDateString() + "' and alert_date <= '" + endDate.ToShortDateString() + "' "
+                + " and exists ( select 'a' from month_promote_stock where month_promote_stock.gid =  big_red.gid "
+                + "and month = convert(varchar(4),year(big_red.alert_date)) + SUBSTRING('00', 1, 2 - len(convert(varchar(2), month(big_red.alert_date)))) + convert(varchar(2), month(big_red.alert_date))  ) ")
+                .AsNoTracking().ToListAsync();
+            DataTable dt = new DataTable();
+            dt.Columns.Add("日期", Type.GetType("System.DateTime"));
+            dt.Columns.Add("代码", Type.GetType("System.String"));
+            dt.Columns.Add("名称", Type.GetType("System.String"));
+            dt.Columns.Add("信号", Type.GetType("System.String"));
+            dt.Columns.Add("MACD", Type.GetType("System.Int32"));
+            dt.Columns.Add("KDJ", Type.GetType("System.Int32"));
+            //dt.Columns.Add("理由", Type.GetType("System.String"));
+            dt.Columns.Add("买入", Type.GetType("System.Double"));
+            dt.Columns.Add("流入", Type.GetType("System.Double"));
+            dt.Columns.Add("大单流入", Type.GetType("System.Double"));
+            for (int i = 0; i < l.Count; i++)
+            {
+                Stock s = Stock.GetStock(l[i].gid);
+                try
+                {
+                    s.ForceRefreshKLineDay();
+                    s.LoadDealCount();
+                }
+                catch
+                {
+
+                }
+                int alertIndex = -1;
+                try
+                {
+                    alertIndex = s.GetItemIndex(l[i].alert_date.Date);
+                }
+                catch
+                {
+                    continue;
+                }
+                if (alertIndex <= 1 || alertIndex >= s.klineDay.Length - 1)
+                {
+                    continue;
+                }
+                if (KLine.IsLimitUp(s.klineDay, s.gid, alertIndex))
+                {
+                    continue;
+                }
+                double rate = (s.klineDay[alertIndex].settle - s.klineDay[alertIndex - 1].settle) / s.klineDay[alertIndex - 1].settle;
+                if (rate < 0.07)
+                {
+                    continue;
+                }
+                DataRow dr = dt.NewRow();
+                dr["代码"] = s.gid;
+                dr["日期"] = s.klineDay[alertIndex].settleTime.Date;
+                dr["名称"] = s.name.Trim();
+                dr["信号"] = "";
+                dr["买入"] = s.klineDay[alertIndex].settle;
+                dr["MACD"] = s.macdDays(alertIndex);
+                dr["KDJ"] = s.kdjDays(alertIndex);
+                double bigBuying = 0;
+                double buying = 0;
+
+                if (s.klineDay[alertIndex].currentDealCount != null)
+                {
+                    bigBuying = s.klineDay[alertIndex].currentDealCount.net_huge_volume
+                        + s.klineDay[alertIndex].currentDealCount.net_big_volume;
+                    buying = bigBuying + s.klineDay[alertIndex].currentDealCount.net_mid_volume
+                        + s.klineDay[alertIndex].currentDealCount.net_small_volume;
+
+
+                }
+                if (bigBuying == 0 && buying == 0)
+                {
+                    buying = s.klineDay[alertIndex].net_mf_vol / 100;
+                }
+
+                double bigFlowIn = 10000 * bigBuying / s.klineDay[alertIndex].volume;
+                double flowIn = 10000 * buying / s.klineDay[alertIndex].volume;
+
+                dr["大单流入"] = bigFlowIn;
+                dr["流入"] = flowIn;
+                dt.Rows.Add(dr);
+            }
+            StockFilter sfNew = StockFilter.GetResult(dt.Select("", "日期 desc, " + sort), days);
+            try
+            {
+                return Ok(sfNew);
+            }
+            catch
+            {
+                return NotFound();
+
+            }
+        }
+
+        [HttpGet("{days}")]
         public async Task<ActionResult<StockFilter>> LimitUp(int days, DateTime startDate, DateTime endDate, string sort = "放量 desc")
         {
             var l = await _db.LimitUp.FromSqlRaw(" select * from limit_up where alert_date >= '"

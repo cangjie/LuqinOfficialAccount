@@ -764,5 +764,12 @@
         'url': '/api/MonthPromoteStock/F5',
         'defaultCountDays': 15,
         'defaultSort': '大单流入 desc'
+    },
+    {
+        'name': '券商推荐大阳线',
+        'description': '',
+        'url': '/api/MonthPromoteStock/BigRed',
+        'defaultCountDays': 15,
+        'defaultSort': '大单流入 desc'
     }
 ];
