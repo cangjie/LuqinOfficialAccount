@@ -1917,7 +1917,7 @@ namespace LuqinOfficialAccount.Controllers
 
                 if (leftHolding || rightHolding)
                 {
-                    dr["信号"] = dr["信号"].ToString() + "🌞";
+                    dr["信号"] = dr["信号"].ToString() + "🎉";
                 }
 
                 if (alertIndex + 1 < s.klineDay.Length && s.klineDay[alertIndex].settle < s.klineDay[alertIndex + 1].open)
