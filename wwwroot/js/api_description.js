@@ -750,5 +750,26 @@
         'url': '/api/MonthPromoteStock/MACD',
         'defaultCountDays': 15,
         'defaultSort': '大单流入 desc'
+    },
+    {
+        'name': '券商推荐涨停F3',
+        'description': '',
+        'url': '/api/MonthPromoteStock/F3',
+        'defaultCountDays': 15,
+        'defaultSort': '大单流入 desc'
+    },
+    {
+        'name': '券商推荐涨停F5',
+        'description': '',
+        'url': '/api/MonthPromoteStock/F5',
+        'defaultCountDays': 15,
+        'defaultSort': '大单流入 desc'
+    },
+    {
+        'name': '券商推荐大阳线',
+        'description': '',
+        'url': '/api/MonthPromoteStock/BigRed',
+        'defaultCountDays': 15,
+        'defaultSort': '大单流入 desc'
     }
 ];

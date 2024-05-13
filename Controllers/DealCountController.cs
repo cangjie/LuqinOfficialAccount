@@ -321,6 +321,15 @@ namespace LuqinOfficialAccount.Controllers
                 dr["KDJ"] = s.kdjDays(buyIndex);
                 dr["流入"] = flowIn;
 
+                bool promote = false;
+                string startMonth = startDate.AddMonths(-1).Year.ToString()
+                    + startDate.AddMonths(-1).ToString().PadLeft(2, '0');
+                string endMonth = endDate.Year.ToString()
+                    + endDate.Month.ToString().PadLeft(2, '0');
+                var pl = await _db.monthStock.FromSqlRaw(" select * from month_promote_stock  "
+                    + " where month >= '" + startMonth.Trim() + "' and month  <= '" + endMonth.Trim() + "'  "
+                    + " and gid = '" + s.gid.Trim() + "' ").AsNoTracking().ToListAsync();
+
                 if (bigFlowIn > 10 && bigFlowIn > flowIn)
                 {
                     dr["信号"] = "📈";
@@ -329,6 +338,10 @@ namespace LuqinOfficialAccount.Controllers
                     {
                         dr["信号"] = "🔥";
                     }
+                }
+                if (pl != null && pl.Count > 0)
+                {
+                    dr["信号"] = dr["信号"].ToString() + "👌";
                 }
 
 
