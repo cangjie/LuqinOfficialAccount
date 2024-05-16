@@ -1874,7 +1874,25 @@ namespace LuqinOfficialAccount.Controllers
                     continue;
                 }
                 */
-                
+
+                bool leftHolding = true;
+                bool rightHolding = true;
+
+                for (int k = prevLimitUpIndex + 1; k < alertIndex; k++)
+                {
+                    if (s.klineDay[k].high > s.klineDay[prevLimitUpIndex].high
+                        || s.klineDay[k].low < s.klineDay[prevLimitUpIndex].low)
+                    {
+                        leftHolding = false;
+                    }
+                    if (s.klineDay[k].high > s.klineDay[alertIndex].high
+                        || s.klineDay[k].low < s.klineDay[alertIndex].low)
+                    {
+                        rightHolding = false;
+                    }
+
+                }
+
 
 
                 DataRow dr = dt.NewRow();
@@ -1895,6 +1913,11 @@ namespace LuqinOfficialAccount.Controllers
                 if (isReverse)
                 {
                     dr["信号"] = dr["信号"].ToString() + "🔥";
+                }
+
+                if (leftHolding || rightHolding)
+                {
+                    dr["信号"] = dr["信号"].ToString() + "🎉";
                 }
 
                 if (alertIndex + 1 < s.klineDay.Length && s.klineDay[alertIndex].settle < s.klineDay[alertIndex + 1].open)
