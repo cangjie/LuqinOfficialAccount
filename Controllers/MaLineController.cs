@@ -123,6 +123,78 @@ namespace LuqinOfficialAccount.Controllers
 
         }
 
+        [HttpGet("{days}")]
+        public async Task<ActionResult<StockFilter>> BigRedUnder3LineRise(int days, DateTime startDate, DateTime endDate, string sort = "代码")
+        {
+            startDate = Util.GetLastTransactDate(startDate, 1, _db);
+            endDate = Util.GetLastTransactDate(endDate, 1, _db);
+
+            DataTable dt = new DataTable();
+            dt.Columns.Add("日期", Type.GetType("System.DateTime"));
+            dt.Columns.Add("代码", Type.GetType("System.String"));
+            dt.Columns.Add("名称", Type.GetType("System.String"));
+            dt.Columns.Add("信号", Type.GetType("System.String"));
+            dt.Columns.Add("买入", Type.GetType("System.Double"));
+            dt.Columns.Add("MACD", Type.GetType("System.Int32"));
+            dt.Columns.Add("KDJ", Type.GetType("System.Int32"));
+
+            StockFilter sfOri = (StockFilter)((OkObjectResult)(await BigRedUnder3Line(1, startDate, endDate)).Result).Value;
+            for (int i = 0; sfOri != null && sfOri.itemList != null && i < sfOri.itemList.Count; i++)
+            {
+                Stock s = Stock.GetStock(sfOri.itemList[i].gid.Trim());
+                try
+                {
+                    s.RefreshKLineDay();
+                    Stock.ComputeMACD(s.klineDay);
+                    Stock.ComputeRSV(s.klineDay);
+                    Stock.ComputeKDJ(s.klineDay);
+                }
+                catch
+                {
+
+                }
+                int alertIndex = s.GetItemIndex(sfOri.itemList[i].alertDate.Date);
+                //int alertIndex = s.GetItemIndex(l[i].alert_date.Date);
+                if (alertIndex <= 0 || alertIndex >= s.klineDay.Length - 1)
+                {
+                    continue;
+                }
+                int buyIndex = alertIndex;
+                if (s.klineDay[buyIndex].high < s.klineDay[buyIndex - 1].high
+                    || s.klineDay[buyIndex].low < s.klineDay[buyIndex - 1].low)
+                {
+                    continue;
+                }
+
+                DataRow dr = dt.NewRow();
+                //DateTime buyDate = s.klineDay[alertIndex].settleTime.Date;
+                //buyDate = Util.GetLastTransactDate(buyDate, -1, _db);
+
+                dr["日期"] = s.klineDay[buyIndex].settleTime.Date;
+                dr["代码"] = s.gid.Trim();
+                dr["名称"] = s.name.Trim();
+                dr["信号"] = "";
+                dr["买入"] = s.klineDay[buyIndex].settle;
+                int macd = s.macdDays(alertIndex);
+                int kdj = s.kdjDays(alertIndex);
+                dr["MACD"] = macd;
+                dr["KDJ"] = kdj;
+                
+                dt.Rows.Add(dr);
+            }
+
+            StockFilter sf = StockFilter.GetResult(dt.Select("", "日期 desc, " + sort), days);
+            try
+            {
+                return Ok(sf);
+            }
+            catch
+            {
+                return NotFound();
+
+            }
+        }
+
         [HttpGet]
         public async Task SearchNear3LineBigRedForToday()
         {

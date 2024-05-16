@@ -771,5 +771,12 @@
         'url': '/api/MonthPromoteStock/BigRed',
         'defaultCountDays': 15,
         'defaultSort': '大单流入 desc'
+    },
+    {
+        'name': '当日3线下涨9%，次日不跌破创新高。',
+        'description': '',
+        'url': '/api/MaLine/BigRedUnder3LineRise',
+        'defaultCountDays': 15,
+        'defaultSort': 'MACD,KDJ'
     }
 ];
