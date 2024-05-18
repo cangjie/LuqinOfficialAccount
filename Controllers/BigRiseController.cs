@@ -1588,7 +1588,166 @@ namespace LuqinOfficialAccount.Controllers
             }
         }
 
+        [HttpGet("{days}")]
+        public async Task<ActionResult<StockFilter>> Bottom(int days, DateTime startDate, DateTime endDate, string sort = "日期")
+        {
+            DataTable dt = new DataTable();
+            dt.Columns.Add("日期", Type.GetType("System.DateTime"));
+            dt.Columns.Add("代码", Type.GetType("System.String"));
+            dt.Columns.Add("名称", Type.GetType("System.String"));
+            dt.Columns.Add("信号", Type.GetType("System.String"));
+            dt.Columns.Add("板数", Type.GetType("System.Int32"));
+            dt.Columns.Add("流入", Type.GetType("System.Double"));
+            dt.Columns.Add("大单流入", Type.GetType("System.Double"));
+            dt.Columns.Add("MACD", Type.GetType("System.Int32"));
+            dt.Columns.Add("KDJ", Type.GetType("System.Int32"));
+            dt.Columns.Add("买入", Type.GetType("System.Double"));
 
+            DateTime oriStartDate = startDate;
+            DateTime oriEndDate = endDate;
+            startDate = Util.GetLastTransactDate(startDate, 30, _context);
+            endDate = Util.GetLastTransactDate(endDate, 5, _context);
+            var bigRise = await _context.BigRise.Where(b => b.alert_date.Date >= startDate.Date
+                && b.alert_date.Date <= endDate.Date).AsNoTracking().ToListAsync();
+            for (int i = 0; i < bigRise.Count; i++)
+            {
+                Stock s = Stock.GetStock(bigRise[i].gid);
+                try
+                {
+                    s.ForceRefreshKLineDay();
+                    s.LoadDealCount();
+                }
+                catch
+                {
+
+                }
+
+                int startIndex = s.GetItemIndex(bigRise[i].start_date.Date);
+                int highIndex = s.GetItemIndex(bigRise[i].alert_date.Date);
+                if (startIndex < 0 || startIndex >= highIndex || startIndex >= s.klineDay.Length)
+                {
+                    continue;
+                }
+                if (highIndex < 0 || highIndex >= s.klineDay.Length)
+                {
+                    continue;
+                }
+                int lowIndex = -1;
+                int highestIndex = -1;
+                double lowPrice = Util.GetFirstLowestPrice(s.klineDay, startIndex, out lowIndex);
+                double highPrice = Util.GetFirstHighestPrice(s.klineDay, highIndex, out highestIndex);
+
+                if ((highPrice - lowPrice) / lowPrice <= 0.3)
+                {
+                    continue;
+                }
+
+                double f3 = highPrice - (highPrice - lowPrice) * 0.382;
+                for (int j = highestIndex + 1; j < s.klineDay.Length - 1; j++)
+                {
+                    if (s.klineDay[j].low > f3)
+                    {
+                        continue;
+                    }
+                    bool bottom = false;
+                    if (s.klineDay[j - 1].high > s.klineDay[j].high && s.klineDay[j - 1].low > s.klineDay[j].low
+                        && s.klineDay[j + 1].high > s.klineDay[j].high && s.klineDay[j + 1].high > s.klineDay[j].low
+                        && s.klineDay[j].low < KLine.GetAverageSettlePrice(s.klineDay, j, 3, 3))
+                    {
+                        bottom = true;
+                    }
+                    if (!bottom)
+                    {
+                        continue;
+                    }
+                    
+
+                    int buyIndex = j + 3;
+
+                    if (buyIndex >= s.klineDay.Length || buyIndex <= 1)
+                    {
+                        continue;
+                    }
+
+
+                    bool valid = true;
+
+                    for (int k = j + 1; k <= buyIndex; k++)
+                    {
+                        if (s.klineDay[k].low <= s.klineDay[k - 1].low
+                            || s.klineDay[k].high <= s.klineDay[k - 1].high
+                            || s.klineDay[k].open > s.klineDay[k].settle)
+                        {
+                            valid = false;
+                        }
+                    }
+
+                    if (!valid)
+                    {
+                        continue;
+                    }
+
+                    if (s.klineDay[buyIndex].settleTime.Date < oriStartDate.Date
+                        || s.klineDay[buyIndex].settleTime.Date > oriEndDate.Date)
+                    {
+                        continue;
+                    }
+
+                    
+
+                    
+
+                    if (s.klineDay[buyIndex].open > s.klineDay[buyIndex].settle)
+                    {
+                        continue;
+                    }
+
+                   
+
+                    double bigBuying = s.klineDay[buyIndex].currentDealCount == null?
+                        0 : (s.klineDay[buyIndex].currentDealCount.net_huge_volume
+                        + s.klineDay[buyIndex].currentDealCount.net_big_volume);
+                    double buying = bigBuying + (s.klineDay[buyIndex].currentDealCount == null ? 0
+                        : (s.klineDay[buyIndex].currentDealCount.net_mid_volume
+                        + s.klineDay[buyIndex].currentDealCount.net_small_volume));
+                    double flowIn = s.klineDay[buyIndex].volume ==0? 0 :(  10000 * buying / s.klineDay[buyIndex].volume);
+                    double bigFlowIn = s.klineDay[buyIndex].volume == 0 ? 0 : (10000 * bigBuying / s.klineDay[buyIndex].volume);
+
+                    if (dt.Select("日期 = '" + s.klineDay[buyIndex].settleTime.ToShortDateString() + "' "
+                        + " and 代码 = '" + s.gid.Trim() + "' ").Length > 0)
+                    {
+                        continue;
+                    }
+
+                    DataRow dr = dt.NewRow();
+                    dr["日期"] = s.klineDay[buyIndex].settleTime.Date;
+                    dr["代码"] = s.gid;
+                    dr["名称"] = s.name.Trim();
+                    dr["信号"] = "";
+                    dr["买入"] = s.klineDay[buyIndex].settle;
+                    dr["大单流入"] = bigFlowIn;
+                    dr["MACD"] = s.macdDays(buyIndex);
+                    dr["KDJ"] = s.kdjDays(buyIndex);
+                    dr["流入"] = flowIn;
+                    dr["板数"] = bigRise[i].limit_up_num;
+                    dt.Rows.Add(dr);
+                    break;
+
+                }
+
+            }
+            StockFilter sfNew = StockFilter.GetResult(dt.Select("", "日期 desc, " + sort), days);
+            try
+            {
+                return Ok(sfNew);
+            }
+            catch
+            {
+                return NotFound();
+
+            }
+            
+        }
 
 
         private bool BigRiseExists(int id)

@@ -940,6 +940,11 @@ namespace LuqinOfficialAccount.Controllers
                 {
                     dr["信号"] = dr["信号"] + "🔥";
                 }
+                if (horseNum >= 2 && s.klineDay[buyIndex - 1].low < s.klineDay[buyIndex].low
+                    && s.klineDay[buyIndex - 1].high < s.klineDay[buyIndex].high)
+                {
+                    dr["信号"] = "🐮";
+                }
                 dt.Rows.Add(dr);
             }
             return dt;
@@ -1056,6 +1061,12 @@ namespace LuqinOfficialAccount.Controllers
                 if (Math.Abs(flowIn) >= 10)
                 {
                     dr["信号"] = dr["信号"] + "🔥";
+                }
+
+                if (horseNum >= 2 &&s.klineDay[buyIndex - 1].low < s.klineDay[buyIndex].low
+                    && s.klineDay[buyIndex - 1].high < s.klineDay[buyIndex].high)
+                {
+                    dr["信号"] = "🐮";
                 }
 
 

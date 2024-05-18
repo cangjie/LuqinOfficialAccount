@@ -778,5 +778,12 @@
         'url': '/api/MaLine/BigRedUnder3LineRise',
         'defaultCountDays': 15,
         'defaultSort': 'MACD,KDJ'
+    },
+    {
+        'name': '大涨幅后，现底部形态',
+        'description': '',
+        'url': '/api/BigRise/Bottom',
+        'defaultCountDays': 15,
+        'defaultSort': '板数 desc, 大单流入 desc'
     }
 ];

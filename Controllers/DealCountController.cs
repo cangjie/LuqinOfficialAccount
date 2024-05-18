@@ -344,6 +344,12 @@ namespace LuqinOfficialAccount.Controllers
                     dr["信号"] = dr["信号"].ToString() + "👌";
                 }
 
+                if (s.klineDay[buyIndex].high > s.klineDay[buyIndex - 1].high
+                    && s.klineDay[buyIndex].low > s.klineDay[buyIndex - 1].low)
+                {
+                    dr["信号"] = "🐮";
+                }
+
 
                 dt.Rows.Add(dr);
             }

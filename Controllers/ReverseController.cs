@@ -1231,6 +1231,13 @@ namespace LuqinOfficialAccount.Controllers
                 {
                     dr["信号"] = "📈";
                 }
+
+                if (s.klineDay[alertIndex + 1].low < s.klineDay[alertIndex + 2].low
+                    && s.klineDay[alertIndex + 1].high < s.klineDay[alertIndex + 2].high)
+                {
+                    dr["信号"] = "🐮";
+                }
+
                 dr["流入"] = flowRate;
                 dt.Rows.Add(dr);
             }
