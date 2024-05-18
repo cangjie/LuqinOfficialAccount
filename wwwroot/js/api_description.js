@@ -784,6 +784,6 @@
         'description': '',
         'url': '/api/BigRise/Bottom',
         'defaultCountDays': 15,
-        'defaultSort': '板数 desc, 大单流入 desc'
+        'defaultSort': '大单流入 desc,板数 desc'
     }
 ];
