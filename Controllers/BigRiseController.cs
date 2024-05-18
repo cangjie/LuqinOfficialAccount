@@ -1662,7 +1662,7 @@ namespace LuqinOfficialAccount.Controllers
                     }
                     
 
-                    int buyIndex = j + 3;
+                    int buyIndex = j + 1;
 
                     if (buyIndex >= s.klineDay.Length || buyIndex <= 1)
                     {
@@ -1670,15 +1670,16 @@ namespace LuqinOfficialAccount.Controllers
                     }
 
 
-                    bool valid = true;
+                    bool valid = false;
 
-                    for (int k = j + 1; k <= buyIndex; k++)
+                    for (int k = buyIndex; k <= buyIndex + 2 && k < s.klineDay.Length; k++)
                     {
-                        if (s.klineDay[k].low <= s.klineDay[k - 1].low
-                            || s.klineDay[k].high <= s.klineDay[k - 1].high
-                            || s.klineDay[k].open > s.klineDay[k].settle)
+                        if (s.klineDay[k].settle > KLine.GetAverageSettlePrice(s.klineDay, k, 3, 3)
+                            && s.klineDay[k].low >= s.klineDay[k - 1].low
+                            && s.klineDay[k].high >= s.klineDay[k - 1].high
+                            && s.klineDay[k].open > s.klineDay[k].settle)
                         {
-                            valid = false;
+                            valid = true;
                         }
                     }
 
