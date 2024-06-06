@@ -1621,7 +1621,7 @@ namespace LuqinOfficialAccount.Controllers
             dt.Columns.Add("信号", Type.GetType("System.String"));
             dt.Columns.Add("买入", Type.GetType("System.Double"));
 
-            for (int i = 0; i < l.itemList.Count; i++)
+            for (int i = 0; l!=null && i < l.itemList.Count; i++)
             {
                 Stock s = Stock.GetStock(l.itemList[i].gid);
                 try
