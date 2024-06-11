@@ -126,7 +126,7 @@ namespace LuqinOfficialAccount.Controllers
         public XmlDocument HangZhou()
         {
             XmlDocument xmlD = new XmlDocument();
-            xmlD.LoadXml("<xml>"
+            string xmlStr = "<xml>"
                 + "<ToUserName><![CDATA[" + _message.FromUserName.Trim() + "]]></ToUserName>"
                 + "<FromUserName ><![CDATA[" + _settings.originalId.Trim() + "]]></FromUserName>"
                 + "<CreateTime >" + Util.GetLongTimeStamp(DateTime.Now) + "</CreateTime>"
@@ -135,12 +135,13 @@ namespace LuqinOfficialAccount.Controllers
                 + "<Articles>"
                 + "<item>"
                 + "<Title><![CDATA[未来科学家探秘营]]></Title>"
-                + "<Description><![CDATA[未来科学家探秘营报名！自然与科学碰撞，开启科学梦想 ！]] ></Description>"
+                + "<Description><![CDATA[未来科学家探秘营报名！自然与科学碰撞，开启科学梦想 ！]]></Description>"
                 + "<PicUrl><![CDATA[http://weixin.luqinwenda.com/images/hangzhou.jpg]]></PicUrl>"
                 + "<Url><![CDATA[https://mp.weixin.qq.com/s/-6I8U72Vta8_HNuMbS2GpA]]></Url>"
                 + "</item>"
                 + "</Articles>"
-                + "</xml>");
+                + "</xml>";
+            xmlD.LoadXml(xmlStr);
             return xmlD;
         }
 
