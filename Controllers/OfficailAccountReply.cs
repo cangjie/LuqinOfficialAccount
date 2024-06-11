@@ -35,7 +35,7 @@ namespace LuqinOfficialAccount.Controllers
                     switch (_message.Event.Trim().ToLower())
                     {
                         case "subscribe":
-                            xmlD = CheckSubscribe();
+                            xmlD = HangZhou();
                             retStr = xmlD.InnerXml.Trim();
                             break;
                         case "click":
@@ -120,6 +120,27 @@ namespace LuqinOfficialAccount.Controllers
                 default:
                     break;
             }
+            return xmlD;
+        }
+
+        public XmlDocument HangZhou()
+        {
+            XmlDocument xmlD = new XmlDocument();
+            xmlD.LoadXml("<xml>"
+                + "<ToUserName><![CDATA[" + _message.FromUserName.Trim() + "]]></ToUserName>"
+                + "<FromUserName ><![CDATA[" + _settings.originalId.Trim() + "]]></FromUserName>"
+                + "<CreateTime >" + Util.GetLongTimeStamp(DateTime.Now) + "</CreateTime>"
+                + "<MsgType><![CDATA[news]]></MsgType>"
+                + "<ArticleCount>1</ArticleCount>"
+                + "<Articles>"
+                + "<item>"
+                + "<Title><![CDATA[未来科学家探秘营]]></Title>"
+                + "<Description><![CDATA[未来科学家探秘营报名！自然与科学碰撞，开启科学梦想 ！]] ></Description>"
+                + "<PicUrl><![CDATA[http://weixin.luqinwenda.com/images/hangzhou.jpg]]></PicUrl>"
+                + "<Url><![CDATA[https://mp.weixin.qq.com/s/-6I8U72Vta8_HNuMbS2GpA]]></Url>"
+                + "</item>"
+                + "</Articles>"
+                + "</xml>");
             return xmlD;
         }
 
