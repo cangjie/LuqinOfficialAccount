@@ -136,7 +136,7 @@ namespace LuqinOfficialAccount.Controllers
                 + "<item>"
                 + "<Title><![CDATA[未来科学家探秘营]]></Title>"
                 + "<Description><![CDATA[未来科学家探秘营报名！自然与科学碰撞，开启科学梦想 ！]]></Description>"
-                + "<PicUrl><![CDATA[http://weixin.luqinwenda.com/images/hangzhou.jpg]]></PicUrl>"
+                + "<PicUrl><![CDATA[http://weixin.luqinwenda.com/images/hangzhou2.jpg]]></PicUrl>"
                 + "<Url><![CDATA[https://mp.weixin.qq.com/s/-6I8U72Vta8_HNuMbS2GpA]]></Url>"
                 + "</item>"
                 + "</Articles>"
