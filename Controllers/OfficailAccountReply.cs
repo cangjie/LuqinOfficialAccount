@@ -71,6 +71,16 @@ namespace LuqinOfficialAccount.Controllers
                         case "广告合作":
                             retStr = AdCorp().InnerXml.Trim();
                             break;
+                        case "听课":
+                            //xmlD = new XmlDocument();
+                            retStr = "<xml>"
+                                + "<ToUserName><![CDATA[" + _message.FromUserName.Trim() + "]]></ToUserName>"
+                                + "<FromUserName ><![CDATA[" + _settings.originalId.Trim() + "]]></FromUserName>"
+                                + "<CreateTime >" + Util.GetLongTimeStamp(DateTime.Now) + "</CreateTime>"
+                                + "<MsgType><![CDATA[text]]></MsgType>"
+                                + "<Content><![CDATA[该活动已经结束，新活动敬请期待。]]></Content>"
+                            + "</xml>";
+                            break;
                         default:
                             retStr = "success";
                             break;
