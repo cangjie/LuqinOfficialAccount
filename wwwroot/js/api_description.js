@@ -785,5 +785,40 @@
         'url': '/api/BigRise/Bottom',
         'defaultCountDays': 15,
         'defaultSort': '大单流入 desc,板数 desc'
+    },
+    {
+        'name': '券商推荐穿3线',
+        'description': '',
+        'url': '/api/MonthPromoteStock/CrossLine3',
+        'defaultCountDays': 15,
+        'defaultSort': '大单流入 desc'
+    },
+    {
+        'name': '券商推荐穿5线',
+        'description': '',
+        'url': '/api/MonthPromoteStock/CrossLine5',
+        'defaultCountDays': 15,
+        'defaultSort': '大单流入 desc'
+    },
+    {
+        'name': '券商推荐穿20日均线',
+        'description': '',
+        'url': '/api/MonthPromoteStock/CrossMa20',
+        'defaultCountDays': 15,
+        'defaultSort': '大单流入 desc'
+    },
+    {
+        'name': '券商推荐穿30日均线',
+        'description': '',
+        'url': '/api/MonthPromoteStock/CrossMa30',
+        'defaultCountDays': 15,
+        'defaultSort': '大单流入 desc'
+    },
+    {
+        'name': '券商推荐穿60日均线',
+        'description': '',
+        'url': '/api/MonthPromoteStock/CrossMa60',
+        'defaultCountDays': 15,
+        'defaultSort': '大单流入 desc'
     }
 ];

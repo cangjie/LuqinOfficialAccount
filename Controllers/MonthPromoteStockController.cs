@@ -462,6 +462,162 @@ namespace LuqinOfficialAccount.Controllers
             }
 
         }
+
+        [HttpGet("{days}")]
+        public async Task<ActionResult<StockFilter>> CrossLine3(int days, DateTime startDate, DateTime endDate, string sort = "放量 desc")
+        {
+            return Ok(await CrossMa("line3", days, startDate, endDate, sort));
+        }
+        [HttpGet("{days}")]
+        public async Task<ActionResult<StockFilter>> CrossLine5(int days, DateTime startDate, DateTime endDate, string sort = "放量 desc")
+        {
+            return Ok(await CrossMa("line5", days, startDate, endDate, sort));
+        }
+        [HttpGet("{days}")]
+        public async Task<ActionResult<StockFilter>> CrossMa20(int days, DateTime startDate, DateTime endDate, string sort = "放量 desc")
+        {
+            return Ok(await CrossMa("ma20", days, startDate, endDate, sort));
+        }
+        [HttpGet("{days}")]
+        public async Task<ActionResult<StockFilter>> CrossMa30(int days, DateTime startDate, DateTime endDate, string sort = "放量 desc")
+        {
+            return Ok(await CrossMa("ma30", days, startDate, endDate, sort));
+        }
+        [HttpGet("{days}")]
+        public async Task<ActionResult<StockFilter>> CrossMa60(int days, DateTime startDate, DateTime endDate, string sort = "放量 desc")
+        {
+            return Ok(await CrossMa("ma60", days, startDate, endDate, sort));
+        }
+
+        [NonAction]
+        public async Task<StockFilter> CrossMa(string maType, int days, DateTime startDate, DateTime endDate, string sort = "放量 desc")
+        {
+            DataTable dt = new DataTable();
+            dt.Columns.Add("日期", Type.GetType("System.DateTime"));
+            dt.Columns.Add("代码", Type.GetType("System.String"));
+            dt.Columns.Add("名称", Type.GetType("System.String"));
+            dt.Columns.Add("信号", Type.GetType("System.String"));
+            //dt.Columns.Add("理由", Type.GetType("System.String"));
+            dt.Columns.Add("买入", Type.GetType("System.Double"));
+            dt.Columns.Add("流入", Type.GetType("System.Double"));
+            dt.Columns.Add("大单流入", Type.GetType("System.Double"));
+            DateTime startDateOri = startDate;
+            startDate = startDate.AddMonths(-1);
+            string startMonth = startDate.Year.ToString() + startDate.Month.ToString().PadLeft(2, '0');
+            string endMonth = endDate.Year.ToString() + endDate.Month.ToString().PadLeft(2, '0');
+            var l = await _db.monthStock.FromSqlRaw(" select *  from month_promote_stock "
+                + " where month >= '" + startMonth + "' and month <= '" + endMonth + "' ")
+                .AsNoTracking().ToListAsync();
+            for (int i = 0; i < l.Count; i++)
+            {
+                Stock s = Stock.GetStock(l[i].gid);
+                try
+                {
+                    s.ForceRefreshKLineDay();
+                    s.LoadDealCount();
+                }
+                catch
+                {
+                    continue;
+                }
+                int startIndex = s.GetItemIndex(startDateOri);
+                int endIndex = s.GetItemIndex(endDate);
+                if (startIndex <= 0 || endIndex < startIndex)
+                {
+                    continue;
+                }
+                for (int j = startIndex; j <= endIndex; j++)
+                {
+                    double lastMa = -1;
+                    double currentMa = -1;
+                    if (maType.StartsWith("line"))
+                    {
+                        int moveDays = int.Parse(maType.Replace("line", ""));
+                        lastMa = KLine.GetAverageSettlePrice(s.klineDay, j - 1, moveDays, moveDays);
+                        currentMa = KLine.GetAverageSettlePrice(s.klineDay, j, moveDays, moveDays);
+                    }
+                    if (maType.StartsWith("ma"))
+                    {
+                        int moveDays = int.Parse(maType.Replace("ma", ""));
+                        lastMa = KLine.GetAverageSettlePrice(s.klineDay, j - 1, moveDays, 0);
+                        currentMa = KLine.GetAverageSettlePrice(s.klineDay, j, moveDays, 0);
+                    }
+                    bool isCross = false;
+                    if ((s.klineDay[j - 1].settle < lastMa && s.klineDay[j].settle > currentMa)
+                        || (s.klineDay[j].open < currentMa && s.klineDay[j].settle > currentMa))
+                    {
+                        isCross = true;
+                    }
+                    if (!isCross)
+                    {
+                        continue;
+                    }
+                    DataRow[] drArr = dt.Select(" 日期 = '" + s.klineDay[j].settleTime.ToShortDateString() + "' and 代码 = '" + s.gid.Trim() + "' ");
+                    if (drArr.Length > 0)
+                    {
+                        continue;
+                    }
+
+                    DateTime promoteDate = DateTime.Parse(l[i].month.Substring(0, 4) + "-" + l[i].month.Substring(4, 2) + "-1");
+
+                    if (s.klineDay[j].settleTime.Date < promoteDate)
+                    {
+                        continue;
+                    }
+
+                    if ((s.klineDay[j].settle - s.klineDay[j - 1].settle) / s.klineDay[j - 1].settle <= 0.06)
+                    {
+                        continue;
+                    }
+
+                    DataRow dr = dt.NewRow();
+
+                    dr["代码"] = s.gid;
+                    dr["日期"] = s.klineDay[j].settleTime.Date;
+                    dr["名称"] = s.name.Trim();
+                    dr["信号"] = "";
+                    dr["买入"] = s.klineDay[j].settle;
+
+
+                    double bigBuying = 0;
+                    double buying = 0;
+
+                    if (s.klineDay[j].currentDealCount != null)
+                    {
+                        bigBuying = s.klineDay[j].currentDealCount.net_huge_volume
+                            + s.klineDay[j].currentDealCount.net_big_volume;
+                        buying = bigBuying + s.klineDay[j].currentDealCount.net_mid_volume
+                            + s.klineDay[j].currentDealCount.net_small_volume;
+
+
+                    }
+                    if (bigBuying == 0 && buying == 0)
+                    {
+                        buying = s.klineDay[j].net_mf_vol / 100;
+                    }
+
+                    double bigFlowIn = 10000 * bigBuying / s.klineDay[j].volume;
+                    double flowIn = 10000 * buying / s.klineDay[j].volume;
+                    if (bigFlowIn < 0 || flowIn < 0)
+                    {
+                        continue;
+                    }
+                    dr["大单流入"] = bigFlowIn;
+                    dr["流入"] = flowIn;
+                    dt.Rows.Add(dr);
+                }
+            }
+            StockFilter sfNew = StockFilter.GetResult(dt.Select("", "日期 desc, " + sort), days);
+            try
+            {
+                return sfNew;
+            }
+            catch
+            {
+                return null;
+
+            }
+        }
     }
 }
 
