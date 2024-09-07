@@ -1630,6 +1630,110 @@ namespace LuqinOfficialAccount.Controllers
             }
         }
 
+        [HttpGet("{days}")]
+        public async Task<ActionResult<StockFilter>> DoubleLimitUpTwiceHorseHead(int days, DateTime startDate, DateTime endDate, string sort = "代码")
+        {
+            DataTable dt = new DataTable();
+            dt.Columns.Add("日期", Type.GetType("System.DateTime"));
+            dt.Columns.Add("代码", Type.GetType("System.String"));
+            dt.Columns.Add("名称", Type.GetType("System.String"));
+            dt.Columns.Add("信号", Type.GetType("System.String"));
+            dt.Columns.Add("买入", Type.GetType("System.Double"));
+            dt.Columns.Add("流入", Type.GetType("System.Double"));
+            dt.Columns.Add("大单流入", Type.GetType("System.Double"));
+            var list = await _db.LimitUpTwice
+                .Where(l => l.alert_date >= Util.GetLastTransactDate(startDate, 1, _db).Date
+                && l.alert_date <= Util.GetLastTransactDate(endDate, 1, _db).Date)
+                .AsNoTracking().ToListAsync();
+            for (int i = 0; i < list.Count; i++)
+            {
+                string gid = list[i].gid.Trim();
+                DateTime alertDate = list[i].alert_date.Date;
+                Stock s = Stock.GetStock(gid.Trim());
+                try
+                {
+                    s.ForceRefreshKLineDay();
+                }
+                catch
+                {
+                    continue;
+                }
+
+                int alertIndex = s.GetItemIndex(alertDate);
+                if (alertIndex < 4 && alertIndex >= s.klineDay.Length - 3)
+                {
+                    continue;
+                }
+                if (KLine.IsLimitUp(s.klineDay, s.gid, alertIndex))
+                {
+                    continue;
+                }
+                bool moreThan4 = true;
+                for (int j = 0; j < 4; j++)
+                {
+                    if (!KLine.IsLimitUp(s.klineDay, s.gid, alertIndex - j - 1))
+                    {
+                        moreThan4 = false;
+                        break;
+                    }
+                }
+                if (!moreThan4)
+                {
+                    continue;
+                }
+                if (s.klineDay[alertIndex].open < s.klineDay[alertIndex - 1].settle
+                    || s.klineDay[alertIndex].settle < s.klineDay[alertIndex - 1].settle)
+                {
+                    continue;
+                }
+                DataRow dr = dt.NewRow();
+
+                dr["代码"] = s.gid;
+                dr["日期"] = s.klineDay[i].settleTime.Date;
+                dr["名称"] = s.name.Trim();
+                dr["信号"] = "";
+                dr["买入"] = s.klineDay[i].settle;
+
+
+                double bigBuying = 0;
+                double buying = 0;
+
+                if (s.klineDay[alertIndex].currentDealCount != null)
+                {
+                    bigBuying = s.klineDay[alertIndex].currentDealCount.net_huge_volume
+                        + s.klineDay[alertIndex].currentDealCount.net_big_volume;
+                    buying = bigBuying + s.klineDay[alertIndex].currentDealCount.net_mid_volume
+                        + s.klineDay[alertIndex].currentDealCount.net_small_volume;
+
+
+                }
+                if (bigBuying == 0 && buying == 0)
+                {
+                    buying = s.klineDay[alertIndex].net_mf_vol / 100;
+                }
+
+                double bigFlowIn = 10000 * bigBuying / s.klineDay[alertIndex].volume;
+                double flowIn = 10000 * buying / s.klineDay[alertIndex].volume;
+                if (bigFlowIn < 0 || flowIn < 0)
+                {
+                    continue;
+                }
+                dr["大单流入"] = bigFlowIn;
+                dr["流入"] = flowIn;
+                dt.Rows.Add(dr);
+            }
+
+            StockFilter sfNew = StockFilter.GetResult(dt.Select("", "日期 desc, " + sort), days);
+            try
+            {
+                return Ok(sfNew);
+            }
+            catch
+            {
+                return NotFound();
+
+            }
+        }
 
         [HttpGet("{days}")]
         public async Task<ActionResult<StockFilter>> GetLimitUpTwiceAdjustOverHighest(int days, DateTime startDate, DateTime endDate, string sort = "代码")

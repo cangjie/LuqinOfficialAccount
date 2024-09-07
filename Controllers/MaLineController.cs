@@ -31,6 +31,41 @@ namespace LuqinOfficialAccount.Controllers
             Util._db = context;
             _db.Database.SetCommandTimeout(999);
         }
+
+        [HttpGet("{days}")]
+        public async Task<ActionResult<StockFilter>> BigRedUnder3LineFall(int days, DateTime startDate, DateTime endDate, string sort = "代码")
+        {
+            StockFilter sf = (StockFilter)((OkObjectResult)(await BigRedUnder3Line(days, startDate, endDate, sort)).Result).Value;
+            for (int i = 0; sf != null && i < sf.itemList.Count; i++)
+            {
+                Stock s = Stock.GetStock(sf.itemList[i].gid.Trim());
+                DateTime alertDate = sf.itemList[i].alertDate.Date;
+                int alertIndex = Stock.GetItemIndex(alertDate, s.klineDay);
+                double up3LineSettlePrice = 0;
+                for (int j = alertIndex - 1; j >= 0; j--)
+                {
+                    double line3 = KLine.GetAverageSettlePrice(s.klineDay, j, 3, 3);
+                    if (line3 < s.klineDay[j].settle)
+                    {
+                        up3LineSettlePrice = s.klineDay[j].settle;
+                        break;
+                    }
+                }
+                if (up3LineSettlePrice == 0)
+                {
+                    continue;
+                }
+                if ((up3LineSettlePrice - s.klineDay[alertIndex].settle) / up3LineSettlePrice < 0.2)
+                {
+                    continue;
+                }
+                sf.itemList.RemoveAt(i);
+                i--;
+            }
+            return Ok(sf);
+        }
+
+
         [HttpGet("{days}")]
         public async Task<ActionResult<StockFilter>> BigRedUnder3Line(int days, DateTime startDate, DateTime endDate, string sort = "代码")
         {

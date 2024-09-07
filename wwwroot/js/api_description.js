@@ -820,5 +820,19 @@
         'url': '/api/MonthPromoteStock/CrossMa60',
         'defaultCountDays': 15,
         'defaultSort': '大单流入 desc'
+    },
+    {
+        'name': '4板后马头',
+        'description': '',
+        'url': '/api/LimitUp/DoubleLimitUpTwiceHorseHead',
+        'defaultCountDays': 15,
+        'defaultSort': '大单流入 desc'
+    },
+    {
+        'name': '三线下上涨9%，且有20%的跌幅',
+        'description': '',
+        'url': '/api/MaLine/BigRedUnder3LineFall',
+        'defaultCountDays': 15,
+        'defaultSort': 'MACD,KDJ'
     }
 ];
