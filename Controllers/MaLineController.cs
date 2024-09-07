@@ -65,6 +65,27 @@ namespace LuqinOfficialAccount.Controllers
             return Ok(sf);
         }
 
+        [HttpGet]
+        public async Task<ActionResult<List<DateTime>>> GetDaysByBigRedUnder3Line()
+        {
+            List<DateTime> ret = new List<DateTime>();
+            DateTime startDate = DateTime.Parse("2023-1-1");
+            for(DateTime i = DateTime.Parse("2023-1-1"); i < DateTime.Now.Date; i = i.AddDays(1))
+            {
+                if (Util.IsTransacDay(i, _db))
+                {
+                    StockFilter sf = (StockFilter)((OkObjectResult)(await BigRedUnder3Line(1, i, i)).Result).Value;
+                    if (sf != null && sf.itemList != null && sf.itemList.Count >= 20)
+                    {
+                        ret.Add(i.Date);
+                    }
+                }
+
+            }
+            return Ok(ret);
+
+        }
+
 
         [HttpGet("{days}")]
         public async Task<ActionResult<StockFilter>> BigRedUnder3Line(int days, DateTime startDate, DateTime endDate, string sort = "代码")
