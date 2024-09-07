@@ -100,7 +100,7 @@ namespace LuqinOfficialAccount.Controllers
             dt.Columns.Add("买入", Type.GetType("System.Double"));
             dt.Columns.Add("MACD", Type.GetType("System.Int32"));
             dt.Columns.Add("KDJ", Type.GetType("System.Int32"));
-            double rate = 0.09;
+            double rate = 0.07;
             var l = await _db.nearLine3BigRed.Where(n => (n.alert_date.Date >= startDate.Date
                 && n.alert_date.Date <= endDate && n.rate >= rate && n.low < n.line3))
                 .AsNoTracking().ToListAsync();
