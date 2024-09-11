@@ -389,13 +389,13 @@ namespace LuqinOfficialAccount.Controllers
                 stock.LoadDealCount();
                 int currentIndex = stock.GetItemIndex(limitupL[k].alert_date.Date) + 1;
 
-                if (currentIndex < 1 || currentIndex > stock.klineDay.Length)
-                    continue;
+                
                 if (KLine.IsLimitUp(stock.klineDay,currentIndex))
                 {
                     continue;
                 }
-
+                if (currentIndex < 1 || currentIndex >= stock.klineDay.Length)
+                    continue;
                 DateTime currentDate = stock.klineDay[currentIndex].settleTime.Date;
                 double currentVolume = stock.klineDay[currentIndex].volume;
 
@@ -563,7 +563,7 @@ namespace LuqinOfficialAccount.Controllers
                 if ((stock.klineDay[currentIndex].low - stock.klineDay[currentIndex - 1].settle)
                     / stock.klineDay[currentIndex - 1].settle < -0.095)
                 {
-                    dr["信号"] = dr["信号"].ToString() + "<a title=\"触及跌停\" >💩</a>";
+                    dr["信号"] = dr["信号"].ToString() + "💩";
                 }
 
                 if (Math.Abs(stock.klineDay[currentIndex].low - (double)dr["F3"]) / (double)dr["F3"] <= 0.005)
