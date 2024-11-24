@@ -1472,6 +1472,35 @@ namespace LuqinOfficialAccount.Controllers
 
         }
 
+        [HttpGet("{days}")]
+        public async Task<ActionResult<StockFilter>> OpenHighWithHugeGreen(int days, DateTime startDate, DateTime endDate, string sort = "代码")
+        {
+            StockFilter l = (StockFilter)((OkObjectResult)(await OpenHighWithBigGreen(days, startDate, endDate, sort)).Result).Value;
+            for (int i = 0; i < l.itemList.Count; i++)
+            {
+                Stock s = Stock.GetStock(l.itemList[i].gid);
+                try
+                {
+                    s.ForceRefreshKLineDay();
+                }
+                catch
+                {
+                    continue;
+                }
+                int alertIndex = s.GetItemIndex(l.itemList[i].alertDate.Date);
+                if (alertIndex < 2 || alertIndex >= s.klineDay.Length - 1)
+                {
+                    continue;
+                }
+                if (s.klineDay[alertIndex].open - s.klineDay[alertIndex - 1].settle < 0.01
+                    || s.klineDay[alertIndex].settle - s.klineDay[alertIndex - 1].settle > -0.04)
+                {
+                    l.itemList.RemoveAt(i);
+                    i--;
+                }
+            }
+            return BadRequest();
+        }
 
         [HttpGet("{days}")]
         public async Task<ActionResult<StockFilter>> OpenHighWithBigGreen(int days, DateTime startDate, DateTime endDate, string sort = "代码")

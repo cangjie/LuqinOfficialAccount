@@ -514,6 +514,13 @@
         'defaultSort': '代码 desc'
     },
     {
+        'name': '反包后，大阴线下跌',
+        'description': '📉表示跌停',
+        'url': '/api/Reverse/OpenHighWithHubgGreen',
+        'defaultCountDays': 15,
+        'defaultSort': '代码 desc'
+    },
+    {
         'name': '反包后调整过程中资金出入',
         'description': '经过测试，没有意义',
         'url': '/api/Reverse/ViewAdjust',
