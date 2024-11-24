@@ -518,7 +518,7 @@
         'description': '📉表示跌停',
         'url': '/api/Reverse/OpenHighWithHubgGreen',
         'defaultCountDays': 15,
-        'defaultSort': '代码 desc'
+        'defaultSort': ''
     },
     {
         'name': '反包后调整过程中资金出入',
