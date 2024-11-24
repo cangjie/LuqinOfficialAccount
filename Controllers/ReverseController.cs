@@ -1499,7 +1499,7 @@ namespace LuqinOfficialAccount.Controllers
                     i--;
                 }
             }
-            return BadRequest();
+            return Ok(l);
         }
 
         [HttpGet("{days}")]
